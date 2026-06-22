@@ -33,15 +33,35 @@ Add under **Settings → Secrets and variables → Actions**:
 
 | Secret | Purpose |
 |--------|---------|
-| `DATABASE_URL` | Drizzle migrations, integration tests, E2E |
-| `NEON_AUTH_BASE_URL` | Admin auth E2E (Phase 2+) |
-| `NEON_AUTH_COOKIE_SECRET` | Admin session in E2E |
+| `DATABASE_URL` | **CI/test Neon branch only** — migrations, integration tests, E2E |
+| `NEON_AUTH_BASE_URL` | Neon Auth project URL (dev/staging; not production-only) |
+| `NEON_AUTH_COOKIE_SECRET` | Session signing secret for E2E (can match dev) |
 
 Optional until blob upload E2E:
 
 | Secret | Purpose |
 |--------|---------|
 | `BLOB_READ_WRITE_TOKEN` | Registration proof upload tests |
+
+### CI database vs production (important)
+
+`ci-gate` runs `npm run db:migrate` and `npm run db:seed` so integration and E2E tests have a real schema and seed data. **This must never target your production database.**
+
+Recommended Neon setup:
+
+1. Create a dedicated branch (e.g. `ci` or `staging`) in your Neon project.
+2. Copy that branch’s **direct (unpooled)** connection string into the GitHub `DATABASE_URL` secret.
+3. Keep production `DATABASE_URL` only in **Vercel Production** environment variables — not in GitHub Actions.
+
+At launch, apply production migrations in a controlled deploy step (manual or a `main`-only workflow), separate from PR `ci-gate`.
+
+If migrate fails with exit code 1 and little output, common causes:
+
+- GitHub secret points at a DB that already has schema but no Drizzle migration history → use a fresh CI branch or reset the branch.
+- Pooled connection string (`-pooler` host) used for DDL → use the direct/unpooled URL (or set `DATABASE_URL_UNPOOLED` in the secret).
+- Same URL as local dev where you already migrated manually → usually fine; Drizzle skips applied migrations. A partial/failed prior run may require a clean branch.
+
+`db:seed` is idempotent; re-running on an already-seeded CI branch is safe.
 
 ## Dependabot and fork PRs
 
