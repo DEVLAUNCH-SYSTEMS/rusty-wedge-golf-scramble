@@ -13,6 +13,7 @@ export default defineConfig({
   projects: [
     {
       name: "chromium",
+      testIgnore: "**/*.a11y.spec.ts",
       use: { ...devices["Desktop Chrome"] },
     },
     {
@@ -21,11 +22,9 @@ export default defineConfig({
       use: { ...devices["Desktop Chrome"] },
     },
   ],
-  webServer: process.env.CI
-    ? undefined
-    : {
-        command: "npm run dev",
-        url: "http://127.0.0.1:3000",
-        reuseExistingServer: !process.env.CI,
-      },
+  webServer: {
+    command: process.env.CI ? "npm run start" : "npm run dev",
+    url: "http://127.0.0.1:3000",
+    reuseExistingServer: !process.env.CI,
+  },
 });

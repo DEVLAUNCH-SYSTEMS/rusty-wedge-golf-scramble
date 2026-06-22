@@ -25,6 +25,7 @@ export default defineConfig([
         { type: "lib", pattern: "lib/**" },
         { type: "server", pattern: "server/**" },
       ],
+      "boundaries/dependency-nodes": ["import"],
       "import/resolver": {
         typescript: true,
         node: true,
@@ -89,24 +90,24 @@ export default defineConfig([
           IIFEs: true,
         },
       ],
-      "boundaries/element-types": [
+      "boundaries/dependencies": [
         "error",
         {
           default: "allow",
           rules: [
             {
-              from: "components",
-              disallow: ["server"],
+              from: { type: "components" },
+              disallow: [{ to: { type: "server" } }],
               message: "Components must not import server-only code.",
             },
             {
-              from: "hooks",
-              disallow: ["server"],
+              from: { type: "hooks" },
+              disallow: [{ to: { type: "server" } }],
               message: "Hooks must not import server-only code.",
             },
             {
-              from: "server",
-              allow: ["server", "lib"],
+              from: { type: "server" },
+              allow: [{ to: { type: "server" } }, { to: { type: "lib" } }],
             },
           ],
         },

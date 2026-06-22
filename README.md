@@ -21,6 +21,8 @@ Open [http://localhost:3000](http://localhost:3000).
 |---------|---------|
 | `npm run dev` | Start Next.js dev server |
 | `npm run check` | Lint, typecheck, Vitest (commit hook) |
+| `npm run ci` | Full fast CI job (lint, typecheck, build, Vitest) |
+| `npm run ci:gate` | PR gate (architecture guards, integration, Playwright) |
 | `npm run db:migrate` | Apply Drizzle migrations |
 | `npm run db:seed` | Seed active 2026 tournament |
 | `npm run qa:checklist` | Print pre-launch and post-event checklists |
@@ -28,6 +30,7 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Documentation
 
+- [CI setup](./docs/ci-setup.md)
 - [Environment setup](./docs/env-setup.md)
 - [Database setup](./docs/database-setup.md)
 - [Admin onboarding](./docs/admin-onboarding.md)

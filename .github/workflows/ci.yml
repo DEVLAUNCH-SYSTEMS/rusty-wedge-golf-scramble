@@ -1,0 +1,100 @@
+# Fast check on every PR and main push; heavier ci-gate on pull requests only.
+# No Lighthouse, Sentry, Stripe, or RLS secrets — Rusty Wedge uses Neon Auth + Drizzle.
+#
+# Required repo secrets for ci-gate (DB migrate/seed + future integration/E2E):
+#   DATABASE_URL, NEON_AUTH_BASE_URL, NEON_AUTH_COOKIE_SECRET
+# Recommended once blob upload E2E exists:
+#   BLOB_READ_WRITE_TOKEN
+#
+# Dependabot PRs do not receive Actions secrets — duplicate names under
+# Settings → Code security → Dependabot → Secrets.
+# Fork PRs do not receive secrets; ci-gate fails until a maintainer verifies.
+
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: CI (lint, typecheck, build, Vitest)
+        run: npm run ci
+        env:
+          CI: true
+
+  ci-gate:
+    if: github.event_name == 'pull_request'
+    needs: check
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      NEON_AUTH_BASE_URL: ${{ secrets.NEON_AUTH_BASE_URL }}
+      NEON_AUTH_COOKIE_SECRET: ${{ secrets.NEON_AUTH_COOKIE_SECRET }}
+      BLOB_READ_WRITE_TOKEN: ${{ secrets.BLOB_READ_WRITE_TOKEN }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Require DB and Neon Auth secrets
+        run: |
+          missing=
+          [ -z "${DATABASE_URL:-}" ] && missing="$missing DATABASE_URL"
+          [ -z "${NEON_AUTH_BASE_URL:-}" ] && missing="$missing NEON_AUTH_BASE_URL"
+          [ -z "${NEON_AUTH_COOKIE_SECRET:-}" ] && missing="$missing NEON_AUTH_COOKIE_SECRET"
+          if [ -n "$missing" ]; then
+            echo "::error::Missing required secret(s):$missing"
+            echo "Add them under Settings → Secrets and variables → Actions."
+            echo "For Dependabot PRs, add the same names under Settings → Code security → Dependabot → Secrets."
+            exit 1
+          fi
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Build application
+        run: npm run build
+        env:
+          CI: true
+
+      - name: Apply database migrations
+        run: npm run db:migrate
+
+      - name: Seed active tournament
+        run: npm run db:seed
+
+      - name: CI gate (architecture guards, integration, Playwright)
+        run: npm run ci:gate
+        env:
+          CI: true
