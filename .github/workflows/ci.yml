@@ -3,10 +3,11 @@
 #
 # Required repo secrets for ci-gate (DB migrate/seed + future integration/E2E):
 #   DATABASE_URL, NEON_AUTH_BASE_URL, NEON_AUTH_COOKIE_SECRET
+# Optional: DATABASE_URL_UNPOOLED (direct Neon URL for migrations; falls back to DATABASE_URL)
 #
 # DATABASE_URL must point to a dedicated CI/test Neon branch — never production.
-# Use the direct (unpooled) connection string. Production migrations run at deploy
-# time only; see docs/ci-setup.md.
+# For migrations, prefer an unpooled URL via DATABASE_URL_UNPOOLED or use the direct
+# URL as DATABASE_URL. Production migrations run at deploy time only; see docs/ci-setup.md.
 # Recommended once blob upload E2E exists:
 #   BLOB_READ_WRITE_TOKEN
 #
@@ -54,6 +55,7 @@ jobs:
 
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DATABASE_URL_UNPOOLED: ${{ secrets.DATABASE_URL_UNPOOLED }}
       NEON_AUTH_BASE_URL: ${{ secrets.NEON_AUTH_BASE_URL }}
       NEON_AUTH_COOKIE_SECRET: ${{ secrets.NEON_AUTH_COOKIE_SECRET }}
       BLOB_READ_WRITE_TOKEN: ${{ secrets.BLOB_READ_WRITE_TOKEN }}
@@ -65,7 +67,9 @@ jobs:
       - name: Require DB and Neon Auth secrets
         run: |
           missing=
-          [ -z "${DATABASE_URL:-}" ] && missing="$missing DATABASE_URL"
+          if [ -z "${DATABASE_URL:-}" ] && [ -z "${DATABASE_URL_UNPOOLED:-}" ]; then
+            missing="$missing DATABASE_URL"
+          fi
           [ -z "${NEON_AUTH_BASE_URL:-}" ] && missing="$missing NEON_AUTH_BASE_URL"
           [ -z "${NEON_AUTH_COOKIE_SECRET:-}" ] && missing="$missing NEON_AUTH_COOKIE_SECRET"
           if [ -n "$missing" ]; then
@@ -73,6 +77,11 @@ jobs:
             echo "Add them under Settings → Secrets and variables → Actions."
             echo "For Dependabot PRs, add the same names under Settings → Code security → Dependabot → Secrets."
             exit 1
+          fi
+          if [ -n "${DATABASE_URL_UNPOOLED:-}" ]; then
+            echo "Migrations will use DATABASE_URL_UNPOOLED (direct connection)."
+          else
+            echo "Migrations will use DATABASE_URL."
           fi
 
       - name: Setup Node

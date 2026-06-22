@@ -23,7 +23,7 @@
     "qa:checklist": "node scripts/print-qa-checklist.mjs",
     "prelaunch": "npm run check && npm run test:e2e && npm run test:a11y && npm run qa:checklist",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
+    "db:migrate": "tsx lib/db/migrate.ts",
     "db:seed": "tsx lib/db/seed.ts",
     "pr": "node scripts/pr-gate.mjs",
     "prepare": "husky"

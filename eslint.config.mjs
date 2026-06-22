@@ -197,7 +197,7 @@ export default defineConfig([
 * Keep this override narrow so it does not relax standards elsewhere.
   */
   {
-    files: ["prisma/seed.ts", "lib/db/seed.ts"],
+    files: ["prisma/seed.ts", "lib/db/seed.ts", "lib/db/migrate.ts"],
     rules: {
       "no-console": "off",
       "max-lines": "off",

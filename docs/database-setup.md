@@ -19,6 +19,8 @@ Run migrations against your Neon database:
 npm run db:migrate
 ```
 
+Uses the `pg` driver with explicit error logging (via `lib/db/migrate.ts`). Prefer `DATABASE_URL_UNPOOLED` or a direct Neon connection string for DDL.
+
 This applies SQL from `drizzle/migrations/`, including partial unique indexes on active registration and waitlist emails.
 
 ## Seed active tournament

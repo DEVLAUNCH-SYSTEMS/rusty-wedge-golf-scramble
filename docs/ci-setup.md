@@ -33,9 +33,15 @@ Add under **Settings → Secrets and variables → Actions**:
 
 | Secret | Purpose |
 |--------|---------|
-| `DATABASE_URL` | **CI/test Neon branch only** — migrations, integration tests, E2E |
+| `DATABASE_URL` | CI/test Neon branch — seed, integration tests, E2E (pooled is OK) |
+| `DATABASE_URL_UNPOOLED` | Optional direct Neon URL for `db:migrate` (recommended if `DATABASE_URL` is pooled) |
 | `NEON_AUTH_BASE_URL` | Neon Auth project URL (dev/staging; not production-only) |
 | `NEON_AUTH_COOKIE_SECRET` | Session signing secret for E2E (can match dev) |
+
+You can either:
+
+- Set **`DATABASE_URL`** to the unpooled CI branch URL (simplest), or
+- Set **`DATABASE_URL`** to pooled + **`DATABASE_URL_UNPOOLED`** to direct (CI passes both to the job).
 
 Optional until blob upload E2E:
 
@@ -49,9 +55,11 @@ Optional until blob upload E2E:
 
 Recommended Neon setup:
 
-1. Create a dedicated branch (e.g. `ci` or `staging`) in your Neon project.
-2. Copy that branch’s **direct (unpooled)** connection string into the GitHub `DATABASE_URL` secret.
-3. Keep production `DATABASE_URL` only in **Vercel Production** environment variables — not in GitHub Actions.
+1. Create a dedicated branch (e.g. `ci`) — **from an empty parent**, not a copy of production data.
+2. Add GitHub secrets for that branch (see table above).
+3. Keep production `DATABASE_URL` only in **Vercel Production** — not in GitHub Actions.
+
+If you branched `ci` **from production**, it already contains prod schema. Migrate then fails unless Drizzle’s `drizzle.__drizzle_migrations` table matches. Fix: in Neon, **reset** the `ci` branch (or delete and recreate from empty `main`) so migrate can run cleanly.
 
 At launch, apply production migrations in a controlled deploy step (manual or a `main`-only workflow), separate from PR `ci-gate`.
 
