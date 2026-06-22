@@ -26,7 +26,7 @@ Open [http://localhost:3000](http://localhost:3000).
 | `npm run db:migrate` | Apply Drizzle migrations |
 | `npm run db:seed` | Seed active 2026 tournament |
 | `npm run qa:checklist` | Print pre-launch and post-event checklists |
-| `npm run pr` | PR gate (same as `check`) |
+| `npm run pr` | PR fast gate (lint, typecheck, Vitest) |
 
 ## Documentation
 

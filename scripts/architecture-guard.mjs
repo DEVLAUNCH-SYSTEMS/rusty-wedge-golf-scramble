@@ -96,38 +96,22 @@ function scanPublicUi() {
   return violations;
 }
 
-function scanAdminRouteGuards() {
-  const adminAppDir = path.join(rootDir, "app/admin");
+function scanAdminLayoutGuard() {
+  const adminLayoutPath = path.join(rootDir, "app/admin/layout.tsx");
 
-  if (!existsSync(adminAppDir)) {
+  if (!existsSync(adminLayoutPath)) {
     return [];
   }
 
-  const violations = [];
-  const adminFiles = collectSourceFiles(adminAppDir).filter((filePath) =>
-    filePath.endsWith(".ts") || filePath.endsWith(".tsx"),
-  );
+  const content = readFileSync(adminLayoutPath, "utf8");
 
-  for (const filePath of adminFiles) {
-    const relativePath = path.relative(rootDir, filePath);
-    const content = readFileSync(filePath, "utf8");
-    const isServerEntry =
-      relativePath.endsWith("/page.tsx") ||
-      relativePath.includes("/route.ts") ||
-      relativePath.includes("/actions.ts");
-
-    if (!isServerEntry) {
-      continue;
-    }
-
-    if (!content.includes("requireAdminSession")) {
-      violations.push(
-        `${relativePath}: admin server entry must call requireAdminSession().`,
-      );
-    }
+  if (!content.includes("requireAdminSession")) {
+    return [
+      "app/admin/layout.tsx: admin layout must call requireAdminSession().",
+    ];
   }
 
-  return violations;
+  return [];
 }
 
 function reportViolations(title, violations) {
@@ -141,7 +125,7 @@ function reportViolations(title, violations) {
   }
 }
 
-const violations = [...scanPublicUi(), ...scanAdminRouteGuards()];
+const violations = [...scanPublicUi(), ...scanAdminLayoutGuard()];
 
 if (violations.length > 0) {
   reportViolations("Architecture guard failed:", violations);

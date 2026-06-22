@@ -33,15 +33,43 @@ Add under **Settings → Secrets and variables → Actions**:
 
 | Secret | Purpose |
 |--------|---------|
-| `DATABASE_URL` | Drizzle migrations, integration tests, E2E |
-| `NEON_AUTH_BASE_URL` | Admin auth E2E (Phase 2+) |
-| `NEON_AUTH_COOKIE_SECRET` | Admin session in E2E |
+| `DATABASE_URL` | CI/test Neon branch — seed, integration tests, E2E (pooled is OK) |
+| `DATABASE_URL_UNPOOLED` | Optional direct Neon URL for `db:migrate` (recommended if `DATABASE_URL` is pooled) |
+| `NEON_AUTH_BASE_URL` | Neon Auth project URL (dev/staging; not production-only) |
+| `NEON_AUTH_COOKIE_SECRET` | Session signing secret for E2E (can match dev) |
+
+You can either:
+
+- Set **`DATABASE_URL`** to the unpooled CI branch URL (simplest), or
+- Set **`DATABASE_URL`** to pooled + **`DATABASE_URL_UNPOOLED`** to direct (CI passes both to the job).
 
 Optional until blob upload E2E:
 
 | Secret | Purpose |
 |--------|---------|
 | `BLOB_READ_WRITE_TOKEN` | Registration proof upload tests |
+
+### CI database vs production (important)
+
+`ci-gate` runs `npm run db:migrate` and `npm run db:seed` so integration and E2E tests have a real schema and seed data. **This must never target your production database.**
+
+Recommended Neon setup:
+
+1. Create a dedicated branch (e.g. `ci`) — **from an empty parent**, not a copy of production data.
+2. Add GitHub secrets for that branch (see table above).
+3. Keep production `DATABASE_URL` only in **Vercel Production** — not in GitHub Actions.
+
+If you branched `ci` **from production**, it already contains prod schema. Migrate then fails unless Drizzle’s `drizzle.__drizzle_migrations` table matches. Fix: in Neon, **reset** the `ci` branch (or delete and recreate from empty `main`) so migrate can run cleanly.
+
+At launch, apply production migrations in a controlled deploy step (manual or a `main`-only workflow), separate from PR `ci-gate`.
+
+If migrate fails with exit code 1 and little output, common causes:
+
+- GitHub secret points at a DB that already has schema but no Drizzle migration history → use a fresh CI branch or reset the branch.
+- Pooled connection string (`-pooler` host) used for DDL → use the direct/unpooled URL (or set `DATABASE_URL_UNPOOLED` in the secret).
+- Same URL as local dev where you already migrated manually → usually fine; Drizzle skips applied migrations. A partial/failed prior run may require a clean branch.
+
+`db:seed` is idempotent; re-running on an already-seeded CI branch is safe.
 
 ## Dependabot and fork PRs
 
