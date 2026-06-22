@@ -24,6 +24,7 @@
     "prelaunch": "npm run check && npm run test:e2e && npm run test:a11y && npm run qa:checklist",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx lib/db/migrate.ts",
+    "db:verify-target": "tsx lib/db/verify-migration-target.ts",
     "db:seed": "tsx lib/db/seed.ts",
     "pr": "node scripts/pr-gate.mjs",
     "prepare": "husky"

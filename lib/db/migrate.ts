@@ -3,7 +3,11 @@ import { migrate } from "drizzle-orm/node-postgres/migrator";
 import { Pool } from "pg";
 
 import { loadEnvFiles } from "@/lib/db/load-env";
-import { getMigrationDatabaseUrl } from "@/lib/db/migration-url";
+import {
+  describeMigrationDatabaseTarget,
+  getMigrationDatabaseUrl,
+  validateMigrationDatabaseTarget,
+} from "@/lib/db/migration-url";
 
 loadEnvFiles();
 
@@ -17,7 +21,23 @@ function formatMigrationError(error: unknown): string {
   return String(error);
 }
 
+function logMigrationTarget(): void {
+  const target = describeMigrationDatabaseTarget();
+  console.log(`Migration source: ${target.source}`);
+  console.log(`Hostname: ${target.hostname}`);
+  console.log(`Database: ${target.database}`);
+
+  const validationError = validateMigrationDatabaseTarget(target);
+
+  if (validationError) {
+    console.error(`::error::${validationError}`);
+    process.exit(1);
+  }
+}
+
 async function runMigrations() {
+  logMigrationTarget();
+
   const connectionString = getMigrationDatabaseUrl();
   const pool = new Pool({ connectionString });
 

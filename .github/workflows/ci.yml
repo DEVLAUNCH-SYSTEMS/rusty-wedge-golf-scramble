@@ -102,7 +102,9 @@ jobs:
           CI: true
 
       - name: Apply database migrations
-        run: npm run db:migrate
+        run: |
+          npm run db:verify-target
+          npm run db:migrate
 
       - name: Seed active tournament
         run: npm run db:seed
