@@ -10,16 +10,16 @@ todos:
     status: completed
   - id: phase-1-auth
     content: "Steps 9-13: Neon Auth, admin shell, security headers, one-account-per-organizer policy"
-    status: pending
+    status: completed
   - id: phase-2-services
     content: "Steps 14-20: Validation max lengths, rate limiting, audit, capacity, registration, CSV escape"
-    status: pending
+    status: completed
   - id: phase-3-public
     content: "Steps 21-28: Landing page, forms with rate limits, public privacy (H3+H15)"
-    status: pending
+    status: completed
   - id: phase-4-storage
     content: "Steps 29-30: Blob helper + hardened admin proof viewer route"
-    status: pending
+    status: in_progress
   - id: phase-5-admin-regs
     content: "Steps 31-35: Admin dashboard, registration list/detail, verify/reject + audit"
     status: pending
