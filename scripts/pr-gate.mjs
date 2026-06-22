@@ -1,6 +1,6 @@
 import { execSync } from "node:child_process";
 
-const commands = ["npm run lint", "npm run typecheck"];
+const commands = ["npm run lint", "npm run typecheck", "npm run test:vitest"];
 
 try {
   for (const command of commands) {

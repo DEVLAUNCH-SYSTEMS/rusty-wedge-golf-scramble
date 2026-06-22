@@ -7,7 +7,7 @@ todos:
     status: completed
   - id: phase-0-foundation
     content: "Steps 1-8: Dependencies, schema, seed, Husky + Vitest, prelaunch + post-event QA docs"
-    status: pending
+    status: completed
   - id: phase-1-auth
     content: "Steps 9-13: Neon Auth, admin shell, security headers, one-account-per-organizer policy"
     status: pending
