@@ -197,11 +197,18 @@ export default defineConfig([
 * Keep this override narrow so it does not relax standards elsewhere.
   */
   {
-    files: ["prisma/seed.ts", "lib/db/seed.ts", "lib/db/migrate.ts", "lib/db/verify-migration-target.ts"],
+    files: ["lib/db/seed.ts", "lib/db/migrate.ts", "lib/db/verify-migration-target.ts"],
     rules: {
       "no-console": "off",
       "max-lines": "off",
       complexity: "off",
+    },
+  },
+  {
+    files: ["lib/services/**/*.ts", "lib/validation/**/*.ts"],
+    rules: {
+      "max-lines-per-function": ["error", { max: 55, skipBlankLines: true, skipComments: true }],
+      "max-lines": ["error", { max: 200, skipBlankLines: true, skipComments: true }],
     },
   },
 
