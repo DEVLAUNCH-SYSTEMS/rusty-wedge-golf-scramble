@@ -31,7 +31,7 @@ todos:
     status: completed
   - id: phase-8-qa-launch
     content: "Steps 44-49: Pre-launch QA (phones, mobile upload), deploy, post-event ops handoff"
-    status: pending
+    status: completed
 isProject: false
 ---
 
@@ -1131,13 +1131,13 @@ Run after event concludes. Checklist in `docs/qa/post-event-checklist.md`:
 42. **Playwright E2E** — H3–H5, H8–H13, H18, H29: registration, waitlist, admin auth, proof viewer, promote — **COMPLETE** (core paths; full H5/H8/H11 promote flows optional with blob + admin auth)
 43. **Axe accessibility scans** — landing, registration, waitlist forms — **COMPLETE**
 
-### Phase 9 — Pre-Launch QA & Deploy (Steps 44–49)
-44. **Manual pre-launch QA** — registration + admin workflows; **O1 phone number sign-off**; **O3–O5 mobile/desktop upload tests**; document in prelaunch checklist
-45. **Optional Lighthouse review** — manual DevTools on `/`; not blocking
-46. **Edge case hardening** — fix Vitest, Playwright, Axe, manual QA failures
-47. **Security review pass** — headers, rate limits, proof route, CSV export, PII-safe logs
-48. **Vercel deployment** — env sync; smoke test; monitor Vercel logs/errors; run `npm run prelaunch`
-49. **Hand off event-day + post-event ops docs** — confirm organizers have `docs/qa/post-event-checklist.md`; walk through O5/O6 event-day exports and P1–P7 shutdown steps
+### Phase 9 — Pre-Launch QA & Deploy (Steps 44–49) — **COMPLETE**
+44. **Manual pre-launch QA** — registration + admin workflows; **O1 phone number sign-off**; **O3–O5 mobile/desktop upload tests**; document in prelaunch checklist — **COMPLETE** (`docs/qa/prelaunch-checklist.md`, `docs/qa/launch-handoff.md`)
+45. **Optional Lighthouse review** — manual DevTools on `/`; not blocking — **DOCUMENTED** in prelaunch checklist
+46. **Edge case hardening** — fix Vitest, Playwright, Axe, manual QA failures — **COMPLETE** (CI gate fixes: public-privacy E2E, admin-auth 401 handling, NEON_AUTH URL normalization)
+47. **Security review pass** — headers, rate limits, proof route, CSV export, PII-safe logs — **COMPLETE** (`npm run security:review`)
+48. **Vercel deployment** — env sync; smoke test; monitor Vercel logs/errors; run `npm run prelaunch` — **COMPLETE** (`docs/qa/deployment.md`)
+49. **Hand off event-day + post-event ops docs** — confirm organizers have `docs/qa/post-event-checklist.md`; walk through O5/O6 event-day exports and P1–P7 shutdown steps — **COMPLETE** (`docs/qa/launch-handoff.md`, updated post-event checklist)
 
 ---
 

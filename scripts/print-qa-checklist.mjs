@@ -11,6 +11,14 @@ const checklists = [
     file: "docs/qa/prelaunch-checklist.md",
   },
   {
+    title: "Launch handoff (organizers)",
+    file: "docs/qa/launch-handoff.md",
+  },
+  {
+    title: "Deployment guide",
+    file: "docs/qa/deployment.md",
+  },
+  {
     title: "Post-event checklist",
     file: "docs/qa/post-event-checklist.md",
   },

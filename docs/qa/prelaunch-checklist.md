@@ -1,6 +1,6 @@
 # Pre-Launch Checklist
 
-Document pass/fail before production deploy.
+Document pass/fail before production deploy. See [deployment.md](./deployment.md) for Vercel steps and [launch-handoff.md](./launch-handoff.md) for organizer walkthrough.
 
 ## Organizer sign-off
 
@@ -16,7 +16,8 @@ Document pass/fail before production deploy.
 
 ## Automated pre-launch
 
-- [ ] **O7** `npm run prelaunch` passes (lint, typecheck, Vitest, Playwright, Axe)
+- [ ] **O7** `npm run prelaunch` passes (lint, typecheck, Vitest, security review, Playwright, Axe)
+- [ ] `npm run security:review` passes (headers, rate limits, proof route, CSV export, PII-safe logs)
 
 ## Manual workflow smoke
 
@@ -32,3 +33,23 @@ Document pass/fail before production deploy.
 - [ ] Public page shows no capacity counts or registration PII
 - [ ] Unauthenticated `/admin` redirects
 - [ ] Non-allowlisted user gets 403 on `/admin`
+- [ ] Unauthenticated payment proof and CSV export routes return 401/403
+
+## Deployment
+
+- [ ] Production env vars synced in Vercel ([env-setup.md](../env-setup.md))
+- [ ] `NEON_AUTH_BASE_URL` validated (`node scripts/validate-neon-auth-env.mjs`)
+- [ ] Production migrations applied (`npm run db:migrate`)
+- [ ] Post-deploy smoke test complete ([deployment.md](./deployment.md))
+- [ ] Organizers received [launch-handoff.md](./launch-handoff.md)
+
+## Optional (not blocking)
+
+- [ ] Chrome DevTools Lighthouse on `/` — note any findings for follow-up
+
+## Sign-off
+
+| Role | Name | Date | Notes |
+|------|------|------|-------|
+| Developer | | | `npm run prelaunch` + deploy smoke |
+| Organizer | | | O1–O6 manual QA |

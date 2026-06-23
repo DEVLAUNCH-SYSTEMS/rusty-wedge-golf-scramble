@@ -1,6 +1,16 @@
 # Post-Event Checklist
 
-Run after the tournament concludes.
+Run after the tournament concludes. Event-week exports are listed first for reference during the tournament.
+
+## Event-day backup (before and during tournament week)
+
+From `/admin`, download and store CSVs securely offline:
+
+- [ ] **O5** Day before: export registrations + teams CSV
+- [ ] **O6** Morning of: re-export if changes occurred overnight
+- [ ] After final team lock: keep teams CSV as the check-in roster
+
+See [launch-handoff.md](./launch-handoff.md) for organizer context.
 
 ## Archive exports
 
@@ -18,7 +28,8 @@ Run after the tournament concludes.
 - [ ] **P5** Disable registration: `UPDATE tournaments SET registration_enabled = false WHERE slug = '2026-rusty-wedge';`
 - [ ] **P6** Optional: replace landing page with “registration closed” or take site offline
 
-## Event-day backup (reference)
+## Sign-off
 
-- [ ] **O5** Day before: export registrations + teams CSV
-- [ ] **O6** Morning of: re-export if changes occurred overnight
+| Role | Name | Date | Notes |
+|------|------|------|-------|
+| Organizer | | | P1–P7 complete |
