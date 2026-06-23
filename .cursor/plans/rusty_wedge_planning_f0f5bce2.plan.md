@@ -24,8 +24,8 @@ todos:
     content: "Steps 31-35: Admin dashboard, registration list/detail, verify/reject + audit — COMPLETE"
     status: completed
   - id: phase-6-teams
-    content: "Steps 36-39: Waitlist admin, teams, registrations + teams CSV export"
-    status: pending
+    content: "Steps 36-39: Waitlist admin, teams, registrations + teams CSV export — COMPLETE"
+    status: completed
   - id: phase-7-automated-tests
     content: "Steps 40-43: Vitest H1-H22, public privacy tests, Playwright E2E, Axe"
     status: pending
@@ -1119,11 +1119,11 @@ Run after event concludes. Checklist in `docs/qa/post-event-checklist.md`:
 34. **Verify/reject/cancel actions** — transactional capacity; audit events; **cancel requires `admin_notes` reason** (refund, duplicate, withdrew, etc.) — **COMPLETE**
 35. **Update notes action** — persist notes + `admin_notes_updated` audit event — **COMPLETE**
 
-### Phase 7 — Waitlist, Teams & Export (Steps 36–39)
-36. **Waitlist admin page** — promote/remove + audit on promote
-37. **Teams page** — create team + audit; unassigned panel; assignment report
-38. **Team detail** — assign/remove + audit; max-4 enforcement
-39. **CSV export** — registrations CSV + **teams CSV** (`exportTeamsCsv`); formula injection escape on all string cells
+### Phase 7 — Waitlist, Teams & Export (Steps 36–39) — COMPLETE
+36. **Waitlist admin page** — promote/remove + audit on promote — **COMPLETE**
+37. **Teams page** — create team + audit; unassigned panel; assignment report — **COMPLETE**
+38. **Team detail** — assign/remove + audit; max-4 enforcement — **COMPLETE**
+39. **CSV export** — registrations CSV + **teams CSV** (`exportTeamsCsv`); formula injection escape on all string cells — **COMPLETE**
 
 ### Phase 8 — Automated Tests (Steps 40–43)
 38. **Vitest high-risk + security** — H1–H11, H14–H22, T25–T28

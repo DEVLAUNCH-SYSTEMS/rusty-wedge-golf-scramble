@@ -1,3 +1,4 @@
+import { AdminExportLinks } from "@/components/admin/admin-export-links";
 import {
   adminPageHeadingClassName,
   adminPageSubheadingClassName,
@@ -30,6 +31,7 @@ export function DashboardSummary({ summary }: DashboardSummaryProps) {
         <DashboardCapacityMetrics summary={summary} />
         <DashboardQueueMetrics summary={summary} />
       </div>
+      <AdminExportLinks />
     </div>
   );
 }

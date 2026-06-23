@@ -13,7 +13,7 @@ import { createTeamSchema } from "@/lib/validation/forms";
 
 import type { AdminSession } from "@/lib/services/admin-auth";
 
-const MAX_TEAM_SIZE = 4;
+export const MAX_TEAM_SIZE = 4;
 
 async function countTeamMembers(teamId: string): Promise<number> {
   const db = getDb();
@@ -67,6 +67,24 @@ export async function createTeam(name: string, admin: AdminSession) {
   return team;
 }
 
+async function requireUnassignedRegistration(registrationId: string) {
+  const db = getDb();
+  const existing = (
+    await db
+      .select({ id: teamMembers.id })
+      .from(teamMembers)
+      .where(eq(teamMembers.registrationId, registrationId))
+      .limit(1)
+  )[0];
+
+  if (existing) {
+    throw new ServiceError(
+      "ALREADY_ASSIGNED",
+      "Player is already assigned to a team.",
+    );
+  }
+}
+
 export async function assignPlayerToTeam(
   teamId: string,
   registrationId: string,
@@ -91,6 +109,8 @@ export async function assignPlayerToTeam(
   if ((await countTeamMembers(teamId)) >= MAX_TEAM_SIZE) {
     throw new ServiceError("TEAM_FULL", "Teams cannot exceed four players.");
   }
+
+  await requireUnassignedRegistration(registrationId);
 
   const db = getDb();
   await db.insert(teamMembers).values({

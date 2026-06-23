@@ -1,16 +1,12 @@
-import { adminCardClassName } from "@/components/admin/admin-form-styles";
-import {
-  adminPageHeadingClassName,
-  adminPageSubheadingClassName,
-} from "@/components/admin/admin-text-styles";
+import { TeamsPageContent, TeamsPageHeader } from "@/components/admin/teams-page-content";
 
-export default function AdminTeamsPage() {
+export const dynamic = "force-dynamic";
+
+export default async function AdminTeamsPage() {
   return (
-    <section className={adminCardClassName}>
-      <h1 className={adminPageHeadingClassName}>Teams</h1>
-      <p className={adminPageSubheadingClassName}>
-        Team creation and player assignment will be added in a later phase.
-      </p>
-    </section>
+    <div className="flex flex-col gap-6">
+      <TeamsPageHeader />
+      <TeamsPageContent />
+    </div>
   );
 }
