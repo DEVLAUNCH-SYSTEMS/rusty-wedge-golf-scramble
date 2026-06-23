@@ -15,6 +15,9 @@ const EXTENSION_BY_TYPE: Record<string, string> = {
   "application/pdf": "pdf",
 };
 
+const STORED_PATHNAME_PATTERN =
+  /^payment-proofs\/[0-9a-f-]{36}\/[0-9a-f-]{36}\.(jpg|png|pdf)$/i;
+
 export class PaymentProofUploadError extends Error {
   constructor(message: string) {
     super(message);
@@ -45,6 +48,12 @@ export function validatePaymentProofFile(file: File): void {
     throw new PaymentProofUploadError(
       "Payment proof must be JPG, PNG, or PDF.",
     );
+  }
+}
+
+export function assertStoredPaymentProofPathname(pathname: string): void {
+  if (!STORED_PATHNAME_PATTERN.test(pathname)) {
+    throw new PaymentProofUploadError("Invalid payment proof storage path.");
   }
 }
 

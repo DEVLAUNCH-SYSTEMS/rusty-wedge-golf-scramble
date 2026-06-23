@@ -19,7 +19,7 @@ todos:
     status: completed
   - id: phase-4-storage
     content: "Steps 29-30: Blob helper + hardened admin proof viewer route"
-    status: in_progress
+    status: completed
   - id: phase-5-admin-regs
     content: "Steps 31-35: Admin dashboard, registration list/detail, verify/reject + audit"
     status: pending

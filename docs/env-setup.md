@@ -18,6 +18,8 @@ Fill in values from the Neon dashboard and Vercel project settings.
 | `NEON_AUTH_COOKIE_SECRET` | Session cookie signing secret (32+ chars) |
 | `BLOB_READ_WRITE_TOKEN` | Vercel Blob store read/write token |
 
+See [blob-setup.md](./blob-setup.md) for creating the Vercel Blob store and verifying uploads.
+
 ## Vercel deployment sync
 
 1. Open the Vercel project → **Settings** → **Environment Variables**.
