@@ -117,5 +117,6 @@ export const SUPPORT_SECTION = {
 export const FOOTER = {
   title: "Rusty Wedge Golf Scramble",
   highlights: ["Carts Included", "Prizes For All", "Great Company Guaranteed"],
+  organizerLoginLabel: "Organizer Login",
   copyright: "The Rusty Wedge Golf Scramble. All rights reserved.",
 } as const;

@@ -2,14 +2,16 @@
 
 import { AuthView } from "@neondatabase/auth/react/ui";
 
+import { AuthPageShell } from "@/components/auth/auth-page-shell";
+
 type AuthViewClientProps = {
   path: string;
 };
 
 export function AuthViewClient({ path }: AuthViewClientProps) {
   return (
-    <div className="flex min-h-full items-center justify-center px-4 py-12">
+    <AuthPageShell>
       <AuthView path={path} />
-    </div>
+    </AuthPageShell>
   );
 }

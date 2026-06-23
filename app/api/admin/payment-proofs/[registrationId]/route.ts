@@ -33,7 +33,7 @@ export async function GET(_request: Request, context: PaymentProofRouteContext) 
     const { registrationId } = await context.params;
     const proof = await getPaymentProofForAdmin(registrationId);
 
-    return new Response(proof.stream, {
+    return new Response(proof.body, {
       status: 200,
       headers: {
         "Content-Type": proof.contentType,

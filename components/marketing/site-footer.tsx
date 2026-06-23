@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { BrandLogo } from "@/components/marketing/brand-logo";
 import { IconCheck } from "@/components/marketing/marketing-icons";
 import { FOOTER } from "@/lib/content/landing-content";
@@ -17,6 +19,17 @@ function FooterHighlights() {
   );
 }
 
+function OrganizerLoginLink() {
+  return (
+    <Link
+      href="/auth/sign-in"
+      className="font-medium text-rw-gold underline-offset-4 transition hover:text-rw-gold-light hover:underline"
+    >
+      {FOOTER.organizerLoginLabel}
+    </Link>
+  );
+}
+
 export function SiteFooter() {
   return (
     <footer className="bg-rw-navy-dark py-12 text-white/80">
@@ -24,6 +37,7 @@ export function SiteFooter() {
         <BrandLogo size="footer" />
         <p className="font-display text-lg text-white">{FOOTER.title}</p>
         <FooterHighlights />
+        <OrganizerLoginLink />
         <p>© {new Date().getFullYear()} {FOOTER.copyright}</p>
       </div>
     </footer>

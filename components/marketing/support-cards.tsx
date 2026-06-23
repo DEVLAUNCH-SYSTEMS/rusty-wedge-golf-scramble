@@ -15,9 +15,9 @@ function OrganizerDetails({
         <p className="text-sm text-white/70">{SUPPORT_SECTION.organizerRole}</p>
       </div>
       <p className="text-sm text-white/80">
-        <a href={`tel:${organizer.phone}`} className="hover:text-rw-gold">
+        {/* <a href={`tel:${organizer.phone}`} className="hover:text-rw-gold">
           {organizer.phone}
-        </a>
+        </a> */}
       </p>
       <MarketingButton href={`mailto:${organizer.email}`} variant="gold" className="text-xs">
         {SUPPORT_SECTION.contactButton}

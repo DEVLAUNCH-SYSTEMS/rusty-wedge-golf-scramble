@@ -41,6 +41,11 @@ vi.mock("@/lib/services/registration-queries", () => ({
   findRegistrationById: (...args: unknown[]) => findRegistrationById(...args),
 }));
 
+vi.mock("@/lib/services/blob-credentials", () => ({
+  assertBlobCredentialsConfigured: vi.fn(),
+  getBlobCredentialDevMessage: vi.fn(() => ""),
+}));
+
 vi.mock("@vercel/blob", () => ({
   get: (...args: unknown[]) => blobGet(...args),
 }));
@@ -70,15 +75,21 @@ describe("getPaymentProofForAdmin", () => {
     });
     blobGet.mockResolvedValue({
       statusCode: 200,
-      stream: new ReadableStream<Uint8Array>(),
+      stream: new ReadableStream<Uint8Array>({
+        start(controller) {
+          controller.enqueue(new Uint8Array([1, 2, 3]));
+          controller.close();
+        },
+      }),
       blob: { contentType: "image/png" },
     });
   });
 
-  it("returns the blob stream for an authorized admin", async () => {
+  it("returns the blob bytes for an authorized admin", async () => {
     const proof = await getPaymentProofForAdmin(registrationId);
 
     expect(proof.contentType).toBe("image/png");
+    expect(proof.body.byteLength).toBeGreaterThan(0);
     expect(blobGet).toHaveBeenCalledWith(proofPath, {
       access: "private",
       useCache: false,

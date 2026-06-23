@@ -1,38 +1,55 @@
 import Link from "next/link";
 
-const NAV_ITEMS = [
-  { href: "/admin", label: "Dashboard" },
-  { href: "/admin/registrations", label: "Registrations" },
-  { href: "/admin/waitlist", label: "Waitlist" },
-  { href: "/admin/teams", label: "Teams" },
-] as const;
+import { AdminNavLinks } from "@/components/admin/admin-nav-links";
+import { BrandLogo } from "@/components/marketing/brand-logo";
 
 type AdminNavProps = {
   adminEmail: string;
 };
 
+function AdminNavBrand() {
+  return (
+    <div className="flex items-center gap-3">
+      <BrandLogo size="nav" />
+      <div>
+        <p className="font-display text-lg leading-tight text-white">
+          Organizer Dashboard
+        </p>
+        <p className="text-xs text-white/70">The Rusty Wedge Golf Scramble</p>
+      </div>
+    </div>
+  );
+}
+
+function AdminNavMeta({ adminEmail }: AdminNavProps) {
+  return (
+    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-6">
+      <p className="text-xs text-white/70">
+        Signed in as <span className="font-medium text-white">{adminEmail}</span>
+      </p>
+      <Link
+        href="/"
+        className="text-xs font-medium text-rw-gold transition hover:text-rw-gold-light"
+      >
+        View public site
+      </Link>
+    </div>
+  );
+}
+
 export function AdminNav({ adminEmail }: AdminNavProps) {
   return (
-    <header className="border-b border-zinc-200 bg-white">
-      <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <p className="text-sm font-semibold text-zinc-900">
-            Rusty Wedge Admin
-          </p>
-          <p className="text-xs text-zinc-500">{adminEmail}</p>
+    <header className="bg-rw-navy text-white shadow-md">
+      <div className="mx-auto max-w-6xl px-4 py-4">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <AdminNavBrand />
+          <AdminNavMeta adminEmail={adminEmail} />
         </div>
-        <nav aria-label="Admin" className="flex flex-wrap gap-2">
-          {NAV_ITEMS.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="rounded-md px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100"
-            >
-              {item.label}
-            </Link>
-          ))}
-        </nav>
+        <div className="mt-4">
+          <AdminNavLinks />
+        </div>
       </div>
+      <div className="h-1 bg-rw-gold" aria-hidden />
     </header>
   );
 }

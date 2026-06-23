@@ -1,8 +1,14 @@
+import { adminCardClassName } from "@/components/admin/admin-form-styles";
+import {
+  adminPageHeadingClassName,
+  adminPageSubheadingClassName,
+} from "@/components/admin/admin-text-styles";
+
 export default function AdminTeamsPage() {
   return (
-    <section>
-      <h1 className="text-2xl font-semibold text-zinc-900">Teams</h1>
-      <p className="mt-2 text-sm text-zinc-600">
+    <section className={adminCardClassName}>
+      <h1 className={adminPageHeadingClassName}>Teams</h1>
+      <p className={adminPageSubheadingClassName}>
         Team creation and player assignment will be added in a later phase.
       </p>
     </section>
