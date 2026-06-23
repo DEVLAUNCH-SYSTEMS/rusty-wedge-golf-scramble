@@ -16,7 +16,9 @@ Fill in values from the Neon dashboard and Vercel project settings.
 | `DATABASE_URL_UNPOOLED` | Optional direct Neon URL for `drizzle-kit migrate` (recommended in CI) |
 | `NEON_AUTH_BASE_URL` | Neon Auth project URL |
 | `NEON_AUTH_COOKIE_SECRET` | Session cookie signing secret (32+ chars) |
-| `BLOB_READ_WRITE_TOKEN` | Vercel Blob store read/write token |
+| `BLOB_STORE_ID` | Vercel Blob store id (set when store is linked) |
+| `VERCEL_OIDC_TOKEN` | Short-lived Blob auth for local dev (`vercel env pull`; auto on Vercel) |
+| `BLOB_READ_WRITE_TOKEN` | Optional legacy Blob token (older stores / CI) |
 
 See [blob-setup.md](./blob-setup.md) for creating the Vercel Blob store and verifying uploads.
 
@@ -24,11 +26,13 @@ See [blob-setup.md](./blob-setup.md) for creating the Vercel Blob store and veri
 
 1. Open the Vercel project → **Settings** → **Environment Variables**.
 2. Add each variable for **Production**, **Preview**, and **Development** as needed.
-3. Pull locally after setting remote vars:
+3. Pull Vercel-only vars locally (do **not** overwrite Neon values):
 
 ```bash
-vercel env pull .env.local
+npx vercel env pull .env.vercel.local
 ```
+
+Merge `BLOB_*` and `VERCEL_OIDC_TOKEN` from `.env.vercel.local` into `.env.local`, or append with care. Running `vercel env pull .env.local` replaces the entire file and will remove Neon variables.
 
 4. Redeploy after changing production secrets.
 
