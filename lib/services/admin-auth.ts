@@ -37,9 +37,22 @@ async function findAllowlistedAdmin(neonAuthUserId: string) {
   return rows[0] ?? null;
 }
 
+async function readSessionUserId(): Promise<string | null> {
+  try {
+    const { data: session, error } = await getAuth().getSession();
+
+    if (error) {
+      return null;
+    }
+
+    return session?.user?.id ?? null;
+  } catch {
+    return null;
+  }
+}
+
 export async function requireAdminSession(): Promise<AdminSession> {
-  const { data: session } = await getAuth().getSession();
-  const userId = session?.user?.id;
+  const userId = await readSessionUserId();
 
   if (!userId) {
     throw new AdminAuthError("UNAUTHENTICATED", "Authentication required.");

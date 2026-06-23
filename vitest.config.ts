@@ -16,6 +16,7 @@ export default defineConfig({
         test: {
           name: "integration",
           include: ["tests/integration/**/*.{test,spec}.ts"],
+          setupFiles: ["tests/integration/load-env.ts"],
         },
       },
       {

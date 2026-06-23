@@ -27,8 +27,8 @@ todos:
     content: "Steps 36-39: Waitlist admin, teams, registrations + teams CSV export — COMPLETE"
     status: completed
   - id: phase-7-automated-tests
-    content: "Steps 40-43: Vitest H1-H22, public privacy tests, Playwright E2E, Axe"
-    status: pending
+    content: "Steps 40-43: Vitest H1-H22, public privacy tests, Playwright E2E, Axe — COMPLETE"
+    status: completed
   - id: phase-8-qa-launch
     content: "Steps 44-49: Pre-launch QA (phones, mobile upload), deploy, post-event ops handoff"
     status: pending
@@ -1125,11 +1125,11 @@ Run after event concludes. Checklist in `docs/qa/post-event-checklist.md`:
 38. **Team detail** — assign/remove + audit; max-4 enforcement — **COMPLETE**
 39. **CSV export** — registrations CSV + **teams CSV** (`exportTeamsCsv`); formula injection escape on all string cells — **COMPLETE**
 
-### Phase 8 — Automated Tests (Steps 40–43)
-38. **Vitest high-risk + security** — H1–H11, H14–H22, T25–T28
-41. **Public privacy tests** — Vitest `tests/public-privacy/` (H3 + H15); Husky hook
-42. **Playwright E2E** — H3–H5, H8–H13, H18, H29: registration, waitlist, admin auth, proof viewer, promote
-43. **Axe accessibility scans** — landing, registration, waitlist forms
+### Phase 8 — Automated Tests (Steps 40–43) — COMPLETE
+40. **Vitest high-risk + security** — H1–H11, H14–H22, T25–T28 — **COMPLETE**
+41. **Public privacy tests** — Vitest `tests/public-privacy/` (H3 + H15); Husky hook — **COMPLETE**
+42. **Playwright E2E** — H3–H5, H8–H13, H18, H29: registration, waitlist, admin auth, proof viewer, promote — **COMPLETE** (core paths; full H5/H8/H11 promote flows optional with blob + admin auth)
+43. **Axe accessibility scans** — landing, registration, waitlist forms — **COMPLETE**
 
 ### Phase 9 — Pre-Launch QA & Deploy (Steps 44–49)
 44. **Manual pre-launch QA** — registration + admin workflows; **O1 phone number sign-off**; **O3–O5 mobile/desktop upload tests**; document in prelaunch checklist

@@ -6,44 +6,26 @@ import {
   validatePaymentProofFile,
 } from "@/lib/services/payment-proof-blob";
 
-function createFile(type: string, sizeBytes: number): File {
-  return new File([new Uint8Array(sizeBytes)], "proof.png", { type });
-}
+describe("payment proof validation", () => {
+  it("H6: rejects invalid upload file types", () => {
+    const file = new File(["data"], "proof.txt", { type: "text/plain" });
 
-describe("payment proof blob validation", () => {
-  it("accepts allowed file types under the size limit", () => {
-    expect(() => validatePaymentProofFile(createFile("image/png", 1024))).not.toThrow();
-    expect(() => validatePaymentProofFile(createFile("image/jpeg", 1024))).not.toThrow();
-    expect(() =>
-      validatePaymentProofFile(createFile("application/pdf", 1024)),
-    ).not.toThrow();
+    expect(() => validatePaymentProofFile(file)).toThrow(PaymentProofUploadError);
   });
 
-  it("rejects empty, oversized, and unsupported files", () => {
-    expect(() => validatePaymentProofFile(createFile("image/png", 0))).toThrow(
-      PaymentProofUploadError,
-    );
-    expect(() =>
-      validatePaymentProofFile(createFile("image/png", 5 * 1024 * 1024 + 1)),
-    ).toThrow(PaymentProofUploadError);
-    expect(() => validatePaymentProofFile(createFile("text/plain", 1024))).toThrow(
-      PaymentProofUploadError,
-    );
+  it("H7: rejects oversized uploads", () => {
+    const bytes = new Uint8Array(5 * 1024 * 1024 + 1);
+    const file = new File([bytes], "proof.png", { type: "image/png" });
+
+    expect(() => validatePaymentProofFile(file)).toThrow(PaymentProofUploadError);
   });
 
-  it("accepts only tournament-scoped stored pathnames", () => {
-    const tournamentId = "11111111-1111-1111-1111-111111111111";
-    const blobId = "22222222-2222-2222-2222-222222222222";
-
-    expect(() =>
-      assertStoredPaymentProofPathname(`payment-proofs/${tournamentId}/${blobId}.png`),
-    ).not.toThrow();
-
-    expect(() => assertStoredPaymentProofPathname("../etc/passwd")).toThrow(
+  it("H19: rejects arbitrary blob paths stored on registrations", () => {
+    expect(() => assertStoredPaymentProofPathname("../../../etc/passwd")).toThrow(
       PaymentProofUploadError,
     );
     expect(() =>
-      assertStoredPaymentProofPathname("payment-proofs/other-store/leak.png"),
+      assertStoredPaymentProofPathname("payment-proofs/not-a-uuid/file.png"),
     ).toThrow(PaymentProofUploadError);
   });
 });

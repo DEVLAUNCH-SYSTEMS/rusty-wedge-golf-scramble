@@ -1,3 +1,8 @@
+import {
+  applyCiGateDatabaseEnv,
+  shouldForceCiGateDatabaseEnv,
+} from "@/lib/db/ci-gate-env";
+
 export type MigrationDatabaseTarget = {
   source: "DATABASE_URL_UNPOOLED" | "DATABASE_URL";
   hostname: string;
@@ -8,12 +13,18 @@ export type MigrationDatabaseTarget = {
 };
 
 export function getMigrationDatabaseUrl(): string {
+  applyCiGateDatabaseEnv(shouldForceCiGateDatabaseEnv());
+
   const url =
-    process.env.DATABASE_URL_UNPOOLED ?? process.env.DATABASE_URL ?? "";
+    process.env.CI_GATE_DATABASE_URL_UNPOOLED ??
+    process.env.DATABASE_URL_UNPOOLED ??
+    process.env.CI_GATE_DATABASE_URL ??
+    process.env.DATABASE_URL ??
+    "";
 
   if (!url) {
     throw new Error(
-      "DATABASE_URL (or DATABASE_URL_UNPOOLED) is not set for migrations.",
+      "DATABASE_URL (or CI_GATE_DATABASE_URL / *_UNPOOLED) is not set for migrations.",
     );
   }
 
@@ -54,11 +65,19 @@ function parseMigrationDatabaseTarget(
   }
 }
 
-export function describeMigrationDatabaseTarget(): MigrationDatabaseTarget {
-  const source: MigrationDatabaseTarget["source"] =
-    process.env.DATABASE_URL_UNPOOLED ? "DATABASE_URL_UNPOOLED" : "DATABASE_URL";
+function resolveMigrationSource(): MigrationDatabaseTarget["source"] {
+  if (process.env.CI_GATE_DATABASE_URL_UNPOOLED || process.env.DATABASE_URL_UNPOOLED) {
+    return "DATABASE_URL_UNPOOLED";
+  }
 
-  return parseMigrationDatabaseTarget(source, getMigrationDatabaseUrl());
+  return "DATABASE_URL";
+}
+
+export function describeMigrationDatabaseTarget(): MigrationDatabaseTarget {
+  return parseMigrationDatabaseTarget(
+    resolveMigrationSource(),
+    getMigrationDatabaseUrl(),
+  );
 }
 
 export function validateMigrationDatabaseTarget(
