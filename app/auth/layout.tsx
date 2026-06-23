@@ -10,7 +10,7 @@ type AuthLayoutProps = {
 
 export default function AuthLayout({ children }: AuthLayoutProps) {
   return (
-    <NeonAuthUIProvider authClient={authClient} redirectTo="/admin">
+    <NeonAuthUIProvider authClient={authClient} redirectTo="/admin" defaultTheme="light">
       {children}
     </NeonAuthUIProvider>
   );

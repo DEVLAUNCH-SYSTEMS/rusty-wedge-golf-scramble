@@ -41,3 +41,20 @@ body {
 .font-display {
   font-family: var(--font-playfair), Georgia, "Times New Roman", serif;
 }
+
+.organizer-auth {
+  --primary: #0b1a35;
+  --primary-foreground: #ffffff;
+  --secondary: #eef1f5;
+  --secondary-foreground: #0b1a35;
+  --background: #ffffff;
+  --foreground: #0b1a35;
+  --muted: #eef1f5;
+  --muted-foreground: #64748b;
+  --accent: #eef1f5;
+  --accent-foreground: #0b1a35;
+  --border: #e2e8f0;
+  --input: #cbd5e1;
+  --ring: #c8a044;
+  --radius: 0.75rem;
+}

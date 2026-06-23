@@ -5,6 +5,10 @@ import {
   requireAdminSession,
 } from "@/lib/services/admin-auth";
 import {
+  assertBlobCredentialsConfigured,
+  getBlobCredentialDevMessage,
+} from "@/lib/services/blob-credentials";
+import {
   assertStoredPaymentProofPathname,
   PaymentProofUploadError,
 } from "@/lib/services/payment-proof-blob";
@@ -16,19 +20,19 @@ import {
 } from "@/lib/services/tournament";
 
 export class PaymentProofViewerError extends Error {
-  readonly statusCode: 404;
+  readonly statusCode: 404 | 503;
   readonly code: string;
 
-  constructor(code: string, message: string) {
+  constructor(code: string, message: string, statusCode: 404 | 503 = 404) {
     super(message);
     this.name = "PaymentProofViewerError";
-    this.statusCode = 404;
+    this.statusCode = statusCode;
     this.code = code;
   }
 }
 
 export type AdminPaymentProof = {
-  stream: ReadableStream<Uint8Array>;
+  body: ArrayBuffer;
   contentType: string;
 };
 
@@ -57,7 +61,31 @@ function mapScopeError(error: unknown): never {
   throw error;
 }
 
+function blobAccessFailureMessage(error: unknown): string {
+  const devMessage = getBlobCredentialDevMessage();
+
+  if (devMessage) {
+    return devMessage;
+  }
+
+  if (error instanceof Error) {
+    console.error("Payment proof blob read failed:", error.message);
+  }
+
+  return "Unable to load payment proof from storage.";
+}
+
 async function fetchPrivateBlob(pathname: string): Promise<AdminPaymentProof> {
+  try {
+    assertBlobCredentialsConfigured();
+  } catch (error) {
+    throw new PaymentProofViewerError(
+      "BLOB_ACCESS_FAILED",
+      blobAccessFailureMessage(error),
+      503,
+    );
+  }
+
   try {
     const result = await get(pathname, { access: "private", useCache: false });
 
@@ -65,8 +93,10 @@ async function fetchPrivateBlob(pathname: string): Promise<AdminPaymentProof> {
       throw new PaymentProofViewerError("PROOF_NOT_FOUND", "Payment proof not found.");
     }
 
+    const body = await new Response(result.stream).arrayBuffer();
+
     return {
-      stream: result.stream,
+      body,
       contentType: result.blob.contentType ?? "application/octet-stream",
     };
   } catch (error) {
@@ -74,7 +104,11 @@ async function fetchPrivateBlob(pathname: string): Promise<AdminPaymentProof> {
       throw error;
     }
 
-    throw new PaymentProofViewerError("PROOF_NOT_FOUND", "Payment proof not found.");
+    throw new PaymentProofViewerError(
+      "BLOB_ACCESS_FAILED",
+      blobAccessFailureMessage(error),
+      503,
+    );
   }
 }
 
@@ -124,7 +158,7 @@ export async function getPaymentProofForAdmin(
   const blob = await fetchPrivateBlob(registration.paymentProofPath);
 
   return {
-    stream: blob.stream,
+    body: blob.body,
     contentType: resolveContentType(
       registration.paymentProofContentType,
       blob.contentType,

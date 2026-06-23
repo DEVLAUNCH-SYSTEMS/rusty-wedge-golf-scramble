@@ -1,11 +1,35 @@
-export default function AdminRegistrationsPage() {
+import {
+  adminPageHeadingClassName,
+  adminPageSubheadingClassName,
+} from "@/components/admin/admin-text-styles";
+import { RegistrationListFilters } from "@/components/admin/registration-list-filters";
+import { RegistrationListTable } from "@/components/admin/registration-list-table";
+import { listRegistrationsForAdmin } from "@/lib/services/admin-registration-list";
+import { parseAdminRegistrationListFilters } from "@/lib/validation/admin-filters";
+
+export const dynamic = "force-dynamic";
+
+type AdminRegistrationsPageProps = {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+};
+
+export default async function AdminRegistrationsPage({
+  searchParams,
+}: AdminRegistrationsPageProps) {
+  const filters = parseAdminRegistrationListFilters(await searchParams);
+  const registrations = await listRegistrationsForAdmin(filters);
+
   return (
-    <section>
-      <h1 className="text-2xl font-semibold text-zinc-900">Registrations</h1>
-      <p className="mt-2 text-sm text-zinc-600">
-        Registration search, filters, and payment review will be added in a
-        later phase.
-      </p>
-    </section>
+    <div className="flex flex-col gap-6">
+      <div>
+        <h1 className={adminPageHeadingClassName}>Registrations</h1>
+        <p className={adminPageSubheadingClassName}>
+          Search and review player registrations for the active tournament.
+        </p>
+      </div>
+
+      <RegistrationListFilters filters={filters} />
+      <RegistrationListTable registrations={registrations} />
+    </div>
   );
 }

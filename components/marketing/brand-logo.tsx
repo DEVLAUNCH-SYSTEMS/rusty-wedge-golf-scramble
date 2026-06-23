@@ -14,6 +14,9 @@ const SIZE_CONFIG = {
   footer: {
     container: "h-16 w-16 bg-rw-navy-logo p-1.5 ring-2",
   },
+  auth: {
+    container: "h-24 w-24 bg-rw-navy-logo p-2 ring-[3px]",
+  },
   registration: {
     container: "h-20 w-20 bg-rw-navy-logo p-2 ring-2",
   },
