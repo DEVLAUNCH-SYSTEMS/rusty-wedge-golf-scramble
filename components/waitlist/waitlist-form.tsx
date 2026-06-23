@@ -23,7 +23,7 @@ export function WaitlistForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex flex-col gap-5"
+      className="public-form flex flex-col gap-5"
       aria-label="Tournament waitlist"
     >
       <WaitlistHeader />

@@ -42,14 +42,32 @@ body {
   font-family: var(--font-playfair), Georgia, "Times New Roman", serif;
 }
 
+/* Public registration/waitlist forms — keep visible fields regardless of OS dark mode */
+.public-form input,
+.public-form textarea,
+.public-form select {
+  border-color: #cbd5e1;
+  background-color: #f8fafc;
+  color: var(--rw-navy);
+}
+
+html.dark .public-form input,
+html.dark .public-form textarea,
+html.dark .public-form select {
+  border-color: #cbd5e1;
+  background-color: #f8fafc;
+  color: var(--rw-navy);
+}
+
+/* Organizer auth — scoped only under .organizer-auth */
 .organizer-auth {
-  --primary: #c8a044;
-  --primary-foreground: #0b1a35;
+  --primary: #0b1a35;
+  --primary-foreground: #ffffff;
   --secondary: #eef1f5;
   --secondary-foreground: #0b1a35;
   --background: #ffffff;
   --foreground: #0b1a35;
-  --card: transparent;
+  --card: #ffffff;
   --card-foreground: #0b1a35;
   --muted: #eef1f5;
   --muted-foreground: #64748b;
@@ -62,13 +80,13 @@ body {
 }
 
 html.dark .organizer-auth {
-  --primary: #c8a044;
-  --primary-foreground: #0b1a35;
+  --primary: #0b1a35;
+  --primary-foreground: #ffffff;
   --secondary: #eef1f5;
   --secondary-foreground: #0b1a35;
   --background: #ffffff;
   --foreground: #0b1a35;
-  --card: transparent;
+  --card: #ffffff;
   --card-foreground: #0b1a35;
   --muted: #eef1f5;
   --muted-foreground: #64748b;
@@ -80,16 +98,8 @@ html.dark .organizer-auth {
 }
 
 .organizer-auth [data-slot="card"] {
-  border: 0;
-  box-shadow: none;
-  background-color: transparent;
+  background-color: #ffffff;
   color: var(--rw-navy);
-}
-
-.organizer-auth [data-slot="card-header"],
-.organizer-auth [data-slot="card-content"],
-.organizer-auth [data-slot="card-footer"] {
-  color: inherit;
 }
 
 .organizer-auth [data-slot="card-description"],
@@ -99,9 +109,9 @@ html.dark .organizer-auth {
 
 .organizer-auth [data-slot="input"],
 .organizer-auth input[data-slot="input"] {
-  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  background-color: #eef1f5;
   color: var(--rw-navy);
-  border-color: #e2e8f0;
 }
 
 html.dark .organizer-auth [data-slot="card"],
@@ -110,6 +120,21 @@ html.dark .organizer-auth input[data-slot="input"] {
   background-color: #ffffff;
   color: var(--rw-navy);
   border-color: #e2e8f0;
+}
+
+html.dark .organizer-auth [data-slot="input"],
+html.dark .organizer-auth input[data-slot="input"] {
+  background-color: #eef1f5;
+}
+
+.organizer-auth [data-slot="card-content"] button[type="submit"] {
+  background-color: #000000;
+  color: #ffffff;
+}
+
+.organizer-auth [data-slot="card-content"] button[type="submit"]:hover,
+html.dark .organizer-auth [data-slot="card-content"] button[type="submit"]:hover {
+  background-color: #262626;
 }
 
 .organizer-auth [data-slot="card-footer"] [data-slot="button"] {

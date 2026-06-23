@@ -101,7 +101,7 @@ export const REGISTRATION_FORM = {
   subtitle: "Registration is per player. All fields required unless marked optional.",
   skillHelper:
     "Skill levels help tournament organizers create balanced teams and ensure a fun experience for all players.",
-  notesLabel: "Notes / Preferred Players — Optional",
+  preferredPlayersLabel: "Preferred players (optional)",
   notesPlaceholder:
     "List any golfers you would like to play with. Tournament organizers will make every effort to accommodate requests while maintaining balanced and competitive teams.",
 } as const;

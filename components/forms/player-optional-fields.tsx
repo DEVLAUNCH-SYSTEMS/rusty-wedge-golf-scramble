@@ -12,7 +12,7 @@ export function PlayerOptionalFields({ idPrefix }: PlayerOptionalFieldsProps) {
       <TextAreaField
         id={`${idPrefix}-preferredPlayers`}
         name="preferredPlayers"
-        label={REGISTRATION_FORM.notesLabel}
+        label={REGISTRATION_FORM.preferredPlayersLabel}
         placeholder={REGISTRATION_FORM.notesPlaceholder}
         maxLength={FIELD_LIMITS.preferredPlayers}
       />

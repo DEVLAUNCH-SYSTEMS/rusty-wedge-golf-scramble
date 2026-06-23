@@ -1,7 +1,6 @@
+import { formInputClassName } from "@/components/forms/form-field-styles";
 import { REGISTRATION_FORM } from "@/lib/content/landing-content";
 import { SKILL_LEVEL_OPTIONS } from "@/lib/content/skill-levels";
-
-const inputClassName = "rounded-md border border-zinc-300 px-3 py-2";
 
 type PlayerSkillFieldProps = {
   idPrefix: string;
@@ -14,7 +13,7 @@ function SkillLevelSelect({ idPrefix }: PlayerSkillFieldProps) {
       name="skillLevel"
       required
       defaultValue=""
-      className={inputClassName}
+      className={formInputClassName}
     >
       <option value="" disabled>
         Select skill level

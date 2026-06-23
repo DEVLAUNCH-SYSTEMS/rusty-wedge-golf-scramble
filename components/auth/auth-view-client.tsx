@@ -9,13 +9,13 @@ type AuthViewClientProps = {
 };
 
 const authViewClassNames = {
-  base: "max-w-none gap-5 py-0 shadow-none",
+  base: "max-w-none gap-5 border-slate-200 bg-white py-0 shadow-none",
   footer: "text-slate-600",
   footerLink:
     "px-0 font-semibold text-rw-gold-accessible underline-offset-4 hover:text-rw-gold",
   form: {
     primaryButton:
-      "bg-rw-gold text-rw-navy shadow-none hover:bg-rw-gold-light focus-visible:ring-rw-gold/40",
+      "bg-black text-white shadow-none hover:bg-neutral-800 focus-visible:ring-neutral-400/40",
     forgotPasswordLink: "text-rw-navy hover:text-rw-gold-accessible",
   },
 } as const;
