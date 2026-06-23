@@ -1,15 +1,26 @@
-import { HomeActions } from "@/components/home/home-actions";
-import { HomeInstructions } from "@/components/home/home-instructions";
-import { HomeLogo } from "@/components/home/home-logo";
+import { SiteFooter } from "@/components/marketing/site-footer";
+import { TournamentLandingPage } from "@/components/marketing/tournament-landing-page";
+import { TournamentUnavailable } from "@/components/marketing/tournament-unavailable";
+import { toPublicTournamentView } from "@/lib/format/tournament-display";
+import { hasRegistrationCapacity } from "@/lib/services/capacity-query";
+import { getActiveTournament } from "@/lib/services/tournament";
 
-export default function Home() {
+export const dynamic = "force-dynamic";
+
+export default async function Home() {
+  const tournament = await getActiveTournament();
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <HomeLogo />
-        <HomeInstructions />
-        <HomeActions />
-      </main>
-    </div>
+    <>
+      {tournament ? (
+        <TournamentLandingPage
+          tournament={toPublicTournamentView(tournament)}
+          hasCapacity={await hasRegistrationCapacity(tournament.id)}
+        />
+      ) : (
+        <TournamentUnavailable />
+      )}
+      <SiteFooter />
+    </>
   );
 }

@@ -3,25 +3,41 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #0b1a35;
+  --rw-navy: #0b1a35;
+  --rw-navy-dark: #060f1f;
+  --rw-navy-light: #132542;
+  --rw-navy-logo: #1e4878;
+  --rw-navy-card: #0f2340;
+  --rw-gold: #c8a044;
+  --rw-gold-light: #e3c468;
+  --rw-gold-accessible: #5f4b18;
+  --rw-gray: #eef1f5;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-rw-navy: var(--rw-navy);
+  --color-rw-navy-dark: var(--rw-navy-dark);
+  --color-rw-navy-light: var(--rw-navy-light);
+  --color-rw-navy-logo: var(--rw-navy-logo);
+  --color-rw-navy-card: var(--rw-navy-card);
+  --color-rw-gold: var(--rw-gold);
+  --color-rw-gold-light: var(--rw-gold-light);
+  --color-rw-gold-accessible: var(--rw-gold-accessible);
+  --color-rw-gray: var(--rw-gray);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-display: var(--font-playfair);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+}
+
+.font-display {
+  font-family: var(--font-playfair), Georgia, "Times New Roman", serif;
 }
