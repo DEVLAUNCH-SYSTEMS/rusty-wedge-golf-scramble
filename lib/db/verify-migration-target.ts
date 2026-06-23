@@ -9,6 +9,9 @@ loadEnvFiles();
 const target = describeMigrationDatabaseTarget();
 
 console.log(
+  `CI_GATE_DATABASE_URL set: ${process.env.CI_GATE_DATABASE_URL ? "yes" : "no"}`,
+);
+console.log(
   `DATABASE_URL set: ${process.env.DATABASE_URL ? "yes" : "no"}`,
 );
 console.log(

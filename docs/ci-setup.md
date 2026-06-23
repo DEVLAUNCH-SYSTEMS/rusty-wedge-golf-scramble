@@ -16,16 +16,18 @@ GitHub Actions runs on every pull request and on pushes to `main`.
 3. Next.js production build
 4. Vitest (unit, integration, public-privacy projects)
 
+Integration tests **skip automatically** when no database URL is configured (local `npm run check` stays fast).
+
 ### ci-gate (heavy)
 
 Runs after **check** passes:
 
 1. Validates required GitHub secrets
 2. `npm run build`
-3. `npm run db:migrate` + `npm run db:seed`
+3. `npm run db:migrate` + `npm run db:seed` against the **CI gate branch**
 4. `npm run test:architecture` — static access/privacy guards
-5. `npm run test:integration` — Vitest integration project
-6. `npm run test:e2e` — Playwright (smoke + a11y; grows with H3–H13)
+5. `npm run test:integration` — Vitest integration project (H1, H2, H4, H8, H9, H11, T26)
+6. `npm run test:e2e` — Playwright smoke, admin auth, public privacy, Axe
 
 ## Required GitHub secrets (ci-gate)
 
@@ -33,15 +35,14 @@ Add under **Settings → Secrets and variables → Actions**:
 
 | Secret | Purpose |
 |--------|---------|
-| `DATABASE_URL` | CI/test Neon branch — seed, integration tests, E2E (pooled is OK) |
-| `DATABASE_URL_UNPOOLED` | Optional direct Neon URL for `db:migrate` (recommended if `DATABASE_URL` is pooled) |
+| `DATABASE_URL` | Dedicated Neon **CI branch** — migrate, seed, integration, E2E |
+| `DATABASE_URL_UNPOOLED` | Optional direct Neon URL for `db:migrate` (recommended if pooled) |
 | `NEON_AUTH_BASE_URL` | Neon Auth project URL (dev/staging; not production-only) |
 | `NEON_AUTH_COOKIE_SECRET` | Session signing secret for E2E (can match dev) |
 
-You can either:
+On GitHub, `DATABASE_URL` should point at your isolated CI branch (same database the ci-gate job uses — you do not need a separate secret name).
 
-- Set **`DATABASE_URL`** to the unpooled CI branch URL (simplest), or
-- Set **`DATABASE_URL`** to pooled + **`DATABASE_URL_UNPOOLED`** to direct (CI passes both to the job).
+**Local only:** if your dev `.env.local` uses a different `DATABASE_URL`, add `CI_GATE_DATABASE_URL` (+ optional `_UNPOOLED`) for the CI branch and run `npm run ci:gate` or `npm run db:migrate:ci`. Those vars are not required in GitHub Actions.
 
 Optional until blob upload E2E:
 
@@ -56,20 +57,38 @@ Optional until blob upload E2E:
 Recommended Neon setup:
 
 1. Create a dedicated branch (e.g. `ci`) — **from an empty parent**, not a copy of production data.
-2. Add GitHub secrets for that branch (see table above).
+2. Add GitHub secrets `DATABASE_URL` (+ optional `DATABASE_URL_UNPOOLED`) for that branch.
 3. Keep production `DATABASE_URL` only in **Vercel Production** — not in GitHub Actions.
 
-If you branched `ci` **from production**, it already contains prod schema. Migrate then fails unless Drizzle’s `drizzle.__drizzle_migrations` table matches. Fix: in Neon, **reset** the `ci` branch (or delete and recreate from empty `main`) so migrate can run cleanly.
+If you branched `ci` **from production**, migrate may fail unless Drizzle history matches. Fix: reset the `ci` branch in Neon so migrate can run cleanly.
 
 At launch, apply production migrations in a controlled deploy step (manual or a `main`-only workflow), separate from PR `ci-gate`.
 
-If migrate fails with exit code 1 and little output, common causes:
+## Local CI gate database
 
-- GitHub secret points at a DB that already has schema but no Drizzle migration history → use a fresh CI branch or reset the branch.
-- Pooled connection string (`-pooler` host) used for DDL → use the direct/unpooled URL (or set `DATABASE_URL_UNPOOLED` in the secret).
-- Same URL as local dev where you already migrated manually → usually fine; Drizzle skips applied migrations. A partial/failed prior run may require a clean branch.
+Add to `.env.local`:
 
-`db:seed` is idempotent; re-running on an already-seeded CI branch is safe.
+```bash
+# Dev app reads this
+DATABASE_URL=postgresql://...your-dev-branch...
+
+# CI gate tests/migrate use this (never production)
+CI_GATE_DATABASE_URL=postgresql://...your-ci-branch...
+CI_GATE_DATABASE_URL_UNPOOLED=postgresql://...direct-ci-branch...  # optional
+```
+
+Run migrate/seed against the CI branch without touching dev:
+
+```bash
+npm run db:migrate:ci
+npm run db:seed:ci
+```
+
+Run the full gate locally (uses `CI_GATE_*` when `RUN_CI_GATE=1`):
+
+```bash
+npm run ci:gate
+```
 
 ## Dependabot and fork PRs
 
@@ -80,9 +99,11 @@ If migrate fails with exit code 1 and little output, common causes:
 
 ```bash
 npm run ci          # same as check job
-npm run ci:gate     # architecture + integration + Playwright (needs .env.local)
+npm run ci:gate     # architecture + integration + Playwright (needs CI_GATE_* in .env.local)
 npm run pr          # commit/PR fast gate (lint + typecheck + Vitest, no build)
 ```
+
+Pre-commit hook runs `npm run check` + `npm run test:public-privacy`.
 
 ## Not in CI
 

@@ -1,13 +1,12 @@
 # Fast check on every PR and main push; heavier ci-gate on pull requests only.
 # No Lighthouse, Sentry, Stripe, or RLS secrets — Rusty Wedge uses Neon Auth + Drizzle.
 #
-# Required repo secrets for ci-gate (DB migrate/seed + future integration/E2E):
+# Required repo secrets for ci-gate (DB migrate/seed + integration/E2E):
 #   DATABASE_URL, NEON_AUTH_BASE_URL, NEON_AUTH_COOKIE_SECRET
-# Optional: DATABASE_URL_UNPOOLED (direct Neon URL for migrations; falls back to DATABASE_URL)
+# Optional: DATABASE_URL_UNPOOLED (direct Neon URL for migrations)
 #
 # DATABASE_URL must point to a dedicated CI/test Neon branch — never production.
-# For migrations, prefer an unpooled URL via DATABASE_URL_UNPOOLED or use the direct
-# URL as DATABASE_URL. Production migrations run at deploy time only; see docs/ci-setup.md.
+# Locally, use CI_GATE_DATABASE_URL in .env.local when dev DATABASE_URL differs.
 # Recommended once blob upload E2E exists:
 #   BLOB_READ_WRITE_TOKEN
 #
@@ -56,6 +55,7 @@ jobs:
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       DATABASE_URL_UNPOOLED: ${{ secrets.DATABASE_URL_UNPOOLED }}
+      RUN_CI_GATE: "1"
       NEON_AUTH_BASE_URL: ${{ secrets.NEON_AUTH_BASE_URL }}
       NEON_AUTH_COOKIE_SECRET: ${{ secrets.NEON_AUTH_COOKIE_SECRET }}
       BLOB_READ_WRITE_TOKEN: ${{ secrets.BLOB_READ_WRITE_TOKEN }}
@@ -113,3 +113,4 @@ jobs:
         run: npm run ci:gate
         env:
           CI: true
+          RUN_CI_GATE: "1"
