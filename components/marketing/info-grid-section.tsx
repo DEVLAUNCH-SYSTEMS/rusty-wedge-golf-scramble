@@ -36,17 +36,22 @@ function InfoCard({ label, value }: { label: string; value: string }) {
   const Icon = ICONS[label as keyof typeof ICONS] ?? IconCalendar;
 
   return (
-    <div className="flex items-start gap-4 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-rw-navy text-rw-gold">
-        <Icon />
-      </div>
-      <div>
-        <dt className="text-xs font-semibold uppercase tracking-wide text-rw-gold">
-          {label}
-        </dt>
-        <dd className="mt-1 text-sm font-medium text-rw-navy">{value}</dd>
-      </div>
-    </div>
+    <li>
+      <article className="flex items-start gap-4 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-rw-navy text-rw-gold"
+          aria-hidden
+        >
+          <Icon />
+        </div>
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wide text-rw-gold-accessible">
+            {label}
+          </p>
+          <p className="mt-1 text-sm font-medium text-rw-navy">{value}</p>
+        </div>
+      </article>
+    </li>
   );
 }
 
@@ -61,11 +66,11 @@ export function InfoGridSection({ tournament }: InfoGridSectionProps) {
           {INFO_SECTION.title}
         </h2>
         <p className="mx-auto mt-4 max-w-2xl text-slate-600">{INFO_SECTION.subtitle}</p>
-        <dl className="mt-10 grid gap-4 text-left sm:grid-cols-2 lg:grid-cols-3">
+        <ul className="mt-10 grid list-none gap-4 p-0 text-left sm:grid-cols-2 lg:grid-cols-3">
           {items.map((item) => (
             <InfoCard key={item.label} {...item} />
           ))}
-        </dl>
+        </ul>
       </div>
     </section>
   );

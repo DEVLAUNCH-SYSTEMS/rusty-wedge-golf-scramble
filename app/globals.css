@@ -11,6 +11,7 @@
   --rw-navy-card: #0f2340;
   --rw-gold: #c8a044;
   --rw-gold-light: #e3c468;
+  --rw-gold-accessible: #5f4b18;
   --rw-gray: #eef1f5;
 }
 
@@ -24,6 +25,7 @@
   --color-rw-navy-card: var(--rw-navy-card);
   --color-rw-gold: var(--rw-gold);
   --color-rw-gold-light: var(--rw-gold-light);
+  --color-rw-gold-accessible: var(--rw-gold-accessible);
   --color-rw-gray: var(--rw-gray);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
