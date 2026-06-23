@@ -5,6 +5,8 @@ import { toPublicTournamentView } from "@/lib/format/tournament-display";
 import { hasRegistrationCapacity } from "@/lib/services/capacity-query";
 import { getActiveTournament } from "@/lib/services/tournament";
 
+export const dynamic = "force-dynamic";
+
 export default async function Home() {
   const tournament = await getActiveTournament();
 
