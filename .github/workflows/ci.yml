@@ -78,6 +78,7 @@ jobs:
             echo "For Dependabot PRs, add the same names under Settings → Code security → Dependabot → Secrets."
             exit 1
           fi
+          node scripts/validate-neon-auth-env.mjs
           if [ -n "${DATABASE_URL_UNPOOLED:-}" ]; then
             echo "Migrations will use DATABASE_URL_UNPOOLED (direct connection)."
           else

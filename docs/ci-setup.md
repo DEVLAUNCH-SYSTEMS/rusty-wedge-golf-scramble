@@ -37,7 +37,7 @@ Add under **Settings → Secrets and variables → Actions**:
 |--------|---------|
 | `DATABASE_URL` | Dedicated Neon **CI branch** — migrate, seed, integration, E2E |
 | `DATABASE_URL_UNPOOLED` | Optional direct Neon URL for `db:migrate` (recommended if pooled) |
-| `NEON_AUTH_BASE_URL` | Neon Auth project URL (dev/staging; not production-only) |
+| `NEON_AUTH_BASE_URL` | Neon Auth project URL (dev/staging; not production-only). Must be an absolute URL; `https://` is added automatically if omitted. |
 | `NEON_AUTH_COOKIE_SECRET` | Session signing secret for E2E (can match dev) |
 
 On GitHub, `DATABASE_URL` should point at your isolated CI branch (same database the ci-gate job uses — you do not need a separate secret name).

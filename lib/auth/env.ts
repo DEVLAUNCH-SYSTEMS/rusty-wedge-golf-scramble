@@ -13,6 +13,27 @@ function isBuildPhase(): boolean {
   return process.env.NEXT_PHASE === "phase-production-build";
 }
 
+export function normalizeNeonAuthBaseUrl(rawBaseUrl: string): string {
+  const trimmed = rawBaseUrl.trim().replace(/^['"]|['"]$/g, "");
+
+  if (!trimmed) {
+    throw new Error("NEON_AUTH_BASE_URL must be a valid absolute URL.");
+  }
+
+  const withScheme = /^https?:\/\//i.test(trimmed)
+    ? trimmed
+    : `https://${trimmed}`;
+
+  try {
+    const parsed = new URL(withScheme);
+    return parsed.origin + parsed.pathname.replace(/\/+$/, "");
+  } catch {
+    throw new Error(
+      "NEON_AUTH_BASE_URL must be a valid absolute URL (include https:// if missing).",
+    );
+  }
+}
+
 export function isNeonAuthConfigured(): boolean {
   const baseUrl = process.env.NEON_AUTH_BASE_URL;
   const secret = process.env.NEON_AUTH_COOKIE_SECRET;
@@ -26,7 +47,7 @@ export function getNeonAuthConfig(): NeonAuthEnvConfig {
 
   if (baseUrl && secret && secret.length >= 32) {
     return {
-      baseUrl,
+      baseUrl: normalizeNeonAuthBaseUrl(baseUrl),
       cookies: { secret },
     };
   }
