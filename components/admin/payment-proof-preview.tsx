@@ -42,14 +42,14 @@ function PaymentProofPdf({ proofUrl }: { proofUrl: string }) {
   );
 }
 
-function PaymentProofLoadError() {
+type PaymentProofLoadErrorProps = {
+  message: string;
+};
+
+function PaymentProofLoadError({ message }: PaymentProofLoadErrorProps) {
   return (
     <p className={`${adminBodyTextClassName} mt-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-amber-950`}>
-      Unable to load the payment proof. If you are developing locally, your{" "}
-      <code className="text-sm">VERCEL_OIDC_TOKEN</code> may have expired — run{" "}
-      <code className="text-sm">npx vercel env pull .env.vercel.local</code>, merge
-      the new token into <code className="text-sm">.env.local</code>, and restart the
-      dev server.
+      {message}
     </p>
   );
 }
@@ -59,22 +59,71 @@ type PaymentProofPreviewProps = {
   contentType: string | null;
 };
 
+const defaultLoadErrorMessage =
+  process.env.NODE_ENV === "development"
+    ? "Unable to load the payment proof. If you are developing locally, your VERCEL_OIDC_TOKEN may have expired — run npx vercel env pull .env.vercel.local, merge the new token into .env.local, and restart the dev server."
+    : "Unable to load the payment proof. Confirm the Vercel Blob store is linked to this project (Production), remove any manually set VERCEL_OIDC_TOKEN from Vercel env vars, and redeploy.";
+
+async function readProofLoadError(response: Response): Promise<string> {
+  try {
+    const payload = (await response.json()) as { error?: string };
+
+    if (payload.error) {
+      return payload.error;
+    }
+  } catch {
+    // Fall back to the default message when the API does not return JSON.
+  }
+
+  return defaultLoadErrorMessage;
+}
+
+async function handleLoadError(
+  setLoadErrorMessage: (message: string) => void,
+  response?: Response,
+): Promise<void> {
+  if (response) {
+    setLoadErrorMessage(await readProofLoadError(response));
+    return;
+  }
+
+  setLoadErrorMessage(defaultLoadErrorMessage);
+}
+
+function PaymentProofMedia({
+  contentType,
+  proofUrl,
+  onImageLoadError,
+}: {
+  contentType: string | null;
+  proofUrl: string;
+  onImageLoadError: () => void;
+}) {
+  if (contentType === "application/pdf") {
+    return <PaymentProofPdf proofUrl={proofUrl} />;
+  }
+
+  return <PaymentProofImage proofUrl={proofUrl} onLoadError={onImageLoadError} />;
+}
+
 export function PaymentProofPreview({
   registrationId,
   contentType,
 }: PaymentProofPreviewProps) {
-  const [loadFailed, setLoadFailed] = useState(false);
+  const [loadErrorMessage, setLoadErrorMessage] = useState<string | null>(null);
   const proofUrl = `/api/admin/payment-proofs/${registrationId}`;
 
   return (
     <section className={adminCardClassName}>
       <h2 className={adminSectionTitleClassName}>Payment proof</h2>
-      {loadFailed ? <PaymentProofLoadError /> : null}
-      {contentType === "application/pdf" ? (
-        <PaymentProofPdf proofUrl={proofUrl} />
-      ) : (
-        <PaymentProofImage proofUrl={proofUrl} onLoadError={() => setLoadFailed(true)} />
-      )}
+      {loadErrorMessage ? <PaymentProofLoadError message={loadErrorMessage} /> : null}
+      <PaymentProofMedia
+        contentType={contentType}
+        proofUrl={proofUrl}
+        onImageLoadError={() => {
+          void handleLoadError(setLoadErrorMessage);
+        }}
+      />
     </section>
   );
 }

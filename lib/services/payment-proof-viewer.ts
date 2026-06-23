@@ -5,8 +5,8 @@ import {
   requireAdminSession,
 } from "@/lib/services/admin-auth";
 import {
-  assertBlobCredentialsConfigured,
   getBlobCredentialDevMessage,
+  getBlobCredentialProductionMessage,
 } from "@/lib/services/blob-credentials";
 import {
   assertStoredPaymentProofPathname,
@@ -70,22 +70,20 @@ function blobAccessFailureMessage(error: unknown): string {
 
   if (error instanceof Error) {
     console.error("Payment proof blob read failed:", error.message);
+
+    if (process.env.NODE_ENV !== "development" && error.message.length > 0) {
+      return error.message;
+    }
+  }
+
+  if (process.env.NODE_ENV !== "development") {
+    return getBlobCredentialProductionMessage();
   }
 
   return "Unable to load payment proof from storage.";
 }
 
 async function fetchPrivateBlob(pathname: string): Promise<AdminPaymentProof> {
-  try {
-    assertBlobCredentialsConfigured();
-  } catch (error) {
-    throw new PaymentProofViewerError(
-      "BLOB_ACCESS_FAILED",
-      blobAccessFailureMessage(error),
-      503,
-    );
-  }
-
   try {
     const result = await get(pathname, { access: "private", useCache: false });
 

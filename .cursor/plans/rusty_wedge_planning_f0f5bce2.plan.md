@@ -21,8 +21,8 @@ todos:
     content: "Steps 29-30: Blob helper + hardened admin proof viewer route"
     status: completed
   - id: phase-5-admin-regs
-    content: "Steps 31-35: Admin dashboard, registration list/detail, verify/reject + audit"
-    status: pending
+    content: "Steps 31-35: Admin dashboard, registration list/detail, verify/reject + audit — COMPLETE"
+    status: completed
   - id: phase-6-teams
     content: "Steps 36-39: Waitlist admin, teams, registrations + teams CSV export"
     status: pending
@@ -1112,12 +1112,12 @@ Run after event concludes. Checklist in `docs/qa/post-event-checklist.md`:
 29. **Blob upload helper** — MIME/size validation, private paths scoped by tournament (no user-controlled path segments)
 30. **Admin proof viewer route** — full Section 5.1 checklist: session, allowlist, registration exists, active tournament, DB path only, no-store headers
 
-### Phase 6 — Admin Registration Management (Steps 31–35)
-31. **Admin dashboard** — private counts, assignment summary
-32. **Registrations list** — search, filters, assigned/unassigned badge
-33. **Registration detail** — proof viewer, verify/reject, admin notes editors
-34. **Verify/reject/cancel actions** — transactional capacity; audit events; **cancel requires `admin_notes` reason** (refund, duplicate, withdrew, etc.)
-35. **Update notes action** — persist notes + `admin_notes_updated` audit event
+### Phase 6 — Admin Registration Management (Steps 31–35) — COMPLETE
+31. **Admin dashboard** — private counts, assignment summary — **COMPLETE**
+32. **Registrations list** — search, filters, assigned/unassigned badge — **COMPLETE**
+33. **Registration detail** — proof viewer, verify/reject, admin notes editors — **COMPLETE**
+34. **Verify/reject/cancel actions** — transactional capacity; audit events; **cancel requires `admin_notes` reason** (refund, duplicate, withdrew, etc.) — **COMPLETE**
+35. **Update notes action** — persist notes + `admin_notes_updated` audit event — **COMPLETE**
 
 ### Phase 7 — Waitlist, Teams & Export (Steps 36–39)
 36. **Waitlist admin page** — promote/remove + audit on promote

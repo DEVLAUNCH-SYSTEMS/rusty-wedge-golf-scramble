@@ -24,7 +24,7 @@ When a Blob store is connected to a project, Vercel typically adds:
 
 **You will not always see `BLOB_READ_WRITE_TOKEN`.** That is expected with OIDC-connected stores.
 
-On Vercel deployments, `VERCEL_OIDC_TOKEN` is injected automatically. Locally, you must pull it with the Vercel CLI.
+On Vercel deployments, `VERCEL_OIDC_TOKEN` is injected automatically. **Do not add `VERCEL_OIDC_TOKEN` to Vercel project env vars** (for example by syncing a local `vercel env pull` file) — a copied token expires quickly and breaks proof viewing in production. Locally, pull it with the Vercel CLI only into `.env.local`.
 
 ### Local development setup
 
