@@ -2,21 +2,21 @@ import { BrandLogo } from "@/components/marketing/brand-logo";
 import { MarketingButton } from "@/components/marketing/marketing-buttons";
 import { SiteHeader } from "@/components/marketing/site-header";
 import {
-  HERO_EYEBROW,
+  // HERO_EYEBROW,
   HERO_SECONDARY_CTA,
   HERO_SUPPORTING,
   HERO_TAGLINE,
 } from "@/lib/content/landing-content";
 
-function HeroEyebrow() {
-  return (
-    <p className="mt-2 flex items-center justify-center gap-3 text-xs font-semibold uppercase tracking-[0.3em] text-rw-gold">
-      <span className="h-px w-8 bg-rw-gold/60" aria-hidden />
-      {HERO_EYEBROW}
-      <span className="h-px w-8 bg-rw-gold/60" aria-hidden />
-    </p>
-  );
-}
+// function HeroEyebrow() {
+//   return (
+//     <p className="mt-2 flex items-center justify-center gap-3 text-xs font-semibold uppercase tracking-[0.3em] text-rw-gold">
+//       <span className="h-px w-8 bg-rw-gold/60" aria-hidden />
+//       {HERO_EYEBROW}
+//       <span className="h-px w-8 bg-rw-gold/60" aria-hidden />
+//     </p>
+//   );
+// }
 
 function HeroHeading() {
   return (
@@ -33,10 +33,14 @@ export function HeroSection() {
       <SiteHeader />
       <div className="mx-auto max-w-4xl px-6 text-center">
         <BrandLogo size="hero" priority className="mx-auto" />
-        <HeroEyebrow />
+        {/* <HeroEyebrow /> */}
         <HeroHeading />
-        <p className="font-display mt-4 text-xl text-rw-gold md:text-2xl">{HERO_TAGLINE}</p>
-        <p className="mt-5 text-sm text-white/75 md:text-base">{HERO_SUPPORTING}</p>
+        <p className="font-display mt-4 text-xl text-rw-gold md:text-2xl">
+          {HERO_TAGLINE}
+        </p>
+        <p className="mt-5 text-sm text-white/75 md:text-base">
+          {HERO_SUPPORTING}
+        </p>
         <div className="mt-8 flex flex-wrap justify-center gap-4">
           <MarketingButton href="#register">Register Now</MarketingButton>
           <MarketingButton href={HERO_SECONDARY_CTA.href} variant="outline">

@@ -20,7 +20,7 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "The Rusty Wedge Golf Scramble",
+  title: "Rusty Wedge Golf Scramble",
   description:
     "Register for the annual Rusty Wedge four-person best ball golf scramble.",
 };
