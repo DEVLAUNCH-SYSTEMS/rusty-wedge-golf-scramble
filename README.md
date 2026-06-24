@@ -36,4 +36,3 @@ Open [http://localhost:3000](http://localhost:3000).
 - [Admin onboarding](./docs/admin-onboarding.md)
 - [Pre-launch QA checklist](./docs/qa/prelaunch-checklist.md)
 - [Post-event checklist](./docs/qa/post-event-checklist.md)
-- [Implementation plan](./.cursor/plans/rusty_wedge_planning_f0f5bce2.plan.md)

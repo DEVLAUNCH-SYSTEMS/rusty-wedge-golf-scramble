@@ -4,7 +4,7 @@ Document pass/fail before production deploy. See [deployment.md](./deployment.md
 
 ## Organizer sign-off
 
-- [ ] **O1** Scott Wenzel Jr. (509-218-4650) and Rusty Williams (509-995-0269) approved for public website display
+- [ ] **O1** Organizer contact info (names and contact methods shown on the public site) approved before launch
 - [ ] **O2** Venmo handle finalized (replace `@RustyWedge` placeholder if needed)
 - [ ] **O6** Each organizer has own Neon Auth account in `admin_users` ([admin onboarding](../admin-onboarding.md))
 

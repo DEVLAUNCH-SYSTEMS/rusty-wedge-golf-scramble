@@ -8,7 +8,7 @@ Complete every item in [prelaunch-checklist.md](./prelaunch-checklist.md):
 
 | Item | What you do |
 |------|-------------|
-| **O1** | Confirm Scott Wenzel Jr. (509-218-4650) and Rusty Williams (509-995-0269) are approved on the public site |
+| **O1** | Confirm organizer contact info on the public site is approved |
 | **O2** | Confirm the Venmo handle is correct (not the `@RustyWedge` placeholder) |
 | **O3** | Register on an **iPhone** using a photo-library payment screenshot |
 | **O4** | Register on an **Android** phone using a photo-library payment screenshot |
