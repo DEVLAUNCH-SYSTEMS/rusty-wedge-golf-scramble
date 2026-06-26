@@ -6,6 +6,7 @@ import {
   adminLabelClassName,
   adminSecondaryButtonClassName,
 } from "@/components/admin/admin-form-styles";
+import { SKILL_LEVEL_OPTIONS } from "@/lib/content/skill-levels";
 
 import type { AdminRegistrationListFilters } from "@/lib/validation/admin-filters";
 
@@ -64,10 +65,10 @@ export const PAYMENT_STATUS_OPTIONS = [
 
 export const SKILL_OPTIONS = [
   { value: "all", label: "All" },
-  { value: "A", label: "A" },
-  { value: "B", label: "B" },
-  { value: "C", label: "C" },
-  { value: "D", label: "D" },
+  ...SKILL_LEVEL_OPTIONS.map((option) => ({
+    value: option.value,
+    label: option.label,
+  })),
 ] as const;
 
 export const ASSIGNMENT_OPTIONS = [
@@ -106,7 +107,7 @@ export function RegistrationFilterGrid({ filters }: { filters: AdminRegistration
       <RegistrationStatusFilters filters={filters} />
       <FilterSelect
         name="skillLevel"
-        label="Skill level"
+        label="Best score ever"
         value={filters.skillLevel}
         options={[...SKILL_OPTIONS]}
       />

@@ -11,6 +11,7 @@ import {
   registrationStatusTone,
   StatusBadge,
 } from "@/components/admin/status-badge";
+import { getSkillLevelLabel } from "@/lib/content/skill-levels";
 
 import type { getAdminRegistrationDetail } from "@/lib/services/admin-registration-list";
 
@@ -32,7 +33,9 @@ function formatDate(value: Date | null): string {
 function DetailField({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <dt className={`${adminMutedTextClassName} font-medium uppercase tracking-wide`}>
+      <dt
+        className={`${adminMutedTextClassName} font-medium uppercase tracking-wide`}
+      >
         {label}
       </dt>
       <dd className="mt-1 text-sm text-rw-navy">{value}</dd>
@@ -52,62 +55,104 @@ function teamLabel(registration: RegistrationRecord): string {
   return "—";
 }
 
-function RegistrationDetailHeader({ registration }: { registration: RegistrationRecord }) {
+function RegistrationStatusBadges({
+  registration,
+}: {
+  registration: RegistrationRecord;
+}) {
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      <h1 className={adminPageHeadingClassName}>
+        {registration.firstName} {registration.lastName}
+      </h1>
+      <StatusBadge
+        label={registration.registrationStatus.replaceAll("_", " ")}
+        tone={registrationStatusTone(registration.registrationStatus)}
+      />
+      <StatusBadge
+        label={registration.paymentStatus.replaceAll("_", " ")}
+        tone={paymentStatusTone(registration.paymentStatus)}
+      />
+    </div>
+  );
+}
+
+function RegistrationDetailHeader({
+  registration,
+}: {
+  registration: RegistrationRecord;
+}) {
   return (
     <div className="flex flex-col gap-3 border-b border-slate-200 pb-4">
       <Link href="/admin/registrations" className={adminLinkClassName}>
         ← Back to registrations
       </Link>
-      <div className="flex flex-wrap items-center gap-2">
-        <h1 className={adminPageHeadingClassName}>
-          {registration.firstName} {registration.lastName}
-        </h1>
-        <StatusBadge
-          label={registration.registrationStatus.replaceAll("_", " ")}
-          tone={registrationStatusTone(registration.registrationStatus)}
-        />
-        <StatusBadge
-          label={registration.paymentStatus.replaceAll("_", " ")}
-          tone={paymentStatusTone(registration.paymentStatus)}
-        />
-      </div>
+      <RegistrationStatusBadges registration={registration} />
     </div>
   );
 }
 
-function RegistrationCoreFields({ registration }: { registration: RegistrationRecord }) {
+function RegistrationCoreFields({
+  registration,
+}: {
+  registration: RegistrationRecord;
+}) {
   return (
     <dl className="mt-5 grid gap-4 sm:grid-cols-2">
       <DetailField label="Email" value={registration.email} />
       <DetailField label="Phone" value={registration.phone} />
-      <DetailField label="Skill level" value={registration.skillLevel} />
+      <DetailField
+        label="Best score ever"
+        value={getSkillLevelLabel(registration.skillLevel)}
+      />
       <DetailField label="Team" value={teamLabel(registration)} />
       <DetailField
         label="Payment submitted"
         value={formatDate(registration.paymentSubmittedAt)}
       />
-      <DetailField label="Registered" value={formatDate(registration.createdAt)} />
+      <DetailField
+        label="Registered"
+        value={formatDate(registration.createdAt)}
+      />
     </dl>
   );
 }
 
-function RegistrationOptionalFields({ registration }: { registration: RegistrationRecord }) {
+function OptionalDetailField({
+  label,
+  value,
+}: {
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="mt-5">
+      <DetailField label={label} value={value} />
+    </div>
+  );
+}
+
+function RegistrationOptionalFields({
+  registration,
+}: {
+  registration: RegistrationRecord;
+}) {
   return (
     <>
       {registration.preferredPlayers ? (
-        <div className="mt-5">
-          <DetailField label="Preferred players" value={registration.preferredPlayers} />
-        </div>
+        <OptionalDetailField
+          label="Preferred players"
+          value={registration.preferredPlayers}
+        />
       ) : null}
       {registration.notes ? (
-        <div className="mt-5">
-          <DetailField label="Player notes" value={registration.notes} />
-        </div>
+        <OptionalDetailField label="Player notes" value={registration.notes} />
       ) : null}
       {registration.rejectionReason ? (
-        <div className="mt-5">
-          <DetailField label="Rejection reason" value={registration.rejectionReason} />
-        </div>
+        <OptionalDetailField
+          label="Rejection reason"
+          value={registration.rejectionReason}
+        />
       ) : null}
     </>
   );

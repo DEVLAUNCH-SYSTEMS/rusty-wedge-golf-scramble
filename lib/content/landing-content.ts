@@ -31,8 +31,7 @@ export const FORMAT_SECTION = {
   label: "TOURNAMENT FORMAT",
   titleBefore: "4-Person Best Ball ",
   titleAccent: "Scramble",
-  body:
-    "Teams will be organized using player skill levels and preferred player requests whenever possible.",
+  body: "Teams will be organized using player skill levels and preferred player requests whenever possible.",
   features: [
     { title: "4 Players", subtitle: "Per Team" },
     { title: "Scramble", subtitle: "Format" },
@@ -45,8 +44,7 @@ export const TROPHY_SECTION = {
   label: "PRIZES & AWARDS",
   title: "Compete for the Highly Prized Rusty Wedge Trophy",
   titleAccent: "Highly Prized",
-  body:
-    "Bragging rights are on the line. The champion earns the highly prized trophy in the scramble — and everyone on the winning team goes home a legend.",
+  body: "Bragging rights are on the line. The champion earns the highly prized trophy in the scramble — and everyone on the winning team goes home a legend.",
   highlights: [
     { value: "1st Place", label: "Trophy" },
     { value: "Prizes", label: "For Every Team" },
@@ -98,9 +96,10 @@ export const REGISTRATION_SECTION = {
 
 export const REGISTRATION_FORM = {
   title: "Player Registration",
-  subtitle: "Registration is per player. All fields required unless marked optional.",
+  subtitle:
+    "Registration is per player. All fields required unless marked optional.",
   skillHelper:
-    "Skill levels help tournament organizers create balanced teams and ensure a fun experience for all players.",
+    "Based on your best score ever on an 18-hole round. This helps organizers create balanced teams. and ensure a fun experience for all players.",
   preferredPlayersLabel: "Preferred players (optional)",
   notesPlaceholder:
     "List any golfers you would like to play with. Tournament organizers will make every effort to accommodate requests while maintaining balanced and competitive teams.",
