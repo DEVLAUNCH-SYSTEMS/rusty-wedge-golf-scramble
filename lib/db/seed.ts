@@ -1,4 +1,3 @@
-
 import { eq } from "drizzle-orm";
 
 import { createDb } from "@/lib/db";
@@ -18,7 +17,7 @@ const ACTIVE_TOURNAMENT = {
   locationName: "Deer Park Golf Course",
   entryFeeCents: 8500,
   confirmedCapacityLimit: 68,
-  venmoHandle: "@RustyWedge",
+  venmoHandle: "@scottyrusty",
   registrationEnabled: true,
   isActive: true,
 } as const;
@@ -32,7 +31,11 @@ async function seedActiveTournament() {
     .limit(1);
 
   if (existing.length > 0) {
-    console.log("Active tournament seed already exists. Skipping.");
+    await db
+      .update(tournaments)
+      .set(ACTIVE_TOURNAMENT)
+      .where(eq(tournaments.slug, ACTIVE_TOURNAMENT_SLUG));
+    console.log("Updated active tournament seed:", ACTIVE_TOURNAMENT_SLUG);
     return;
   }
 

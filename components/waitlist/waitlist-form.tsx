@@ -3,15 +3,14 @@
 import { formSubmitClassName } from "@/components/forms/form-field-styles";
 import { FormMessage } from "@/components/forms/form-message";
 import { PlayerProfileFields } from "@/components/forms/player-profile-fields";
+import { SectionLabel } from "@/components/marketing/section-label";
 import { useWaitlistForm } from "@/hooks/use-waitlist-form";
 import { PREFERRED_PLAYERS_DISCLAIMER } from "@/lib/content/organizers";
 
 function WaitlistHeader() {
   return (
     <div className="border-b border-slate-200 pb-5">
-      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-rw-gold">
-        Waitlist
-      </p>
+      <SectionLabel>Waitlist</SectionLabel>
       <h3 className="font-display mt-2 text-2xl text-rw-navy">Join the Waitlist</h3>
     </div>
   );
