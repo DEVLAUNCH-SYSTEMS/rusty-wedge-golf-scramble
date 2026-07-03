@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 
+import { AdminClientShell } from "@/components/admin/admin-client-shell";
 import { AdminForbidden } from "@/components/admin/admin-forbidden";
 import { AdminNav } from "@/components/admin/admin-nav";
 import { adminPageClassName } from "@/components/admin/admin-text-styles";
@@ -57,7 +58,9 @@ export default async function AdminLayout({ children }: AdminLayoutProps) {
   return (
     <div className={adminPageClassName}>
       <AdminNav adminEmail={shell.email} />
-      <main className="mx-auto max-w-6xl px-4 py-8">{children}</main>
+      <main className="mx-auto max-w-6xl px-4 py-8">
+        <AdminClientShell>{children}</AdminClientShell>
+      </main>
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import { formCardClassName } from "@/components/forms/form-field-styles";
+import { PublicClientShell } from "@/components/marketing/public-client-shell";
 import { RegistrationForm } from "@/components/registration/registration-form";
 import { RegistrationSummary } from "@/components/registration/registration-summary";
 import { WaitlistForm } from "@/components/waitlist/waitlist-form";
@@ -30,11 +31,13 @@ function RegistrationFormCard({
 }: Pick<RegistrationSectionProps, "hasCapacity" | "tournament">) {
   return (
     <div className={formCardClassName}>
-      {hasCapacity ? (
-        <RegistrationForm tournament={tournament} />
-      ) : (
-        <WaitlistForm />
-      )}
+      <PublicClientShell>
+        {hasCapacity ? (
+          <RegistrationForm tournament={tournament} />
+        ) : (
+          <WaitlistForm />
+        )}
+      </PublicClientShell>
     </div>
   );
 }

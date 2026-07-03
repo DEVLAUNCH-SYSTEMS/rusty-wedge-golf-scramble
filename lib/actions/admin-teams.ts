@@ -5,22 +5,13 @@ import {
   actionSuccess,
   type ActionResult,
 } from "@/lib/actions/action-result";
+import { mapAdminActionError } from "@/lib/actions/map-admin-action-error";
 import { requireAdminSession } from "@/lib/services/admin-auth";
-import { ServiceError } from "@/lib/services/service-error";
 import {
   assignPlayerToTeam,
   createTeam,
   removePlayerFromTeam,
 } from "@/lib/services/teams";
-
-function mapAdminActionError(error: unknown): ActionResult {
-  if (error instanceof ServiceError) {
-    return actionFailure(error.message);
-  }
-
-  console.error("Admin team action failed:", error);
-  return actionFailure("Unable to complete that action. Please try again.");
-}
 
 function readString(formData: FormData, key: string): string {
   const value = formData.get(key);
@@ -35,7 +26,7 @@ export async function createTeamAction(formData: FormData): Promise<ActionResult
 
     return actionSuccess(`Team "${team.name}" created.`);
   } catch (error) {
-    return mapAdminActionError(error);
+    return mapAdminActionError(error, "Admin team action failed");
   }
 }
 
@@ -54,7 +45,7 @@ export async function assignPlayerToTeamAction(
     await assignPlayerToTeam(teamId, registrationId, admin);
     return actionSuccess("Player assigned to team.");
   } catch (error) {
-    return mapAdminActionError(error);
+    return mapAdminActionError(error, "Admin team action failed");
   }
 }
 
@@ -67,6 +58,6 @@ export async function removePlayerFromTeamAction(
     await removePlayerFromTeam(teamId, registrationId, admin);
     return actionSuccess("Player removed from team.");
   } catch (error) {
-    return mapAdminActionError(error);
+    return mapAdminActionError(error, "Admin team action failed");
   }
 }
