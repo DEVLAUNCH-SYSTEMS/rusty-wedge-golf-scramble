@@ -1,11 +1,13 @@
 export const ORGANIZERS = [
   {
     name: "Scott Wenzel Jr.",
-    email: "scott@example.com",
+    email: "scottwenzeljr@gmail.com",
+    phone: "509-218-4650",
   },
   {
     name: "Rusty Williams",
-    email: "rusty@example.com",
+    email: "rustypaula91@gmail.com",
+    phone: "509-993-0269",
   },
 ] as const;
 

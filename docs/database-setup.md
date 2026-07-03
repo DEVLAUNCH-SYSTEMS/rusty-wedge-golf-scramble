@@ -37,9 +37,9 @@ Seeds one active tournament:
 - Event: The Rusty Wedge Golf Scramble, August 28, 2026
 - Location: Deer Park Golf Course
 - Capacity: 68 confirmed players
-- Venmo: `@RustyWedge` (placeholder — update before production)
+- Venmo: `@scottyrusty`
 
-The seed is idempotent; re-running skips if the slug already exists.
+The seed is idempotent; re-running updates the active tournament row when the slug already exists.
 
 ## Regenerate migrations (schema changes only)
 
