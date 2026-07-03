@@ -10,6 +10,18 @@ type FormMessage = {
   text: string;
 };
 
+const ACTION_FAILURE_MESSAGE: FormMessage = {
+  tone: "error",
+  text: "Unable to complete that action. Please try again.",
+};
+
+function toFormMessage(result: ActionResult): FormMessage {
+  return {
+    tone: result.ok ? "success" : "error",
+    text: result.message,
+  };
+}
+
 export function useAdminActionResult() {
   const router = useRouter();
   const [message, setMessage] = useState<FormMessage | null>(null);
@@ -18,16 +30,17 @@ export function useAdminActionResult() {
   function runAction(action: () => Promise<ActionResult>) {
     setMessage(null);
 
-    startTransition(async () => {
-      const result = await action();
-      setMessage({
-        tone: result.ok ? "success" : "error",
-        text: result.message,
-      });
-
-      if (result.ok) {
-        router.refresh();
-      }
+    startTransition(() => {
+      void action()
+        .then((result) => {
+          setMessage(toFormMessage(result));
+          if (result.ok) {
+            router.refresh();
+          }
+        })
+        .catch(() => {
+          setMessage(ACTION_FAILURE_MESSAGE);
+        });
     });
   }
 
