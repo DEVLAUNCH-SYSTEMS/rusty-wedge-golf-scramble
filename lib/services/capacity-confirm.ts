@@ -6,6 +6,7 @@ import { getPgPool } from "@/lib/db/pg-pool";
 import * as schema from "@/lib/db/schema";
 import { registrationEvents, registrations, tournaments } from "@/lib/db/schema";
 import { AUDIT_EVENT_TYPES } from "@/lib/services/audit-types";
+import { ServiceError } from "@/lib/services/service-error";
 
 import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 
@@ -93,7 +94,10 @@ async function runCapacityConfirmation(
   const tournament = await lockTournament(tx, input.tournamentId);
 
   if (!tournament) {
-    throw new Error("Tournament not found for capacity confirmation.");
+    throw new ServiceError(
+      "TOURNAMENT_NOT_FOUND",
+      "Tournament not found for capacity confirmation.",
+    );
   }
 
   const confirmedCount = await countConfirmedInTransaction(

@@ -5,7 +5,7 @@ import {
   actionSuccess,
   type ActionResult,
 } from "@/lib/actions/action-result";
-import { requireAdminSession } from "@/lib/services/admin-auth";
+import { AdminAuthError, requireAdminSession } from "@/lib/services/admin-auth";
 import {
   cancelRegistration,
   rejectRegistrationPayment,
@@ -15,6 +15,10 @@ import {
 import { ServiceError } from "@/lib/services/service-error";
 
 function mapAdminActionError(error: unknown): ActionResult {
+  if (error instanceof AdminAuthError) {
+    return actionFailure(error.message);
+  }
+
   if (error instanceof ServiceError) {
     return actionFailure(error.message);
   }
