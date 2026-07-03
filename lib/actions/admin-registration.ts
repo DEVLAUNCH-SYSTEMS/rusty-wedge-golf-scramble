@@ -1,31 +1,17 @@
 "use server";
 
 import {
-  actionFailure,
   actionSuccess,
   type ActionResult,
 } from "@/lib/actions/action-result";
-import { AdminAuthError, requireAdminSession } from "@/lib/services/admin-auth";
+import { mapAdminActionError } from "@/lib/actions/map-admin-action-error";
+import { requireAdminSession } from "@/lib/services/admin-auth";
 import {
   cancelRegistration,
   rejectRegistrationPayment,
   updateRegistrationNotes,
   verifyRegistrationPayment,
 } from "@/lib/services/registration-admin";
-import { ServiceError } from "@/lib/services/service-error";
-
-function mapAdminActionError(error: unknown): ActionResult {
-  if (error instanceof AdminAuthError) {
-    return actionFailure(error.message);
-  }
-
-  if (error instanceof ServiceError) {
-    return actionFailure(error.message);
-  }
-
-  console.error("Admin registration action failed:", error);
-  return actionFailure("Unable to complete that action. Please try again.");
-}
 
 function readString(formData: FormData, key: string): string {
   const value = formData.get(key);
@@ -40,7 +26,7 @@ export async function verifyRegistrationPaymentAction(
     await verifyRegistrationPayment(registrationId, admin);
     return actionSuccess("Payment verified and registration confirmed.");
   } catch (error) {
-    return mapAdminActionError(error);
+    return mapAdminActionError(error, "Admin registration action failed");
   }
 }
 
@@ -54,7 +40,7 @@ export async function rejectRegistrationPaymentAction(
     await rejectRegistrationPayment(registrationId, reason, admin);
     return actionSuccess("Payment rejected.");
   } catch (error) {
-    return mapAdminActionError(error);
+    return mapAdminActionError(error, "Admin registration action failed");
   }
 }
 
@@ -68,7 +54,7 @@ export async function cancelRegistrationAction(
     await cancelRegistration(registrationId, adminNotes, admin);
     return actionSuccess("Registration cancelled.");
   } catch (error) {
-    return mapAdminActionError(error);
+    return mapAdminActionError(error, "Admin registration action failed");
   }
 }
 
@@ -92,6 +78,6 @@ export async function updateRegistrationNotesAction(
 
     return actionSuccess("Notes saved.");
   } catch (error) {
-    return mapAdminActionError(error);
+    return mapAdminActionError(error, "Admin registration action failed");
   }
 }

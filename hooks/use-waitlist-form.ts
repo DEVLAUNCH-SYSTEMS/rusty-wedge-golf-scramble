@@ -1,6 +1,7 @@
 import { useState } from "react";
 
 import { submitWaitlist } from "@/lib/actions/submit-waitlist";
+import { PUBLIC_ERROR_MESSAGE } from "@/lib/services/service-error";
 
 type FormMessage = {
   tone: "success" | "error";
@@ -17,15 +18,19 @@ export function useWaitlistForm() {
     setMessage(null);
 
     const form = event.currentTarget;
-    const result = await submitWaitlist(new FormData(form));
 
-    setMessage({ tone: result.ok ? "success" : "error", text: result.message });
+    try {
+      const result = await submitWaitlist(new FormData(form));
+      setMessage({ tone: result.ok ? "success" : "error", text: result.message });
 
-    if (result.ok) {
-      form.reset();
+      if (result.ok) {
+        form.reset();
+      }
+    } catch {
+      setMessage({ tone: "error", text: PUBLIC_ERROR_MESSAGE });
+    } finally {
+      setIsSubmitting(false);
     }
-
-    setIsSubmitting(false);
   }
 
   return { message, isSubmitting, handleSubmit };
