@@ -1,17 +1,23 @@
 import { eq } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
 import { describe, expect, it } from "vitest";
+import { ZodError } from "zod";
 
 import { getDb } from "@/lib/db";
 import { hasIntegrationDatabase } from "@/lib/db/ci-gate-env";
 import {
   registrationEvents,
+  teamMembers,
   tournaments,
   waitlistEntries,
 } from "@/lib/db/schema";
 import { AUDIT_EVENT_TYPES } from "@/lib/services/audit-types";
 import { updateRegistrationProfile } from "@/lib/services/registration-profile-update";
 import { ServiceError } from "@/lib/services/service-error";
+import {
+  assignPlayerToTeam,
+  createTeam,
+} from "@/lib/services/teams-mutations";
 
 import {
   createTestAdminSession,
@@ -282,6 +288,148 @@ describe.skipIf(!hasIntegrationDatabase())(
         ]),
         previousEmail,
       });
+    });
+  },
+);
+
+describe.skipIf(!hasIntegrationDatabase())(
+  "admin profile edit H-cases",
+  () => {
+    it("H-edit-success: updates profile fields for a pending registration", async () => {
+      const tournamentId = await getActiveTournamentId();
+      const admin = await createTestAdminSession();
+      const email = uniqueTestEmail("h-edit-success");
+      const row = await insertRegistrationRow({
+        tournamentId,
+        email,
+        registrationStatus: "pending_review",
+      });
+
+      const updated = await updateRegistrationProfile(
+        row.id,
+        {
+          firstName: "Casey",
+          lastName: "Fairway",
+          email,
+          phone: "5095550222",
+          skillLevel: "A",
+          preferredPlayers: "Riley",
+          notes: "Early tee",
+        },
+        admin,
+      );
+
+      expect(updated).toMatchObject({
+        firstName: "Casey",
+        lastName: "Fairway",
+        email: email.toLowerCase(),
+        phone: "5095550222",
+        skillLevel: "A",
+        preferredPlayers: "Riley",
+        notes: "Early tee",
+      });
+    });
+
+    it("H-edit-invalid: rejects invalid profile payloads before persist", async () => {
+      const tournamentId = await getActiveTournamentId();
+      const admin = await createTestAdminSession();
+      const row = await insertRegistrationRow({
+        tournamentId,
+        email: uniqueTestEmail("h-edit-invalid"),
+        registrationStatus: "pending_review",
+      });
+
+      await expect(
+        updateRegistrationProfile(
+          row.id,
+          {
+            firstName: "",
+            lastName: "Player",
+            email: "bad-email",
+            phone: "12",
+            skillLevel: "Z",
+          },
+          admin,
+        ),
+      ).rejects.toBeInstanceOf(ZodError);
+    });
+
+    it("H-edit-duplicate: blocks email already used by another active registration", async () => {
+      const tournamentId = await getActiveTournamentId();
+      const admin = await createTestAdminSession();
+      const takenEmail = uniqueTestEmail("h-edit-taken");
+      const targetEmail = uniqueTestEmail("h-edit-target");
+
+      await insertRegistrationRow({
+        tournamentId,
+        email: takenEmail,
+        registrationStatus: "confirmed",
+      });
+      const target = await insertRegistrationRow({
+        tournamentId,
+        email: targetEmail,
+        registrationStatus: "pending_review",
+      });
+
+      await expect(
+        updateRegistrationProfile(
+          target.id,
+          {
+            firstName: "Pat",
+            lastName: "Player",
+            email: takenEmail,
+            phone: "5095550100",
+            skillLevel: "B",
+          },
+          admin,
+        ),
+      ).rejects.toMatchObject({
+        name: "ServiceError",
+        code: "DUPLICATE_EMAIL",
+      } satisfies Partial<ServiceError>);
+    });
+
+    it("H-edit-team-survives: team membership remains after rename and email change", async () => {
+      const tournamentId = await getActiveTournamentId();
+      const admin = await createTestAdminSession();
+      const originalEmail = uniqueTestEmail("h-edit-team-old");
+      const nextEmail = uniqueTestEmail("h-edit-team-new");
+      const player = await insertRegistrationRow({
+        tournamentId,
+        email: originalEmail,
+        registrationStatus: "confirmed",
+      });
+      const team = await createTeam(`H-edit team ${randomUUID()}`, admin);
+
+      await assignPlayerToTeam(team.id, player.id, admin);
+
+      await updateRegistrationProfile(
+        player.id,
+        {
+          firstName: "Renamed",
+          lastName: "Member",
+          email: nextEmail,
+          phone: "5095550333",
+          skillLevel: "C",
+        },
+        admin,
+      );
+
+      const db = getDb();
+      const membership = await db
+        .select({
+          teamId: teamMembers.teamId,
+          registrationId: teamMembers.registrationId,
+        })
+        .from(teamMembers)
+        .where(eq(teamMembers.registrationId, player.id));
+
+      expect(membership).toEqual([
+        {
+          teamId: team.id,
+          registrationId: player.id,
+        },
+      ]);
     });
   },
 );

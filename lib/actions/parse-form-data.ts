@@ -1,6 +1,9 @@
-import { submitRegistrationSchema } from "@/lib/validation/forms";
+import { submitRegistrationSchema, updateRegistrationProfileSchema } from "@/lib/validation/forms";
 
-import type { SubmitRegistrationInput } from "@/lib/validation/forms";
+import type {
+  SubmitRegistrationInput,
+  UpdateRegistrationProfileInput,
+} from "@/lib/validation/forms";
 
 function readString(formData: FormData, key: string): string {
   const value = formData.get(key);
@@ -11,6 +14,20 @@ export function parseRegistrationFormData(
   formData: FormData,
 ): SubmitRegistrationInput {
   return submitRegistrationSchema.parse({
+    firstName: readString(formData, "firstName"),
+    lastName: readString(formData, "lastName"),
+    email: readString(formData, "email"),
+    phone: readString(formData, "phone"),
+    skillLevel: readString(formData, "skillLevel"),
+    preferredPlayers: readString(formData, "preferredPlayers") || undefined,
+    notes: readString(formData, "notes") || undefined,
+  });
+}
+
+export function parseUpdateRegistrationProfileFormData(
+  formData: FormData,
+): UpdateRegistrationProfileInput {
+  return updateRegistrationProfileSchema.parse({
     firstName: readString(formData, "firstName"),
     lastName: readString(formData, "lastName"),
     email: readString(formData, "email"),
