@@ -7,6 +7,7 @@ export const AUDIT_EVENT_TYPES = {
   playerAssignedToTeam: "player_assigned_to_team",
   playerRemovedFromTeam: "player_removed_from_team",
   adminNotesUpdated: "admin_notes_updated",
+  registrationProfileUpdated: "registration_profile_updated",
   verifyBlockedCapacity: "verify_blocked_capacity",
 } as const;
 

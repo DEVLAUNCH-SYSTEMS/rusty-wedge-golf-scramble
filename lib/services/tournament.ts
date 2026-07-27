@@ -3,6 +3,7 @@ import { eq } from "drizzle-orm";
 import { getDb } from "@/lib/db";
 import { tournaments } from "@/lib/db/schema";
 import { ServiceError } from "@/lib/services/service-error";
+import { allowsAdminMutations } from "@/lib/services/tournament-lifecycle";
 
 export type Tournament = typeof tournaments.$inferSelect;
 export type ActiveTournament = Tournament;
@@ -61,6 +62,17 @@ export function assertTournamentScope(
     throw new ServiceError(
       "TOURNAMENT_SCOPE_MISMATCH",
       "Record is outside the active tournament.",
+    );
+  }
+}
+
+export function assertTournamentWritable(
+  tournament: Pick<Tournament, "lifecycleStatus">,
+): void {
+  if (!allowsAdminMutations(tournament.lifecycleStatus)) {
+    throw new ServiceError(
+      "TOURNAMENT_ARCHIVED",
+      "This tournament is archived and cannot be modified.",
     );
   }
 }

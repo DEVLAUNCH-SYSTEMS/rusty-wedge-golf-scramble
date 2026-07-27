@@ -8,3 +8,4 @@ export {
   updateRegistrationNotes,
   verifyRegistrationPayment,
 } from "@/lib/services/registration-admin";
+export { updateRegistrationProfile } from "@/lib/services/registration-profile-update";
