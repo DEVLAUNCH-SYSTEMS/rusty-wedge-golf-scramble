@@ -9,6 +9,7 @@ import {
 
 import { adminUsers } from "@/lib/db/schema/admin-users";
 import {
+  createdSourceEnum,
   paymentStatusEnum,
   registrationStatusEnum,
   skillLevelEnum,
@@ -36,6 +37,10 @@ export const waitlistEntries = pgTable(
     promotedRegistrationId: uuid("promoted_registration_id").references(
       (): AnyPgColumn => registrations.id,
     ),
+    createdSource: createdSourceEnum("created_source")
+      .notNull()
+      .default("public"),
+    createdByAdminId: uuid("created_by_admin_id").references(() => adminUsers.id),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },
@@ -79,6 +84,10 @@ export const registrations = pgTable(
     sourceWaitlistEntryId: uuid("source_waitlist_entry_id").references(
       () => waitlistEntries.id,
     ),
+    createdSource: createdSourceEnum("created_source")
+      .notNull()
+      .default("public"),
+    createdByAdminId: uuid("created_by_admin_id").references(() => adminUsers.id),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },

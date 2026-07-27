@@ -4,9 +4,10 @@ import { getDb } from "@/lib/db";
 import { tournaments } from "@/lib/db/schema";
 import { ServiceError } from "@/lib/services/service-error";
 
-export type ActiveTournament = typeof tournaments.$inferSelect;
+export type Tournament = typeof tournaments.$inferSelect;
+export type ActiveTournament = Tournament;
 
-export async function getActiveTournament(): Promise<ActiveTournament | null> {
+export async function getActiveTournament(): Promise<Tournament | null> {
   const db = getDb();
   const rows = await db
     .select()
@@ -17,11 +18,36 @@ export async function getActiveTournament(): Promise<ActiveTournament | null> {
   return rows[0] ?? null;
 }
 
-export async function requireActiveTournament(): Promise<ActiveTournament> {
+export async function requireActiveTournament(): Promise<Tournament> {
   const tournament = await getActiveTournament();
 
   if (!tournament) {
     throw new ServiceError("NO_ACTIVE_TOURNAMENT", "No active tournament found.");
+  }
+
+  return tournament;
+}
+
+export async function getTournamentById(
+  tournamentId: string,
+): Promise<Tournament | null> {
+  const db = getDb();
+  const rows = await db
+    .select()
+    .from(tournaments)
+    .where(eq(tournaments.id, tournamentId))
+    .limit(1);
+
+  return rows[0] ?? null;
+}
+
+export async function requireTournamentById(
+  tournamentId: string,
+): Promise<Tournament> {
+  const tournament = await getTournamentById(tournamentId);
+
+  if (!tournament) {
+    throw new ServiceError("TOURNAMENT_NOT_FOUND", "Tournament not found.");
   }
 
   return tournament;
