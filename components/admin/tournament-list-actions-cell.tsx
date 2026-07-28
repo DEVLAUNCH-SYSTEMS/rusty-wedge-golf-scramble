@@ -9,7 +9,7 @@ export function TournamentListActionsCell({
   tournament: AdminTournamentListItem;
 }) {
   return (
-    <div className="flex min-w-[14rem] flex-col gap-3">
+    <div className="flex w-full min-w-0 flex-col gap-3">
       <TournamentActivateControl tournament={tournament} />
       <TournamentLifecycleControls tournament={tournament} />
     </div>

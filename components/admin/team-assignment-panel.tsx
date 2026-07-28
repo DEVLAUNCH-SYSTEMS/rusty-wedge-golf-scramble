@@ -4,7 +4,7 @@ import type { TeamAssignmentReport } from "@/lib/services/team-assignment-report
 
 export function TeamAssignmentPanel({ report }: { report: TeamAssignmentReport }) {
   return (
-    <div className="grid gap-4 sm:grid-cols-3">
+    <div className="grid gap-4 md:grid-cols-3">
       <MetricCard label="Confirmed players" value={String(report.confirmedCount)} />
       <MetricCard label="Assigned" value={String(report.assignedCount)} />
       <MetricCard

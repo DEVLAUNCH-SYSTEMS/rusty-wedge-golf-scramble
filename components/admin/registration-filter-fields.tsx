@@ -123,11 +123,17 @@ export function RegistrationFilterGrid({ filters }: { filters: AdminRegistration
 
 export function RegistrationFilterActions() {
   return (
-    <div className="flex flex-wrap gap-2">
-      <button type="submit" className={adminButtonClassName}>
+    <div className="flex flex-col gap-2 md:flex-row md:flex-wrap">
+      <button
+        type="submit"
+        className={`${adminButtonClassName} w-full md:w-auto`}
+      >
         Apply filters
       </button>
-      <Link href="/admin/registrations" className={adminSecondaryButtonClassName}>
+      <Link
+        href="/admin/registrations"
+        className={`${adminSecondaryButtonClassName} w-full text-center md:w-auto`}
+      >
         Clear
       </Link>
     </div>

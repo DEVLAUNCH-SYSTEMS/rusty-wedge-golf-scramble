@@ -21,13 +21,13 @@ type AdminTournamentSelectorFieldProps = {
 
 export function AdminTournamentSelectorField(props: AdminTournamentSelectorFieldProps) {
   return (
-    <label className="flex flex-col gap-1">
+    <label className="flex w-full min-w-0 flex-col gap-1 lg:w-auto">
       <AdminTournamentSelectorLabel />
       <select
         aria-label="Select tournament view"
         value={props.selectedTournamentId}
         disabled={props.disabled}
-        className={`${adminInputClassName} min-w-[14rem] border-white/20 bg-white/10 text-white`}
+        className={`${adminInputClassName} w-full max-w-full border-white/20 bg-white/10 text-white lg:max-w-xs xl:max-w-sm`}
         onChange={(event) => props.onChange(event.target.value)}
       >
         <AdminTournamentSelectorOptions

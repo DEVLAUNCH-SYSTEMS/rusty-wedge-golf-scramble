@@ -15,7 +15,7 @@ export default async function AdminTournamentsPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+      <div className="flex flex-col gap-2 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <h1 className={adminPageHeadingClassName}>Tournaments</h1>
           <p className={adminPageSubheadingClassName}>

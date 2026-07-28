@@ -52,7 +52,7 @@ export function TournamentLifecycleControls({
     runAction(() => transitionTournamentLifecycleAction(formData));
 
   return (
-    <div className="flex min-w-[14rem] flex-col gap-3">
+    <div className="flex w-full min-w-0 flex-col gap-3">
       <LifecycleActionList
         tournament={tournament}
         actions={actions}

@@ -27,13 +27,13 @@ function AdminNavBrand() {
 
 function AdminNavMeta({ adminEmail, tournamentSelector }: AdminNavProps) {
   return (
-    <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:gap-6">
+    <div className="flex w-full min-w-0 flex-col gap-3 lg:flex-row lg:flex-wrap lg:items-end lg:gap-x-6 lg:gap-y-2">
       <AdminTournamentSelector
         options={tournamentSelector.options}
         selectedTournamentId={tournamentSelector.selectedTournamentId}
         activeTournamentId={tournamentSelector.activeTournamentId}
       />
-      <p className="text-xs text-white/70">
+      <p className="min-w-0 text-xs break-all text-white/70">
         Signed in as <span className="font-medium text-white">{adminEmail}</span>
       </p>
       <Link

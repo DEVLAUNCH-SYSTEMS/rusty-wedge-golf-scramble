@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import {
   adminLinkClassName,
+  adminBreakableTextClassName,
   adminMutedTextClassName,
 } from "@/components/admin/admin-text-styles";
 import {
@@ -25,11 +26,13 @@ function formatDate(value: Date | null): string {
 
 function PlayerCell({ registration }: { registration: AdminRegistrationListItem }) {
   return (
-    <td className="px-4 py-3">
+    <td className="max-w-[16rem] px-4 py-3">
       <Link href={`/admin/registrations/${registration.id}`} className={adminLinkClassName}>
         {registration.firstName} {registration.lastName}
       </Link>
-      <p className={adminMutedTextClassName}>{registration.email}</p>
+      <p className={`${adminMutedTextClassName} ${adminBreakableTextClassName}`}>
+        {registration.email}
+      </p>
     </td>
   );
 }
@@ -79,10 +82,10 @@ export function RegistrationListRow({
     <tr className="hover:bg-rw-gray/60">
       <PlayerCell registration={registration} />
       <StatusCells registration={registration} />
-      <td className="px-4 py-3">
+      <td className="max-w-[10rem] px-4 py-3">
         <TeamAssignmentCell registration={registration} />
       </td>
-      <td className="px-4 py-3 text-slate-600">
+      <td className="whitespace-nowrap px-4 py-3 text-slate-600">
         {formatDate(registration.paymentSubmittedAt ?? registration.createdAt)}
       </td>
     </tr>

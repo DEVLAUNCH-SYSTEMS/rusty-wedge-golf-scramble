@@ -17,11 +17,17 @@ export function AdminExportLinks({ hrefs }: AdminExportLinksProps) {
       <p className={`${adminBodyTextClassName} mt-2`}>
         Download tournament data for event-day records and post-event archiving.
       </p>
-      <div className="mt-4 flex flex-wrap gap-3">
-        <a href={hrefs.registrations} className={adminSecondaryButtonClassName}>
+      <div className="mt-4 flex flex-col gap-3 md:flex-row md:flex-wrap">
+        <a
+          href={hrefs.registrations}
+          className={`${adminSecondaryButtonClassName} w-full text-center md:w-auto`}
+        >
           Export registrations
         </a>
-        <a href={hrefs.teams} className={adminSecondaryButtonClassName}>
+        <a
+          href={hrefs.teams}
+          className={`${adminSecondaryButtonClassName} w-full text-center md:w-auto`}
+        >
           Export teams
         </a>
       </div>

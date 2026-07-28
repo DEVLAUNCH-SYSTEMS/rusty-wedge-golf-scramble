@@ -12,7 +12,7 @@ type RegistrationsPageHeaderProps = {
 
 export function RegistrationsPageHeader(props: RegistrationsPageHeaderProps) {
   return (
-    <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+    <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
       <RegistrationsPageIntro
         tournamentYear={props.tournamentYear}
         lifecycleStatus={props.lifecycleStatus}

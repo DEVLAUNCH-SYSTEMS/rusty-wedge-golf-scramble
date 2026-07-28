@@ -13,7 +13,7 @@ export function RegistrationsAddPlayerLink({
   if (readOnlyReason) {
     return (
       <span
-        className={`${adminSecondaryButtonClassName} cursor-not-allowed opacity-60`}
+        className={`${adminSecondaryButtonClassName} w-full cursor-not-allowed text-center opacity-60 md:w-auto`}
         aria-disabled="true"
         title={readOnlyReason}
       >
@@ -23,7 +23,10 @@ export function RegistrationsAddPlayerLink({
   }
 
   return (
-    <Link href="/admin/registrations/new" className={adminButtonClassName}>
+    <Link
+      href="/admin/registrations/new"
+      className={`${adminButtonClassName} w-full text-center md:w-auto`}
+    >
       Add player
     </Link>
   );

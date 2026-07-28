@@ -62,7 +62,7 @@ export default async function AdminLayout({ children }: AdminLayoutProps) {
         adminEmail={shell.email}
         tournamentSelector={await getAdminTournamentSelectorData()}
       />
-      <main className="mx-auto max-w-6xl px-4 py-8">
+      <main className="mx-auto min-w-0 max-w-6xl overflow-x-hidden px-4 py-8">
         <AdminClientShell>{children}</AdminClientShell>
       </main>
     </div>

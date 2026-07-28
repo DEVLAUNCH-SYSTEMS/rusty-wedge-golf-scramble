@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { AdminTableScrollShell } from "@/components/admin/admin-table-scroll-shell";
 import {
   adminLinkClassName,
   adminTableBorderClassName,
@@ -60,8 +61,8 @@ export function TeamMembersTable({
   readOnlyReason?: string;
 }) {
   return (
-    <div className={`mt-4 overflow-x-auto rounded-xl border ${adminTableBorderClassName}`}>
-      <table className={`min-w-full divide-y ${adminTableBorderClassName} text-sm`}>
+    <AdminTableScrollShell className="mt-4 rounded-xl">
+      <table className={`min-w-[28rem] divide-y ${adminTableBorderClassName} text-sm`}>
         <TeamMembersTableHead />
         <tbody className={`divide-y ${adminTableBorderClassName}`}>
           {team.members.map((member) => (
@@ -74,6 +75,6 @@ export function TeamMembersTable({
           ))}
         </tbody>
       </table>
-    </div>
+    </AdminTableScrollShell>
   );
 }
