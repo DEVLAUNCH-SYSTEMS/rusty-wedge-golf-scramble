@@ -7,15 +7,23 @@ import { FIELD_LIMITS } from "@/lib/validation/field-limits";
 
 type RejectPaymentFormProps = {
   registrationId: string;
+  disabled?: boolean;
+  disabledMessage?: string;
 };
 
-export function RejectPaymentForm({ registrationId }: RejectPaymentFormProps) {
+export function RejectPaymentForm({
+  registrationId,
+  disabled,
+  disabledMessage,
+}: RejectPaymentFormProps) {
   return (
     <AdminActionForm
       title="Reject payment"
       submitLabel="Reject payment"
       pendingLabel="Rejecting…"
       danger
+      disabled={disabled}
+      disabledMessage={disabledMessage}
       onSubmit={(formData) => rejectRegistrationPaymentAction(registrationId, formData)}
     >
       <AdminTextAreaField

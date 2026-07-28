@@ -8,6 +8,7 @@ import {
   adminPageHeadingClassName,
   adminSectionTitleClassName,
 } from "@/components/admin/admin-text-styles";
+import { ArchivedTournamentBanner } from "@/components/admin/archived-tournament-banner";
 import { AssignPlayerForm } from "@/components/admin/assign-player-form";
 import { TeamMembersTable } from "@/components/admin/team-members-table";
 
@@ -31,7 +32,13 @@ function TeamDetailHeader({ team }: { team: AdminTeamDetail }) {
   );
 }
 
-function TeamRosterSection({ team }: { team: AdminTeamDetail }) {
+function TeamRosterSection({
+  team,
+  readOnlyReason,
+}: {
+  team: AdminTeamDetail;
+  readOnlyReason?: string;
+}) {
   return (
     <section className={adminCardClassName}>
       <h2 className={adminSectionTitleClassName}>Roster</h2>
@@ -40,7 +47,7 @@ function TeamRosterSection({ team }: { team: AdminTeamDetail }) {
           No players assigned yet.
         </p>
       ) : (
-        <TeamMembersTable team={team} />
+        <TeamMembersTable team={team} readOnlyReason={readOnlyReason} />
       )}
     </section>
   );
@@ -49,16 +56,24 @@ function TeamRosterSection({ team }: { team: AdminTeamDetail }) {
 export function TeamDetailView({
   team,
   assignablePlayers,
+  readOnlyReason,
 }: {
   team: AdminTeamDetail;
   assignablePlayers: AdminAssignablePlayer[];
+  readOnlyReason?: string;
 }) {
   return (
     <div className="flex flex-col gap-6">
+      {readOnlyReason ? <ArchivedTournamentBanner /> : null}
       <TeamDetailHeader team={team} />
-      <TeamRosterSection team={team} />
+      <TeamRosterSection team={team} readOnlyReason={readOnlyReason} />
       {team.slotsRemaining > 0 ? (
-        <AssignPlayerForm teamId={team.id} players={assignablePlayers} />
+        <AssignPlayerForm
+          teamId={team.id}
+          players={assignablePlayers}
+          disabled={Boolean(readOnlyReason)}
+          disabledMessage={readOnlyReason}
+        />
       ) : null}
     </div>
   );

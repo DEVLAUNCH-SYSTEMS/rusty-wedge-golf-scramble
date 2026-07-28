@@ -6,6 +6,7 @@ import { AUDIT_EVENT_TYPES, recordAuditEvent } from "@/lib/services/audit";
 import { ServiceError } from "@/lib/services/service-error";
 import {
   assertTournamentScope,
+  assertTournamentWritable,
   requireActiveTournament,
 } from "@/lib/services/tournament";
 import { findWaitlistEntryById } from "@/lib/services/waitlist-create";
@@ -21,6 +22,7 @@ async function requireActiveWaitlistEntry(waitlistEntryId: string) {
   }
 
   assertTournamentScope(entry.tournamentId, tournament.id);
+  assertTournamentWritable(tournament);
 
   if (entry.status !== "active") {
     throw new ServiceError("INVALID_STATUS", "Waitlist entry is not active.");

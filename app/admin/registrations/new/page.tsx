@@ -6,10 +6,16 @@ import {
   adminPageHeadingClassName,
   adminPageSubheadingClassName,
 } from "@/components/admin/admin-text-styles";
+import { ArchivedTournamentBanner } from "@/components/admin/archived-tournament-banner";
+import { adminArchivedReadOnlyReason } from "@/lib/content/admin-archived-readonly";
+import { requireActiveTournament } from "@/lib/services/tournament";
 
 export const dynamic = "force-dynamic";
 
-export default function AdminAddPlayerPage() {
+export default async function AdminAddPlayerPage() {
+  const tournament = await requireActiveTournament();
+  const readOnlyReason = adminArchivedReadOnlyReason(tournament.lifecycleStatus);
+
   return (
     <div className="flex flex-col gap-6">
       <div>
@@ -23,7 +29,8 @@ export default function AdminAddPlayerPage() {
         </p>
       </div>
 
-      <AddPlayerForm />
+      {readOnlyReason ? <ArchivedTournamentBanner /> : null}
+      <AddPlayerForm readOnlyReason={readOnlyReason} />
     </div>
   );
 }

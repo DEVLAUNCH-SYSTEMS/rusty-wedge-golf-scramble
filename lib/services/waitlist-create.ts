@@ -10,7 +10,11 @@ import {
   PUBLIC_ERROR_MESSAGE,
   ServiceError,
 } from "@/lib/services/service-error";
-import { requireActiveTournament } from "@/lib/services/tournament";
+import {
+  isPublicRegistrationOpen,
+  assertTournamentWritable,
+  requireActiveTournament,
+} from "@/lib/services/tournament";
 import { normalizePlayerEmail } from "@/lib/validation/player-profile";
 
 import type { PublicCreateTournament } from "@/lib/services/tournament";
@@ -31,7 +35,7 @@ export async function createWaitlistEntry(
   input: SubmitWaitlistInput,
   tournament: PublicCreateTournament,
 ) {
-  if (!tournament.registrationEnabled) {
+  if (!isPublicRegistrationOpen(tournament)) {
     throw new ServiceError("REGISTRATION_CLOSED", PUBLIC_ERROR_MESSAGE);
   }
 
@@ -54,6 +58,7 @@ export async function createWaitlistEntry(
 
 export async function removeWaitlistEntry(waitlistEntryId: string) {
   const tournament = await requireActiveTournament();
+  assertTournamentWritable(tournament);
   const entry = await findWaitlistEntryById(waitlistEntryId);
 
   if (!entry) {

@@ -11,8 +11,7 @@ import {
 import { ServiceError } from "@/lib/services/service-error";
 import {
   assertTournamentScope,
-  assertTournamentWritable,
-  requireActiveTournament,
+  requireWritableActiveTournament,
 } from "@/lib/services/tournament";
 import { updateRegistrationProfileSchema } from "@/lib/validation/forms";
 
@@ -112,7 +111,7 @@ export async function updateRegistrationProfile(
   admin: AdminSession,
 ) {
   const parsed = updateRegistrationProfileSchema.parse(input);
-  const tournament = await requireActiveTournament();
+  const tournament = await requireWritableActiveTournament();
   const registration = await findRegistrationById(registrationId);
 
   if (!registration) {
@@ -120,7 +119,6 @@ export async function updateRegistrationProfile(
   }
 
   assertTournamentScope(registration.tournamentId, tournament.id);
-  assertTournamentWritable(tournament);
   await assertProfileEmailAvailable(tournament.id, parsed.email, registrationId);
 
   const fieldsChanged = collectChangedProfileFields(registration, parsed);

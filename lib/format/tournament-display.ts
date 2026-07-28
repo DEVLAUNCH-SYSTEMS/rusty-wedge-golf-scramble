@@ -1,3 +1,5 @@
+import { allowsPublicRegistration } from "@/lib/services/tournament-lifecycle";
+
 import type { ActiveTournament } from "@/lib/services/tournament";
 
 function ordinalSuffix(day: number): string {
@@ -82,6 +84,6 @@ export function toPublicTournamentView(
     locationName: tournament.locationName,
     entryFeeLabel: formatEntryFee(tournament.entryFeeCents),
     venmoHandle: tournament.venmoHandle,
-    registrationEnabled: tournament.registrationEnabled,
+    registrationEnabled: allowsPublicRegistration(tournament.lifecycleStatus),
   };
 }

@@ -8,6 +8,7 @@ import { findRegistrationById } from "@/lib/services/registration-queries";
 import { ServiceError } from "@/lib/services/service-error";
 import {
   assertTournamentScope,
+  assertTournamentWritable,
   requireActiveTournament,
 } from "@/lib/services/tournament";
 import {
@@ -27,6 +28,7 @@ async function requireScopedRegistration(registrationId: string) {
   }
 
   assertTournamentScope(registration.tournamentId, tournament.id);
+  assertTournamentWritable(tournament);
 
   return { tournament, registration };
 }

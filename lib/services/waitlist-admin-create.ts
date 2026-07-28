@@ -2,10 +2,7 @@ import {
   assertWaitlistEmailAvailable,
   insertWaitlistRecord,
 } from "@/lib/services/player-create-shared";
-import {
-  assertTournamentWritable,
-  requireActiveTournament,
-} from "@/lib/services/tournament";
+import { requireWritableActiveTournament } from "@/lib/services/tournament";
 import {
   normalizePlayerEmail,
   playerProfileSchema,
@@ -20,8 +17,7 @@ export async function createAdminWaitlistEntry(
   input: CreateAdminWaitlistInput,
   admin: AdminSession,
 ): Promise<{ id: string }> {
-  const tournament = await requireActiveTournament();
-  assertTournamentWritable(tournament);
+  const tournament = await requireWritableActiveTournament();
 
   const profile = playerProfileSchema.parse(input);
   const email = normalizePlayerEmail(profile.email);

@@ -31,28 +31,69 @@ function WaitlistTableHead() {
   );
 }
 
-function WaitlistEntryRow({ entry }: { entry: AdminWaitlistEntry }) {
+function WaitlistPlayerCell({ entry }: { entry: AdminWaitlistEntry }) {
+  return (
+    <td className="px-4 py-3">
+      <p className="font-medium text-rw-navy">
+        {entry.firstName} {entry.lastName}
+      </p>
+      <p className={adminMutedTextClassName}>{entry.email}</p>
+      <p className={adminMutedTextClassName}>{entry.phone}</p>
+    </td>
+  );
+}
+
+function WaitlistEntryRow({
+  entry,
+  readOnlyReason,
+}: {
+  entry: AdminWaitlistEntry;
+  readOnlyReason?: string;
+}) {
   return (
     <tr className="align-top hover:bg-rw-gray/60">
-      <td className="px-4 py-3">
-        <p className="font-medium text-rw-navy">
-          {entry.firstName} {entry.lastName}
-        </p>
-        <p className={adminMutedTextClassName}>{entry.email}</p>
-        <p className={adminMutedTextClassName}>{entry.phone}</p>
-      </td>
+      <WaitlistPlayerCell entry={entry} />
       <td className="px-4 py-3 text-rw-navy">{entry.skillLevel}</td>
       <td className="px-4 py-3 text-sm text-slate-600">{entry.preferredPlayers ?? "—"}</td>
       <td className="px-4 py-3 text-sm text-slate-600">{entry.notes ?? "—"}</td>
       <td className="px-4 py-3 text-sm text-slate-600">{formatDate(entry.createdAt)}</td>
       <td className="px-4 py-3">
-        <WaitlistEntryActions waitlistEntryId={entry.id} />
+        <WaitlistEntryActions
+          waitlistEntryId={entry.id}
+          readOnlyReason={readOnlyReason}
+        />
       </td>
     </tr>
   );
 }
 
-export function WaitlistListTable({ entries }: { entries: AdminWaitlistEntry[] }) {
+function WaitlistTableBody({
+  entries,
+  readOnlyReason,
+}: {
+  entries: AdminWaitlistEntry[];
+  readOnlyReason?: string;
+}) {
+  return (
+    <tbody className={`divide-y ${adminTableBorderClassName}`}>
+      {entries.map((entry) => (
+        <WaitlistEntryRow
+          key={entry.id}
+          entry={entry}
+          readOnlyReason={readOnlyReason}
+        />
+      ))}
+    </tbody>
+  );
+}
+
+export function WaitlistListTable({
+  entries,
+  readOnlyReason,
+}: {
+  entries: AdminWaitlistEntry[];
+  readOnlyReason?: string;
+}) {
   if (entries.length === 0) {
     return <p className={adminEmptyStateClassName}>No active waitlist entries.</p>;
   }
@@ -61,11 +102,7 @@ export function WaitlistListTable({ entries }: { entries: AdminWaitlistEntry[] }
     <div className={`overflow-x-auto ${adminCardClassName} p-0`}>
       <table className={`min-w-full divide-y ${adminTableBorderClassName} text-sm`}>
         <WaitlistTableHead />
-        <tbody className={`divide-y ${adminTableBorderClassName}`}>
-          {entries.map((entry) => (
-            <WaitlistEntryRow key={entry.id} entry={entry} />
-          ))}
-        </tbody>
+        <WaitlistTableBody entries={entries} readOnlyReason={readOnlyReason} />
       </table>
     </div>
   );

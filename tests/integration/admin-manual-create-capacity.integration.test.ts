@@ -14,6 +14,10 @@ import {
 } from "./admin-manual-create-helpers";
 import { createTestAdminSession, uniqueTestEmail } from "./helpers";
 
+// Parallel integration files also insert confirmed rows on the shared active
+// tournament. Leave headroom so this suite does not flake on that race.
+const CAPACITY_HEADROOM = 50;
+
 describe.skipIf(!hasIntegrationDatabase())(
   "admin manual create capacity rules",
   () => {
@@ -24,7 +28,10 @@ describe.skipIf(!hasIntegrationDatabase())(
       const confirmed = await countConfirmedRegistrations(tournament.id);
 
       try {
-        await setConfirmedCapacityLimit(tournament.id, confirmed + 1);
+        await setConfirmedCapacityLimit(
+          tournament.id,
+          confirmed + CAPACITY_HEADROOM,
+        );
 
         const created = await createAdminRegistration(
           {
@@ -51,11 +58,11 @@ describe.skipIf(!hasIntegrationDatabase())(
       const admin = await createTestAdminSession();
       const tournament = await requireActiveTournament();
       const originalLimit = tournament.confirmedCapacityLimit;
-      const confirmed = await countConfirmedRegistrations(tournament.id);
       const email = uniqueTestEmail("admin-verified-full");
 
       try {
-        await setConfirmedCapacityLimit(tournament.id, confirmed);
+        // Limit 0 is always full (confirm uses confirmedCount >= limit).
+        await setConfirmedCapacityLimit(tournament.id, 0);
 
         await expect(
           createAdminRegistration(
@@ -81,10 +88,9 @@ describe.skipIf(!hasIntegrationDatabase())(
       const admin = await createTestAdminSession();
       const tournament = await requireActiveTournament();
       const originalLimit = tournament.confirmedCapacityLimit;
-      const confirmed = await countConfirmedRegistrations(tournament.id);
 
       try {
-        await setConfirmedCapacityLimit(tournament.id, confirmed);
+        await setConfirmedCapacityLimit(tournament.id, 0);
 
         const created = await createAdminRegistration(
           {

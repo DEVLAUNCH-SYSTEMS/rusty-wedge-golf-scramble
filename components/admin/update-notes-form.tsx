@@ -8,18 +8,24 @@ type UpdateNotesFormProps = {
   registrationId: string;
   paymentReviewNotes: string | null;
   adminNotes: string | null;
+  disabled?: boolean;
+  disabledMessage?: string;
 };
 
 export function UpdateNotesForm({
   registrationId,
   paymentReviewNotes,
   adminNotes,
+  disabled,
+  disabledMessage,
 }: UpdateNotesFormProps) {
   return (
     <AdminActionForm
       title="Admin notes"
       submitLabel="Save notes"
       pendingLabel="Saving…"
+      disabled={disabled}
+      disabledMessage={disabledMessage}
       onSubmit={(formData) => updateRegistrationNotesAction(registrationId, formData)}
     >
       <RegistrationNotesFields

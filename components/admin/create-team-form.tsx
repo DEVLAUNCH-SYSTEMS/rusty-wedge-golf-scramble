@@ -5,24 +5,38 @@ import {
 } from "@/components/admin/admin-form-styles";
 import { createTeamAction } from "@/lib/actions/admin-teams";
 
-export function CreateTeamForm() {
+function TeamNameField() {
+  return (
+    <label className={adminLabelClassName}>
+      Team name
+      <input
+        type="text"
+        name="name"
+        required
+        maxLength={100}
+        className={adminInputClassName}
+      />
+    </label>
+  );
+}
+
+export function CreateTeamForm({
+  disabled,
+  disabledMessage,
+}: {
+  disabled?: boolean;
+  disabledMessage?: string;
+}) {
   return (
     <AdminActionForm
       title="Create team"
       submitLabel="Create team"
       pendingLabel="Creating…"
+      disabled={disabled}
+      disabledMessage={disabledMessage}
       onSubmit={createTeamAction}
     >
-      <label className={adminLabelClassName}>
-        Team name
-        <input
-          type="text"
-          name="name"
-          required
-          maxLength={100}
-          className={adminInputClassName}
-        />
-      </label>
+      <TeamNameField />
     </AdminActionForm>
   );
 }

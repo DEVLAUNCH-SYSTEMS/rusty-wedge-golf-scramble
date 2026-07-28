@@ -1,8 +1,9 @@
+import { ArchivedTournamentBanner } from "@/components/admin/archived-tournament-banner";
 import { EditPlayerProfileForm } from "@/components/admin/edit-player-profile-form";
 import { PaymentProofPreview } from "@/components/admin/payment-proof-preview";
 import { RegistrationDetailActions } from "@/components/admin/registration-detail-actions";
 import { RegistrationDetailPanel } from "@/components/admin/registration-detail-panel";
-import { isLifecycleArchived } from "@/lib/services/tournament-lifecycle";
+import { adminArchivedReadOnlyReason } from "@/lib/content/admin-archived-readonly";
 
 import type { getAdminRegistrationDetail } from "@/lib/services/admin-registration-list";
 import type { TournamentLifecycleStatus } from "@/lib/services/tournament-lifecycle";
@@ -23,20 +24,13 @@ function canEditPlayerProfile(registrationStatus: string): boolean {
   );
 }
 
-function archivedEditMessage(
-  lifecycleStatus: TournamentLifecycleStatus,
-): string | undefined {
-  if (!isLifecycleArchived(lifecycleStatus)) {
-    return undefined;
-  }
-
-  return "This tournament is archived. Player profiles cannot be edited.";
-}
-
 function RegistrationEditSection({
   registration,
-  tournamentLifecycleStatus,
-}: RegistrationDetailViewProps) {
+  readOnlyReason,
+}: {
+  registration: RegistrationDetail;
+  readOnlyReason?: string;
+}) {
   if (!canEditPlayerProfile(registration.registrationStatus)) {
     return null;
   }
@@ -51,21 +45,24 @@ function RegistrationEditSection({
       skillLevel={registration.skillLevel}
       preferredPlayers={registration.preferredPlayers}
       notes={registration.notes}
-      readOnlyReason={archivedEditMessage(tournamentLifecycleStatus)}
+      readOnlyReason={readOnlyReason}
     />
   );
 }
 
 function RegistrationDetailMain({
   registration,
-  tournamentLifecycleStatus,
-}: RegistrationDetailViewProps) {
+  readOnlyReason,
+}: {
+  registration: RegistrationDetail;
+  readOnlyReason?: string;
+}) {
   return (
     <div className="flex flex-col gap-6">
       <RegistrationDetailPanel registration={registration} />
       <RegistrationEditSection
         registration={registration}
-        tournamentLifecycleStatus={tournamentLifecycleStatus}
+        readOnlyReason={readOnlyReason}
       />
       {registration.paymentProofPath ? (
         <PaymentProofPreview
@@ -81,19 +78,25 @@ export function RegistrationDetailView({
   registration,
   tournamentLifecycleStatus,
 }: RegistrationDetailViewProps) {
+  const readOnlyReason = adminArchivedReadOnlyReason(tournamentLifecycleStatus);
+
   return (
-    <div className="grid gap-6 lg:grid-cols-[1.2fr_1fr]">
-      <RegistrationDetailMain
-        registration={registration}
-        tournamentLifecycleStatus={tournamentLifecycleStatus}
-      />
-      <RegistrationDetailActions
-        registrationId={registration.id}
-        registrationStatus={registration.registrationStatus}
-        paymentStatus={registration.paymentStatus}
-        paymentReviewNotes={registration.paymentReviewNotes}
-        adminNotes={registration.adminNotes}
-      />
+    <div className="flex flex-col gap-6">
+      {readOnlyReason ? <ArchivedTournamentBanner /> : null}
+      <div className="grid gap-6 lg:grid-cols-[1.2fr_1fr]">
+        <RegistrationDetailMain
+          registration={registration}
+          readOnlyReason={readOnlyReason}
+        />
+        <RegistrationDetailActions
+          registrationId={registration.id}
+          registrationStatus={registration.registrationStatus}
+          paymentStatus={registration.paymentStatus}
+          paymentReviewNotes={registration.paymentReviewNotes}
+          adminNotes={registration.adminNotes}
+          readOnlyReason={readOnlyReason}
+        />
+      </div>
     </div>
   );
 }

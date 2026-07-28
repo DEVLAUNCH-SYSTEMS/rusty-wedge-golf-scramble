@@ -9,10 +9,7 @@ import {
   insertRegistrationRecord,
 } from "@/lib/services/player-create-shared";
 import { ServiceError } from "@/lib/services/service-error";
-import {
-  assertTournamentWritable,
-  requireActiveTournament,
-} from "@/lib/services/tournament";
+import { requireWritableActiveTournament } from "@/lib/services/tournament";
 import {
   normalizePlayerEmail,
   playerProfileSchema,
@@ -52,8 +49,7 @@ export async function createAdminRegistration(
   input: CreateAdminRegistrationInput,
   admin: AdminSession,
 ): Promise<{ id: string }> {
-  const tournament = await requireActiveTournament();
-  assertTournamentWritable(tournament);
+  const tournament = await requireWritableActiveTournament();
 
   const profile = playerProfileSchema.parse(input);
   const paymentStatus = adminManualPaymentStatusSchema.parse(input.paymentStatus);

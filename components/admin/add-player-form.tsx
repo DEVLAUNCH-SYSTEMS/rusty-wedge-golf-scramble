@@ -32,7 +32,7 @@ function submitAddPlayer(placement: AddPlayerPlacement, formData: FormData) {
   return createAdminRegistrationAction(formData);
 }
 
-export function AddPlayerForm() {
+export function AddPlayerForm({ readOnlyReason }: { readOnlyReason?: string }) {
   const [placement, setPlacement] =
     useState<AddPlayerPlacement>("registration");
 
@@ -41,6 +41,8 @@ export function AddPlayerForm() {
       title="Player details"
       submitLabel="Save player"
       pendingLabel="Saving…"
+      disabled={Boolean(readOnlyReason)}
+      disabledMessage={readOnlyReason}
       onSubmit={(formData) => submitAddPlayer(placement, formData)}
     >
       <AddPlayerPlacementField

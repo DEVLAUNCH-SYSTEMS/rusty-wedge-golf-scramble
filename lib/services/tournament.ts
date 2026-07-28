@@ -3,14 +3,20 @@ import { eq } from "drizzle-orm";
 import { getDb } from "@/lib/db";
 import { tournaments } from "@/lib/db/schema";
 import { ServiceError } from "@/lib/services/service-error";
-import { allowsAdminMutations } from "@/lib/services/tournament-lifecycle";
+import {
+  allowsAdminMutations,
+  allowsPublicRegistration,
+} from "@/lib/services/tournament-lifecycle";
 
 export type Tournament = typeof tournaments.$inferSelect;
 export type ActiveTournament = Tournament;
-export type PublicCreateTournament = Pick<
-  Tournament,
-  "id" | "registrationEnabled"
->;
+export type PublicCreateTournament = Pick<Tournament, "id" | "lifecycleStatus">;
+
+export function isPublicRegistrationOpen(
+  tournament: Pick<Tournament, "lifecycleStatus">,
+): boolean {
+  return allowsPublicRegistration(tournament.lifecycleStatus);
+}
 
 export async function getActiveTournament(): Promise<Tournament | null> {
   const db = getDb();
@@ -68,6 +74,12 @@ export function assertTournamentScope(
       "Record is outside the active tournament.",
     );
   }
+}
+
+export async function requireWritableActiveTournament(): Promise<Tournament> {
+  const tournament = await requireActiveTournament();
+  assertTournamentWritable(tournament);
+  return tournament;
 }
 
 export function assertTournamentWritable(

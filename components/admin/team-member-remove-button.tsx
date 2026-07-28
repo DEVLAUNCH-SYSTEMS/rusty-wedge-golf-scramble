@@ -1,36 +1,32 @@
 "use client";
 
-import { AdminActionMessage } from "@/components/admin/admin-action-message";
-import { adminDangerButtonClassName } from "@/components/admin/admin-form-styles";
+import { TeamMemberRemoveControl } from "@/components/admin/team-member-remove-control";
 import { useAdminActionResult } from "@/hooks/use-admin-action-result";
 import { removePlayerFromTeamAction } from "@/lib/actions/admin-teams";
 
-type TeamMemberRemoveButtonProps = {
+export function TeamMemberRemoveButton(props: {
   teamId: string;
   registrationId: string;
   playerName: string;
-};
-
-export function TeamMemberRemoveButton({
-  teamId,
-  registrationId,
-  playerName,
-}: TeamMemberRemoveButtonProps) {
+  disabled?: boolean;
+  disabledMessage?: string;
+}) {
   const { message, isPending, runAction } = useAdminActionResult();
+  const disabled = props.disabled ?? false;
+  const displayMessage =
+    disabled && props.disabledMessage
+      ? { tone: "error" as const, text: props.disabledMessage }
+      : message;
 
   return (
-    <div className="flex flex-col items-end gap-2">
-      <button
-        type="button"
-        disabled={isPending}
-        className={adminDangerButtonClassName}
-        onClick={() =>
-          runAction(() => removePlayerFromTeamAction(teamId, registrationId))
-        }
-      >
-        {isPending ? "Removing…" : `Remove ${playerName}`}
-      </button>
-      <AdminActionMessage message={message} />
-    </div>
+    <TeamMemberRemoveControl
+      playerName={props.playerName}
+      disabled={disabled}
+      isPending={isPending}
+      message={displayMessage}
+      onRemove={() =>
+        runAction(() => removePlayerFromTeamAction(props.teamId, props.registrationId))
+      }
+    />
   );
 }
