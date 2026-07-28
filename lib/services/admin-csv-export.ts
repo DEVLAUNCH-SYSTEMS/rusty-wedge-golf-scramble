@@ -1,8 +1,10 @@
 import { requireAdminSession } from "@/lib/services/admin-auth";
+import { requireAdminTournamentContext } from "@/lib/services/admin-tournament-context";
 import {
-  exportRegistrationsCsv,
-  exportTeamsCsv,
+  exportRegistrationsCsvForTournament,
+  exportTeamsCsvForTournament,
 } from "@/lib/services/csv-export";
+import { requireTournamentById } from "@/lib/services/tournament";
 
 const CSV_HEADERS = {
   "Content-Type": "text/csv; charset=utf-8",
@@ -10,28 +12,46 @@ const CSV_HEADERS = {
   "X-Robots-Tag": "noindex, nofollow",
 } as const;
 
-export async function buildRegistrationsCsvResponse(): Promise<Response> {
+async function resolveExportTournament(requestedTournamentId?: string | null) {
+  if (requestedTournamentId) {
+    return requireTournamentById(requestedTournamentId);
+  }
+
+  return requireAdminTournamentContext();
+}
+
+function csvFilename(prefix: string, year: number): string {
+  return `${prefix}-${year}.csv`;
+}
+
+export async function buildRegistrationsCsvResponse(
+  requestedTournamentId?: string | null,
+): Promise<Response> {
   await requireAdminSession();
-  const csv = await exportRegistrationsCsv();
+  const tournament = await resolveExportTournament(requestedTournamentId);
+  const csv = await exportRegistrationsCsvForTournament(tournament.id);
 
   return new Response(csv, {
     status: 200,
     headers: {
       ...CSV_HEADERS,
-      "Content-Disposition": 'attachment; filename="registrations.csv"',
+      "Content-Disposition": `attachment; filename="${csvFilename("registrations", tournament.year)}"`,
     },
   });
 }
 
-export async function buildTeamsCsvResponse(): Promise<Response> {
+export async function buildTeamsCsvResponse(
+  requestedTournamentId?: string | null,
+): Promise<Response> {
   await requireAdminSession();
-  const csv = await exportTeamsCsv();
+  const tournament = await resolveExportTournament(requestedTournamentId);
+  const csv = await exportTeamsCsvForTournament(tournament.id);
 
   return new Response(csv, {
     status: 200,
     headers: {
       ...CSV_HEADERS,
-      "Content-Disposition": 'attachment; filename="teams.csv"',
+      "Content-Disposition": `attachment; filename="${csvFilename("teams", tournament.year)}"`,
     },
   });
 }

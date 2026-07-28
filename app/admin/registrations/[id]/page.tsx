@@ -1,8 +1,9 @@
 import { notFound } from "next/navigation";
 
 import { RegistrationDetailView } from "@/components/admin/registration-detail-view";
+import { adminViewReadOnlyReason } from "@/lib/content/admin-archived-readonly";
 import { getAdminRegistrationDetail } from "@/lib/services/admin-registration-list";
-import { requireActiveTournament } from "@/lib/services/tournament";
+import { resolveAdminTournamentContext } from "@/lib/services/admin-tournament-context";
 
 export const dynamic = "force-dynamic";
 
@@ -14,9 +15,9 @@ export default async function AdminRegistrationDetailPage({
   params,
 }: AdminRegistrationDetailPageProps) {
   const { id } = await params;
-  const [registration, tournament] = await Promise.all([
+  const [registration, context] = await Promise.all([
     getAdminRegistrationDetail(id),
-    requireActiveTournament(),
+    resolveAdminTournamentContext(),
   ]);
 
   if (!registration) {
@@ -26,7 +27,12 @@ export default async function AdminRegistrationDetailPage({
   return (
     <RegistrationDetailView
       registration={registration}
-      tournamentLifecycleStatus={tournament.lifecycleStatus}
+      tournamentLifecycleStatus={context.tournament.lifecycleStatus}
+      readOnlyReason={adminViewReadOnlyReason(
+        context.tournament.lifecycleStatus,
+        context.isViewingActiveTournament,
+      )}
+      isViewingActiveTournament={context.isViewingActiveTournament}
     />
   );
 }

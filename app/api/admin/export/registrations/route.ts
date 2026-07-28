@@ -8,9 +8,10 @@ function mapAuthError(error: AdminAuthError): Response {
   return Response.json({ error: error.message }, { status });
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    return await buildRegistrationsCsvResponse();
+    const tournamentId = new URL(request.url).searchParams.get("tournamentId");
+    return await buildRegistrationsCsvResponse(tournamentId);
   } catch (error) {
     if (error instanceof AdminAuthError) {
       return mapAuthError(error);

@@ -8,7 +8,7 @@ import {
 import { ServiceError } from "@/lib/services/service-error";
 
 const requireAdminSession = vi.fn();
-const requireActiveTournament = vi.fn();
+const requireAdminTournamentContext = vi.fn();
 const findRegistrationById = vi.fn();
 const blobGet = vi.fn();
 
@@ -25,10 +25,14 @@ vi.mock("@/lib/services/admin-auth", () => ({
   requireAdminSession: (...args: unknown[]) => requireAdminSession(...args),
 }));
 
+vi.mock("@/lib/services/admin-tournament-context", () => ({
+  requireAdminTournamentContext: (...args: unknown[]) =>
+    requireAdminTournamentContext(...args),
+}));
+
 vi.mock("@/lib/services/tournament", () => ({
-  requireActiveTournament: (...args: unknown[]) => requireActiveTournament(...args),
-  assertTournamentScope: (recordTournamentId: string, activeTournamentId: string) => {
-    if (recordTournamentId !== activeTournamentId) {
+  assertTournamentScope: (recordTournamentId: string, scopedTournamentId: string) => {
+    if (recordTournamentId !== scopedTournamentId) {
       throw new ServiceError(
         "TOURNAMENT_SCOPE_MISMATCH",
         "Record is outside the active tournament.",
@@ -50,12 +54,12 @@ vi.mock("@vercel/blob", () => ({
   get: (...args: unknown[]) => blobGet(...args),
 }));
 
-const activeTournament = {
+const scopedTournament = {
   id: "11111111-1111-1111-1111-111111111111",
 };
 
 const registrationId = "33333333-3333-3333-3333-333333333333";
-const proofPath = `payment-proofs/${activeTournament.id}/22222222-2222-2222-2222-222222222222.png`;
+const proofPath = `payment-proofs/${scopedTournament.id}/22222222-2222-2222-2222-222222222222.png`;
 
 describe("getPaymentProofForAdmin", () => {
   beforeEach(() => {
@@ -66,10 +70,10 @@ describe("getPaymentProofForAdmin", () => {
       email: "admin@example.com",
       displayName: "Admin",
     });
-    requireActiveTournament.mockResolvedValue(activeTournament);
+    requireAdminTournamentContext.mockResolvedValue(scopedTournament);
     findRegistrationById.mockResolvedValue({
       id: registrationId,
-      tournamentId: activeTournament.id,
+      tournamentId: scopedTournament.id,
       paymentProofPath: proofPath,
       paymentProofContentType: "image/png",
     });
@@ -124,7 +128,7 @@ describe("getPaymentProofForAdmin", () => {
     );
   });
 
-  it("returns not found for registrations outside the active tournament", async () => {
+  it("returns not found for registrations outside the selected tournament", async () => {
     findRegistrationById.mockResolvedValue({
       id: registrationId,
       tournamentId: "99999999-9999-9999-9999-999999999999",
@@ -140,7 +144,7 @@ describe("getPaymentProofForAdmin", () => {
   it("returns not found when no proof path is stored", async () => {
     findRegistrationById.mockResolvedValue({
       id: registrationId,
-      tournamentId: activeTournament.id,
+      tournamentId: scopedTournament.id,
       paymentProofPath: null,
       paymentProofContentType: null,
     });

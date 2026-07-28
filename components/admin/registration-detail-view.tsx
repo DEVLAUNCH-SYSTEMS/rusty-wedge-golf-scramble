@@ -1,9 +1,8 @@
-import { ArchivedTournamentBanner } from "@/components/admin/archived-tournament-banner";
+import { AdminViewContextBanner } from "@/components/admin/admin-tournament-context-badge";
 import { EditPlayerProfileForm } from "@/components/admin/edit-player-profile-form";
 import { PaymentProofPreview } from "@/components/admin/payment-proof-preview";
 import { RegistrationDetailActions } from "@/components/admin/registration-detail-actions";
 import { RegistrationDetailPanel } from "@/components/admin/registration-detail-panel";
-import { adminArchivedReadOnlyReason } from "@/lib/content/admin-archived-readonly";
 
 import type { getAdminRegistrationDetail } from "@/lib/services/admin-registration-list";
 import type { TournamentLifecycleStatus } from "@/lib/services/tournament-lifecycle";
@@ -15,6 +14,8 @@ type RegistrationDetail = NonNullable<
 type RegistrationDetailViewProps = {
   registration: RegistrationDetail;
   tournamentLifecycleStatus: TournamentLifecycleStatus;
+  isViewingActiveTournament: boolean;
+  readOnlyReason?: string;
 };
 
 function canEditPlayerProfile(registrationStatus: string): boolean {
@@ -74,29 +75,42 @@ function RegistrationDetailMain({
   );
 }
 
-export function RegistrationDetailView({
+function RegistrationDetailGrid({
   registration,
-  tournamentLifecycleStatus,
-}: RegistrationDetailViewProps) {
-  const readOnlyReason = adminArchivedReadOnlyReason(tournamentLifecycleStatus);
+  readOnlyReason,
+}: {
+  registration: RegistrationDetail;
+  readOnlyReason?: string;
+}) {
+  return (
+    <div className="grid gap-6 lg:grid-cols-[1.2fr_1fr]">
+      <RegistrationDetailMain
+        registration={registration}
+        readOnlyReason={readOnlyReason}
+      />
+      <RegistrationDetailActions
+        registrationId={registration.id}
+        registrationStatus={registration.registrationStatus}
+        paymentStatus={registration.paymentStatus}
+        paymentReviewNotes={registration.paymentReviewNotes}
+        adminNotes={registration.adminNotes}
+        readOnlyReason={readOnlyReason}
+      />
+    </div>
+  );
+}
 
+export function RegistrationDetailView(props: RegistrationDetailViewProps) {
   return (
     <div className="flex flex-col gap-6">
-      {readOnlyReason ? <ArchivedTournamentBanner /> : null}
-      <div className="grid gap-6 lg:grid-cols-[1.2fr_1fr]">
-        <RegistrationDetailMain
-          registration={registration}
-          readOnlyReason={readOnlyReason}
-        />
-        <RegistrationDetailActions
-          registrationId={registration.id}
-          registrationStatus={registration.registrationStatus}
-          paymentStatus={registration.paymentStatus}
-          paymentReviewNotes={registration.paymentReviewNotes}
-          adminNotes={registration.adminNotes}
-          readOnlyReason={readOnlyReason}
-        />
-      </div>
+      <AdminViewContextBanner
+        lifecycleStatus={props.tournamentLifecycleStatus}
+        isViewingActiveTournament={props.isViewingActiveTournament}
+      />
+      <RegistrationDetailGrid
+        registration={props.registration}
+        readOnlyReason={props.readOnlyReason}
+      />
     </div>
   );
 }

@@ -10,7 +10,7 @@ import {
   lifecycleStatusTone,
   StatusBadge,
 } from "@/components/admin/status-badge";
-import { TournamentLifecycleControls } from "@/components/admin/tournament-lifecycle-controls";
+import { TournamentListActionsCell } from "@/components/admin/tournament-list-actions-cell";
 import { formatEventDateShort } from "@/lib/format/tournament-display";
 
 import type { AdminTournamentListItem } from "@/lib/services/admin-tournament-list";
@@ -41,7 +41,7 @@ function TournamentListRow({ tournament }: { tournament: AdminTournamentListItem
         <TournamentActiveCell isActive={tournament.isActive} />
       </td>
       <td className="px-4 py-3 align-top">
-        <TournamentLifecycleControls tournament={tournament} />
+        <TournamentListActionsCell tournament={tournament} />
       </td>
     </tr>
   );

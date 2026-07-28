@@ -2,7 +2,7 @@ import { and, asc, desc, eq, ilike, isNotNull, isNull, or } from "drizzle-orm";
 
 import { getDb } from "@/lib/db";
 import { registrations, teamMembers, teams } from "@/lib/db/schema";
-import { requireActiveTournament } from "@/lib/services/tournament";
+import { requireAdminTournamentContext } from "@/lib/services/admin-tournament-context";
 
 import type { AdminRegistrationListFilters } from "@/lib/validation/admin-filters";
 
@@ -71,7 +71,7 @@ function buildFilterConditions(filters: AdminRegistrationListFilters) {
 export async function listRegistrationsForAdmin(
   filters: AdminRegistrationListFilters,
 ): Promise<AdminRegistrationListItem[]> {
-  const tournament = await requireActiveTournament();
+  const tournament = await requireAdminTournamentContext();
   const db = getDb();
   const conditions = [
     eq(registrations.tournamentId, tournament.id),
@@ -119,7 +119,7 @@ export async function listRegistrationsForAdmin(
 }
 
 export async function getAdminRegistrationDetail(registrationId: string) {
-  const tournament = await requireActiveTournament();
+  const tournament = await requireAdminTournamentContext();
   const db = getDb();
 
   const rows = await db

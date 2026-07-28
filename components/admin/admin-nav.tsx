@@ -1,10 +1,14 @@
 import Link from "next/link";
 
 import { AdminNavLinks } from "@/components/admin/admin-nav-links";
+import { AdminTournamentSelector } from "@/components/admin/admin-tournament-selector";
 import { BrandLogo } from "@/components/marketing/brand-logo";
+
+import type { AdminTournamentSelectorData } from "@/lib/services/admin-tournament-selector-data";
 
 type AdminNavProps = {
   adminEmail: string;
+  tournamentSelector: AdminTournamentSelectorData;
 };
 
 function AdminNavBrand() {
@@ -21,9 +25,14 @@ function AdminNavBrand() {
   );
 }
 
-function AdminNavMeta({ adminEmail }: AdminNavProps) {
+function AdminNavMeta({ adminEmail, tournamentSelector }: AdminNavProps) {
   return (
-    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-6">
+    <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:gap-6">
+      <AdminTournamentSelector
+        options={tournamentSelector.options}
+        selectedTournamentId={tournamentSelector.selectedTournamentId}
+        activeTournamentId={tournamentSelector.activeTournamentId}
+      />
       <p className="text-xs text-white/70">
         Signed in as <span className="font-medium text-white">{adminEmail}</span>
       </p>
@@ -37,13 +46,16 @@ function AdminNavMeta({ adminEmail }: AdminNavProps) {
   );
 }
 
-export function AdminNav({ adminEmail }: AdminNavProps) {
+export function AdminNav({ adminEmail, tournamentSelector }: AdminNavProps) {
   return (
     <header className="bg-rw-navy text-white shadow-md">
       <div className="mx-auto max-w-6xl px-4 py-4">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <AdminNavBrand />
-          <AdminNavMeta adminEmail={adminEmail} />
+          <AdminNavMeta
+            adminEmail={adminEmail}
+            tournamentSelector={tournamentSelector}
+          />
         </div>
         <div className="mt-4">
           <AdminNavLinks />

@@ -1,10 +1,11 @@
 import { eq } from "drizzle-orm";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { getDb } from "@/lib/db";
 import { hasIntegrationDatabase } from "@/lib/db/ci-gate-env";
 import { tournaments, waitlistEntries } from "@/lib/db/schema";
 import { listRegistrationsForAdmin } from "@/lib/services/admin-registration-list";
+import * as adminTournamentContextCookie from "@/lib/services/admin-tournament-context-cookie";
 import { exportRegistrationsCsv } from "@/lib/services/csv-export";
 import {
   cancelRegistration,
@@ -101,6 +102,11 @@ describe.skipIf(!hasIntegrationDatabase())(
     });
 
     it("still allows registration list and CSV export reads", async () => {
+      vi.spyOn(
+        adminTournamentContextCookie,
+        "readAdminTournamentContextCookie",
+      ).mockResolvedValue(null);
+
       await withArchivedActiveTournament(async () => {
         const registrations = await listRegistrationsForAdmin({
           q: "",

@@ -9,4 +9,8 @@ export const FIELD_LIMITS = {
   paymentReviewNotes: 2_000,
   rejectionReason: 500,
   teamName: 100,
+  tournamentName: 200,
+  tournamentSlug: 100,
+  tournamentLocationName: 200,
+  venmoHandle: 50,
 } as const;

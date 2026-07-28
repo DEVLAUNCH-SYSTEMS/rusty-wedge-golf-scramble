@@ -11,6 +11,7 @@ import { registrationEnabledFromLifecycle } from "@/lib/services/tournament-life
 import { transitionTournamentLifecycle } from "@/lib/services/tournament-lifecycle-transition";
 
 import { createTestAdminSession } from "./helpers";
+import { withExclusiveRegistrationOpen } from "./registration-open-test-helpers";
 
 import type { TournamentLifecycleStatus } from "@/lib/services/tournament-lifecycle";
 
@@ -49,44 +50,47 @@ describe.skipIf(!hasIntegrationDatabase())(
   () => {
     it("persists allowed transitions and syncs registration_enabled", async () => {
       const admin = await createTestAdminSession();
-      const tournament = await insertLifecycleTestTournament("draft");
 
-      let current = await transitionTournamentLifecycle({
-        tournamentId: tournament.id,
-        toStatus: "registration_open",
-        adminUserId: admin.adminUserId,
-      });
-      expect(current.lifecycleStatus).toBe("registration_open");
-      expect(current.registrationEnabled).toBe(true);
+      await withExclusiveRegistrationOpen(admin.adminUserId, async () => {
+        const tournament = await insertLifecycleTestTournament("draft");
 
-      current = await transitionTournamentLifecycle({
-        tournamentId: tournament.id,
-        toStatus: "registration_closed",
-        adminUserId: admin.adminUserId,
-      });
-      expect(current.lifecycleStatus).toBe("registration_closed");
-      expect(current.registrationEnabled).toBe(false);
+        let current = await transitionTournamentLifecycle({
+          tournamentId: tournament.id,
+          toStatus: "registration_open",
+          adminUserId: admin.adminUserId,
+        });
+        expect(current.lifecycleStatus).toBe("registration_open");
+        expect(current.registrationEnabled).toBe(true);
 
-      current = await transitionTournamentLifecycle({
-        tournamentId: tournament.id,
-        toStatus: "registration_open",
-        adminUserId: admin.adminUserId,
-      });
-      expect(current.registrationEnabled).toBe(true);
+        current = await transitionTournamentLifecycle({
+          tournamentId: tournament.id,
+          toStatus: "registration_closed",
+          adminUserId: admin.adminUserId,
+        });
+        expect(current.lifecycleStatus).toBe("registration_closed");
+        expect(current.registrationEnabled).toBe(false);
 
-      current = await transitionTournamentLifecycle({
-        tournamentId: tournament.id,
-        toStatus: "registration_closed",
-        adminUserId: admin.adminUserId,
-      });
+        current = await transitionTournamentLifecycle({
+          tournamentId: tournament.id,
+          toStatus: "registration_open",
+          adminUserId: admin.adminUserId,
+        });
+        expect(current.registrationEnabled).toBe(true);
 
-      current = await transitionTournamentLifecycle({
-        tournamentId: tournament.id,
-        toStatus: "completed",
-        adminUserId: admin.adminUserId,
+        current = await transitionTournamentLifecycle({
+          tournamentId: tournament.id,
+          toStatus: "registration_closed",
+          adminUserId: admin.adminUserId,
+        });
+
+        current = await transitionTournamentLifecycle({
+          tournamentId: tournament.id,
+          toStatus: "completed",
+          adminUserId: admin.adminUserId,
+        });
+        expect(current.lifecycleStatus).toBe("completed");
+        expect(current.registrationEnabled).toBe(false);
       });
-      expect(current.lifecycleStatus).toBe("completed");
-      expect(current.registrationEnabled).toBe(false);
     });
 
     it("archives with metadata and clears is_active", async () => {
@@ -193,33 +197,36 @@ describe.skipIf(!hasIntegrationDatabase())(
 
     it("records tournament_lifecycle_changed with from/to metadata", async () => {
       const admin = await createTestAdminSession();
-      const tournament = await insertLifecycleTestTournament("draft");
 
-      await transitionTournamentLifecycle({
-        tournamentId: tournament.id,
-        toStatus: "registration_open",
-        adminUserId: admin.adminUserId,
-      });
+      await withExclusiveRegistrationOpen(admin.adminUserId, async () => {
+        const tournament = await insertLifecycleTestTournament("draft");
 
-      const db = getDb();
-      const events = await db
-        .select({
-          eventType: registrationEvents.eventType,
-          metadata: registrationEvents.metadata,
-          adminUserId: registrationEvents.adminUserId,
-        })
-        .from(registrationEvents)
-        .where(eq(registrationEvents.tournamentId, tournament.id));
+        await transitionTournamentLifecycle({
+          tournamentId: tournament.id,
+          toStatus: "registration_open",
+          adminUserId: admin.adminUserId,
+        });
 
-      const lifecycleEvent = events.find(
-        (event) =>
-          event.eventType === AUDIT_EVENT_TYPES.tournamentLifecycleChanged,
-      );
+        const db = getDb();
+        const events = await db
+          .select({
+            eventType: registrationEvents.eventType,
+            metadata: registrationEvents.metadata,
+            adminUserId: registrationEvents.adminUserId,
+          })
+          .from(registrationEvents)
+          .where(eq(registrationEvents.tournamentId, tournament.id));
 
-      expect(lifecycleEvent?.adminUserId).toBe(admin.adminUserId);
-      expect(lifecycleEvent?.metadata).toMatchObject({
-        fromStatus: "draft",
-        toStatus: "registration_open",
+        const lifecycleEvent = events.find(
+          (event) =>
+            event.eventType === AUDIT_EVENT_TYPES.tournamentLifecycleChanged,
+        );
+
+        expect(lifecycleEvent?.adminUserId).toBe(admin.adminUserId);
+        expect(lifecycleEvent?.metadata).toMatchObject({
+          fromStatus: "draft",
+          toStatus: "registration_open",
+        });
       });
     });
   },

@@ -5,6 +5,7 @@ import { AdminForbidden } from "@/components/admin/admin-forbidden";
 import { AdminNav } from "@/components/admin/admin-nav";
 import { adminPageClassName } from "@/components/admin/admin-text-styles";
 import { AdminAuthError, requireAdminSession } from "@/lib/services/admin-auth";
+import { getAdminTournamentSelectorData } from "@/lib/services/admin-tournament-selector-data";
 
 import type { Metadata } from "next";
 
@@ -57,7 +58,10 @@ export default async function AdminLayout({ children }: AdminLayoutProps) {
 
   return (
     <div className={adminPageClassName}>
-      <AdminNav adminEmail={shell.email} />
+      <AdminNav
+        adminEmail={shell.email}
+        tournamentSelector={await getAdminTournamentSelectorData()}
+      />
       <main className="mx-auto max-w-6xl px-4 py-8">
         <AdminClientShell>{children}</AdminClientShell>
       </main>

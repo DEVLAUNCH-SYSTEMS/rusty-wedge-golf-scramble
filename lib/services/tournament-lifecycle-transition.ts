@@ -8,6 +8,7 @@ import { AUDIT_EVENT_TYPES } from "@/lib/services/audit-types";
 import { ServiceError } from "@/lib/services/service-error";
 import { registrationEnabledFromLifecycle } from "@/lib/services/tournament-lifecycle";
 import { assertLifecycleTransition } from "@/lib/services/tournament-lifecycle-transitions";
+import { assertRegistrationOpenTransitionAllowed } from "@/lib/services/tournament-registration-open-rule";
 
 import type { Tournament } from "@/lib/services/tournament";
 import type { TournamentLifecycleStatus } from "@/lib/services/tournament-lifecycle";
@@ -100,6 +101,10 @@ async function runLifecycleTransition(
   }
 
   const fromStatus = tournament.lifecycleStatus;
+
+  if (input.toStatus === "registration_open") {
+    await assertRegistrationOpenTransitionAllowed(tx, input.tournamentId);
+  }
 
   const rows = await tx
     .update(tournaments)

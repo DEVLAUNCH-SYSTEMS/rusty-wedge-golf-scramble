@@ -10,6 +10,7 @@ export const AUDIT_EVENT_TYPES = {
   registrationProfileUpdated: "registration_profile_updated",
   verifyBlockedCapacity: "verify_blocked_capacity",
   tournamentLifecycleChanged: "tournament_lifecycle_changed",
+  tournamentActivated: "tournament_activated",
 } as const;
 
 export type AuditEventType =

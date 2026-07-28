@@ -1,4 +1,7 @@
+import Link from "next/link";
+
 import {
+  adminLinkClassName,
   adminPageHeadingClassName,
   adminPageSubheadingClassName,
 } from "@/components/admin/admin-text-styles";
@@ -12,12 +15,17 @@ export default async function AdminTournamentsPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className={adminPageHeadingClassName}>Tournaments</h1>
-        <p className={adminPageSubheadingClassName}>
-          View tournament years, lifecycle status, and which event is currently
-          active on the public site.
-        </p>
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h1 className={adminPageHeadingClassName}>Tournaments</h1>
+          <p className={adminPageSubheadingClassName}>
+            View tournament years, lifecycle status, and which event is currently
+            active on the public site.
+          </p>
+        </div>
+        <Link href="/admin/tournaments/new" className={adminLinkClassName}>
+          Create tournament
+        </Link>
       </div>
 
       <TournamentListTable tournaments={tournaments} />

@@ -1,13 +1,13 @@
 import { notFound } from "next/navigation";
 
 import { TeamDetailView } from "@/components/admin/team-detail-view";
-import { adminArchivedReadOnlyReason } from "@/lib/content/admin-archived-readonly";
+import { adminViewReadOnlyReason } from "@/lib/content/admin-archived-readonly";
 import {
   getTeamDetailForAdmin,
   listAssignablePlayersForTeam,
 } from "@/lib/services/admin-teams-list";
+import { resolveAdminTournamentContext } from "@/lib/services/admin-tournament-context";
 import { ServiceError } from "@/lib/services/service-error";
-import { requireActiveTournament } from "@/lib/services/tournament";
 
 export const dynamic = "force-dynamic";
 
@@ -34,17 +34,19 @@ async function loadTeamDetailPageData(teamId: string) {
 
 export default async function AdminTeamDetailPage({ params }: AdminTeamDetailPageProps) {
   const { id } = await params;
-  const [data, tournament] = await Promise.all([
+  const [data, context] = await Promise.all([
     loadTeamDetailPageData(id),
-    requireActiveTournament(),
+    resolveAdminTournamentContext(),
   ]);
-  const readOnlyReason = adminArchivedReadOnlyReason(tournament.lifecycleStatus);
 
   return (
     <TeamDetailView
       team={data.team}
       assignablePlayers={data.assignablePlayers}
-      readOnlyReason={readOnlyReason}
+      readOnlyReason={adminViewReadOnlyReason(
+        context.tournament.lifecycleStatus,
+        context.isViewingActiveTournament,
+      )}
     />
   );
 }

@@ -2,7 +2,7 @@ import { and, asc, eq } from "drizzle-orm";
 
 import { getDb } from "@/lib/db";
 import { waitlistEntries } from "@/lib/db/schema";
-import { requireActiveTournament } from "@/lib/services/tournament";
+import { requireAdminTournamentContext } from "@/lib/services/admin-tournament-context";
 
 export type AdminWaitlistEntry = {
   id: string;
@@ -17,7 +17,7 @@ export type AdminWaitlistEntry = {
 };
 
 export async function listActiveWaitlistEntries(): Promise<AdminWaitlistEntry[]> {
-  const tournament = await requireActiveTournament();
+  const tournament = await requireAdminTournamentContext();
   const db = getDb();
 
   return db
