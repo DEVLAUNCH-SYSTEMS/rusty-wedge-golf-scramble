@@ -1,3 +1,6 @@
+import Link from "next/link";
+
+import { adminButtonClassName } from "@/components/admin/admin-form-styles";
 import {
   adminPageHeadingClassName,
   adminPageSubheadingClassName,
@@ -21,11 +24,16 @@ export default async function AdminRegistrationsPage({
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className={adminPageHeadingClassName}>Registrations</h1>
-        <p className={adminPageSubheadingClassName}>
-          Search and review player registrations for the active tournament.
-        </p>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h1 className={adminPageHeadingClassName}>Registrations</h1>
+          <p className={adminPageSubheadingClassName}>
+            Search and review player registrations for the active tournament.
+          </p>
+        </div>
+        <Link href="/admin/registrations/new" className={adminButtonClassName}>
+          Add player
+        </Link>
       </div>
 
       <RegistrationListFilters filters={filters} />

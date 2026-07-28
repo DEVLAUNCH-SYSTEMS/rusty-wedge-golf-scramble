@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useState } from "react";
 
 import type { ActionResult } from "@/lib/actions/action-result";
 
@@ -25,23 +25,25 @@ function toFormMessage(result: ActionResult): FormMessage {
 export function useAdminActionResult() {
   const router = useRouter();
   const [message, setMessage] = useState<FormMessage | null>(null);
-  const [isPending, startTransition] = useTransition();
+  const [isPending, setIsPending] = useState(false);
 
   function runAction(action: () => Promise<ActionResult>) {
     setMessage(null);
+    setIsPending(true);
 
-    startTransition(() => {
-      void action()
-        .then((result) => {
-          setMessage(toFormMessage(result));
-          if (result.ok) {
-            router.refresh();
-          }
-        })
-        .catch(() => {
-          setMessage(ACTION_FAILURE_MESSAGE);
-        });
-    });
+    void action()
+      .then((result) => {
+        setMessage(toFormMessage(result));
+        if (result.ok) {
+          router.refresh();
+        }
+      })
+      .catch(() => {
+        setMessage(ACTION_FAILURE_MESSAGE);
+      })
+      .finally(() => {
+        setIsPending(false);
+      });
   }
 
   return { message, isPending, runAction, setMessage };

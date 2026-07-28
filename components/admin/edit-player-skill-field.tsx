@@ -14,6 +14,11 @@ export function EditPlayerSkillField({ skillLevel }: { skillLevel: string }) {
         defaultValue={skillLevel}
         className={adminInputClassName}
       >
+        {!skillLevel ? (
+          <option value="" disabled>
+            Select best score
+          </option>
+        ) : null}
         {SKILL_LEVEL_OPTIONS.map((option) => (
           <option key={option.value} value={option.value}>
             {option.label}

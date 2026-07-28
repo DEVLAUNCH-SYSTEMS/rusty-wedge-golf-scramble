@@ -27,7 +27,7 @@ export async function submitWaitlist(formData: FormData): Promise<ActionResult> 
     }
 
     const input = parseWaitlistFormData(formData);
-    await createWaitlistEntry(input);
+    await createWaitlistEntry(input, tournament);
 
     return actionSuccess(
       "You are on the waitlist. Organizers will contact you if a spot opens.",

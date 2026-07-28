@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import { getDb } from "@/lib/db";
 import { hasIntegrationDatabase } from "@/lib/db/ci-gate-env";
 import { registrations, waitlistEntries } from "@/lib/db/schema";
+import { requireActiveTournament } from "@/lib/services/tournament";
 import { createWaitlistEntry } from "@/lib/services/waitlist-create";
 import { promoteWaitlistEntry } from "@/lib/services/waitlist-promote";
 
@@ -15,17 +16,21 @@ import {
 describe.skipIf(!hasIntegrationDatabase())("waitlist integration", () => {
   it("H11: promotion carries skill level and preferred-player notes forward", async () => {
     const admin = await createTestAdminSession();
+    const tournament = await requireActiveTournament();
     const email = uniqueTestEmail("waitlist-promote");
 
-    const entry = await createWaitlistEntry({
-      firstName: "Wait",
-      lastName: "Listed",
-      email,
-      phone: "5095550199",
-      skillLevel: "A",
-      preferredPlayers: "Pat and Sam",
-      notes: "Morning tee preferred",
-    });
+    const entry = await createWaitlistEntry(
+      {
+        firstName: "Wait",
+        lastName: "Listed",
+        email,
+        phone: "5095550199",
+        skillLevel: "A",
+        preferredPlayers: "Pat and Sam",
+        notes: "Morning tee preferred",
+      },
+      tournament,
+    );
 
     const promoted = await promoteWaitlistEntry(entry!.id, admin);
     const db = getDb();

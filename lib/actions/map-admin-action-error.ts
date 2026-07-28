@@ -2,6 +2,7 @@ import { ZodError } from "zod";
 
 import { actionFailure, type ActionResult } from "@/lib/actions/action-result";
 import { AdminAuthError } from "@/lib/services/admin-auth";
+import { PaymentProofUploadError } from "@/lib/services/payment-proof-blob";
 import { ServiceError } from "@/lib/services/service-error";
 
 export function mapAdminActionError(
@@ -13,6 +14,10 @@ export function mapAdminActionError(
   }
 
   if (error instanceof ServiceError) {
+    return actionFailure(error.message);
+  }
+
+  if (error instanceof PaymentProofUploadError) {
     return actionFailure(error.message);
   }
 

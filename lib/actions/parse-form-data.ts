@@ -1,5 +1,10 @@
-import { submitRegistrationSchema, updateRegistrationProfileSchema } from "@/lib/validation/forms";
+import { adminManualPaymentStatusSchema } from "@/lib/services/admin-manual-payment";
+import {
+  submitRegistrationSchema,
+  updateRegistrationProfileSchema,
+} from "@/lib/validation/forms";
 
+import type { AdminManualPaymentStatus } from "@/lib/services/admin-manual-payment";
 import type {
   SubmitRegistrationInput,
   UpdateRegistrationProfileInput,
@@ -42,11 +47,37 @@ export function parseWaitlistFormData(formData: FormData) {
   return parseRegistrationFormData(formData);
 }
 
+export type AdminManualRegistrationFormInput = SubmitRegistrationInput & {
+  paymentStatus: AdminManualPaymentStatus;
+};
+
+export function parseAdminManualRegistrationFormData(
+  formData: FormData,
+): AdminManualRegistrationFormInput {
+  return {
+    ...parseRegistrationFormData(formData),
+    paymentStatus: adminManualPaymentStatusSchema.parse(
+      readString(formData, "paymentStatus"),
+    ),
+  };
+}
+
 export function readPaymentProofFile(formData: FormData): File {
   const file = formData.get("paymentProof");
 
   if (!(file instanceof File)) {
     throw new Error("Payment proof file is required.");
+  }
+
+  return file;
+}
+
+/** Admin manual create — empty or missing file means omit proof. */
+export function readOptionalPaymentProofFile(formData: FormData): File | null {
+  const file = formData.get("paymentProof");
+
+  if (!(file instanceof File) || file.size === 0) {
+    return null;
   }
 
   return file;

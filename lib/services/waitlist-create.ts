@@ -3,15 +3,17 @@ import { eq, sql } from "drizzle-orm";
 import { getDb } from "@/lib/db";
 import { waitlistEntries } from "@/lib/db/schema";
 import {
-  hasActiveRegistrationEmail,
-  hasActiveWaitlistEmail,
-} from "@/lib/services/registration-queries";
+  assertWaitlistEmailAvailable,
+  insertWaitlistRecord,
+} from "@/lib/services/player-create-shared";
 import {
   PUBLIC_ERROR_MESSAGE,
   ServiceError,
 } from "@/lib/services/service-error";
 import { requireActiveTournament } from "@/lib/services/tournament";
+import { normalizePlayerEmail } from "@/lib/validation/player-profile";
 
+import type { PublicCreateTournament } from "@/lib/services/tournament";
 import type { SubmitWaitlistInput } from "@/lib/validation/forms";
 
 export async function findWaitlistEntryById(waitlistEntryId: string) {
@@ -25,37 +27,29 @@ export async function findWaitlistEntryById(waitlistEntryId: string) {
   return rows[0] ?? null;
 }
 
-export async function createWaitlistEntry(input: SubmitWaitlistInput) {
-  const tournament = await requireActiveTournament();
-
+export async function createWaitlistEntry(
+  input: SubmitWaitlistInput,
+  tournament: PublicCreateTournament,
+) {
   if (!tournament.registrationEnabled) {
     throw new ServiceError("REGISTRATION_CLOSED", PUBLIC_ERROR_MESSAGE);
   }
 
-  if (await hasActiveWaitlistEmail(tournament.id, input.email)) {
-    throw new ServiceError("DUPLICATE_WAITLIST", PUBLIC_ERROR_MESSAGE);
-  }
+  const email = normalizePlayerEmail(input.email);
 
-  if (await hasActiveRegistrationEmail(tournament.id, input.email)) {
-    throw new ServiceError("EMAIL_ALREADY_REGISTERED", PUBLIC_ERROR_MESSAGE);
-  }
+  await assertWaitlistEmailAvailable(tournament.id, email);
 
-  const db = getDb();
-  return db
-    .insert(waitlistEntries)
-    .values({
-      tournamentId: tournament.id,
-      firstName: input.firstName,
-      lastName: input.lastName,
-      email: input.email,
-      phone: input.phone,
-      skillLevel: input.skillLevel,
-      preferredPlayers: input.preferredPlayers,
-      notes: input.notes,
-      status: "active",
-    })
-    .returning({ id: waitlistEntries.id })
-    .then((rows) => rows[0]);
+  return insertWaitlistRecord({
+    tournamentId: tournament.id,
+    firstName: input.firstName,
+    lastName: input.lastName,
+    email,
+    phone: input.phone,
+    skillLevel: input.skillLevel,
+    preferredPlayers: input.preferredPlayers,
+    notes: input.notes,
+    createdSource: "public",
+  });
 }
 
 export async function removeWaitlistEntry(waitlistEntryId: string) {

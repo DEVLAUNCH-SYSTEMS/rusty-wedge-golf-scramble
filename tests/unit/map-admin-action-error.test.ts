@@ -3,6 +3,7 @@ import { ZodError } from "zod";
 
 import { mapAdminActionError } from "@/lib/actions/map-admin-action-error";
 import { AdminAuthError } from "@/lib/services/admin-auth";
+import { PaymentProofUploadError } from "@/lib/services/payment-proof-blob";
 import { ServiceError } from "@/lib/services/service-error";
 
 vi.mock("@/lib/auth/server", () => ({
@@ -89,6 +90,44 @@ describe("mapAdminActionError", () => {
     ).toEqual({
       ok: false,
       message: "This tournament is archived and cannot be modified.",
+    });
+  });
+
+  it("returns payment proof upload errors to the client", () => {
+    expect(
+      mapAdminActionError(
+        new PaymentProofUploadError("Payment proof must be JPG, PNG, or PDF."),
+        "test",
+      ),
+    ).toEqual({
+      ok: false,
+      message: "Payment proof must be JPG, PNG, or PDF.",
+    });
+  });
+
+  it("returns capacity and auth failures for manual create mapping", () => {
+    expect(
+      mapAdminActionError(
+        new ServiceError(
+          "CAPACITY_FULL",
+          "Capacity is full (68/68 confirmed). Registration remains pending review.",
+        ),
+        "test",
+      ),
+    ).toEqual({
+      ok: false,
+      message:
+        "Capacity is full (68/68 confirmed). Registration remains pending review.",
+    });
+
+    expect(
+      mapAdminActionError(
+        new AdminAuthError("UNAUTHENTICATED", "Authentication required."),
+        "test",
+      ),
+    ).toEqual({
+      ok: false,
+      message: "Authentication required.",
     });
   });
 

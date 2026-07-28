@@ -7,6 +7,10 @@ import { allowsAdminMutations } from "@/lib/services/tournament-lifecycle";
 
 export type Tournament = typeof tournaments.$inferSelect;
 export type ActiveTournament = Tournament;
+export type PublicCreateTournament = Pick<
+  Tournament,
+  "id" | "registrationEnabled"
+>;
 
 export async function getActiveTournament(): Promise<Tournament | null> {
   const db = getDb();

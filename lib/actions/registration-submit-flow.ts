@@ -9,7 +9,23 @@ import {
 import { checkRateLimit } from "@/lib/services/rate-limit";
 import { createPendingRegistration } from "@/lib/services/registration-create";
 
+import type { CreateRegistrationInput } from "@/lib/services/registration-create";
 import type { ActiveTournament } from "@/lib/services/tournament";
+
+async function createPendingAfterUpload(
+  input: CreateRegistrationInput,
+  tournament: ActiveTournament,
+): Promise<void> {
+  try {
+    await createPendingRegistration(input, tournament);
+  } catch (error) {
+    console.error("Registration DB insert failed after blob upload:", {
+      tournamentId: tournament.id,
+      blobPathname: input.paymentProofPath,
+    });
+    throw error;
+  }
+}
 
 export async function runRegistrationSubmit(
   formData: FormData,
@@ -24,19 +40,14 @@ export async function runRegistrationSubmit(
   const paymentProof = readPaymentProofFile(formData);
   const upload = await uploadPaymentProof(paymentProof, tournament.id);
 
-  try {
-    await createPendingRegistration({
+  await createPendingAfterUpload(
+    {
       ...input,
       paymentProofPath: upload.pathname,
       paymentProofContentType: upload.contentType,
-    });
-  } catch (error) {
-    console.error("Registration DB insert failed after blob upload:", {
-      tournamentId: tournament.id,
-      blobPathname: upload.pathname,
-    });
-    throw error;
-  }
+    },
+    tournament,
+  );
 }
 
 export function isRegistrationFlowError(error: unknown): boolean {
