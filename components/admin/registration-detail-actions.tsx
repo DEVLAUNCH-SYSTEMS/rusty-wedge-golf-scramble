@@ -1,38 +1,27 @@
-import { CancelRegistrationForm } from "@/components/admin/cancel-registration-form";
-import { RejectPaymentForm } from "@/components/admin/reject-payment-form";
-import { UpdateNotesForm } from "@/components/admin/update-notes-form";
-import { VerifyPaymentSection } from "@/components/admin/verify-payment-section";
+import { RegistrationDetailActionsBody } from "@/components/admin/registration-detail-actions-body";
 
-type RegistrationDetailActionsProps = {
+export function RegistrationDetailActions(props: {
   registrationId: string;
   registrationStatus: string;
   paymentStatus: string;
   paymentReviewNotes: string | null;
   adminNotes: string | null;
-};
-
-export function RegistrationDetailActions({
-  registrationId,
-  registrationStatus,
-  paymentStatus,
-  paymentReviewNotes,
-  adminNotes,
-}: RegistrationDetailActionsProps) {
-  const canVerify =
-    registrationStatus === "pending_review" && paymentStatus === "submitted";
-  const canReject = paymentStatus === "submitted";
-  const canCancel = registrationStatus !== "cancelled";
-
+  readOnlyReason?: string;
+}) {
   return (
     <div className="flex flex-col gap-6">
-      {canVerify ? <VerifyPaymentSection registrationId={registrationId} /> : null}
-      {canReject ? <RejectPaymentForm registrationId={registrationId} /> : null}
-      <UpdateNotesForm
-        registrationId={registrationId}
-        paymentReviewNotes={paymentReviewNotes}
-        adminNotes={adminNotes}
+      <RegistrationDetailActionsBody
+        registrationId={props.registrationId}
+        canVerify={
+          props.registrationStatus === "pending_review" &&
+          props.paymentStatus === "submitted"
+        }
+        canReject={props.paymentStatus === "submitted"}
+        canCancel={props.registrationStatus !== "cancelled"}
+        paymentReviewNotes={props.paymentReviewNotes}
+        adminNotes={props.adminNotes}
+        readOnlyReason={props.readOnlyReason}
       />
-      {canCancel ? <CancelRegistrationForm registrationId={registrationId} /> : null}
     </div>
   );
 }

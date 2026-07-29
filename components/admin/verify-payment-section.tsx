@@ -1,23 +1,28 @@
 "use client";
 
-import {
-  adminButtonClassName,
-  adminCardClassName,
-} from "@/components/admin/admin-form-styles";
+import { adminCardClassName } from "@/components/admin/admin-form-styles";
 import {
   adminBodyTextClassName,
   adminSectionTitleClassName,
 } from "@/components/admin/admin-text-styles";
-import { FormMessage } from "@/components/forms/form-message";
+import { VerifyPaymentControls } from "@/components/admin/verify-payment-controls";
 import { useAdminActionResult } from "@/hooks/use-admin-action-result";
 import { verifyRegistrationPaymentAction } from "@/lib/actions/admin-registration";
 
-type VerifyPaymentSectionProps = {
-  registrationId: string;
-};
+function archivedVerifyMessage(disabled: boolean, disabledMessage?: string) {
+  return disabled && disabledMessage
+    ? ({ tone: "error", text: disabledMessage } as const)
+    : null;
+}
 
-export function VerifyPaymentSection({ registrationId }: VerifyPaymentSectionProps) {
+export function VerifyPaymentSection(props: {
+  registrationId: string;
+  disabled?: boolean;
+  disabledMessage?: string;
+}) {
   const { message, isPending, runAction } = useAdminActionResult();
+  const disabled = props.disabled ?? false;
+  const displayMessage = archivedVerifyMessage(disabled, props.disabledMessage) ?? message;
 
   return (
     <section className={adminCardClassName}>
@@ -25,19 +30,12 @@ export function VerifyPaymentSection({ registrationId }: VerifyPaymentSectionPro
       <p className={`${adminBodyTextClassName} mt-2`}>
         Confirms the player if tournament capacity allows.
       </p>
-      <button
-        type="button"
-        disabled={isPending}
-        className={`${adminButtonClassName} mt-4`}
-        onClick={() => runAction(() => verifyRegistrationPaymentAction(registrationId))}
-      >
-        {isPending ? "Verifying…" : "Verify payment"}
-      </button>
-      {message ? (
-        <div className="mt-4">
-          <FormMessage tone={message.tone} message={message.text} />
-        </div>
-      ) : null}
+      <VerifyPaymentControls
+        disabled={disabled}
+        isPending={isPending}
+        displayMessage={displayMessage}
+        onVerify={() => runAction(() => verifyRegistrationPaymentAction(props.registrationId))}
+      />
     </section>
   );
 }

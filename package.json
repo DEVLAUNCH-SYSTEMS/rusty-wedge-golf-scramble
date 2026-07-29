@@ -28,6 +28,7 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx lib/db/migrate.ts",
     "db:verify-target": "tsx lib/db/verify-migration-target.ts",
+    "db:migration-precheck": "tsx lib/db/migration-precheck.ts",
     "db:seed": "tsx lib/db/seed.ts",
     "pr": "node scripts/pr-gate.mjs",
     "prepare": "husky"

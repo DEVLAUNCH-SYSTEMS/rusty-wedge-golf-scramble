@@ -28,6 +28,12 @@ Document pass/fail before production deploy. See [deployment.md](./deployment.md
 - [ ] CSV export (registrations + teams)
 - [ ] Concurrent verify at capacity (T1)
 
+## Admin player + annual reuse (this release)
+
+Complete [organizer-acceptance-checklist.md](./organizer-acceptance-checklist.md) (A1–F3): edit player, manual add, lifecycle, next-year create, mobile admin, security spot-check.
+
+Developer summary: [release-readiness-report.md](./release-readiness-report.md).
+
 ## Security spot-check
 
 - [ ] Public page shows no capacity counts or registration PII
@@ -39,7 +45,8 @@ Document pass/fail before production deploy. See [deployment.md](./deployment.md
 
 - [ ] Production env vars synced in Vercel ([env-setup.md](../env-setup.md))
 - [ ] `NEON_AUTH_BASE_URL` validated (`node scripts/validate-neon-auth-env.mjs`)
-- [ ] Production migrations applied (`npm run db:migrate`)
+- [ ] Production migrations applied (`npm run db:migrate`) — follow [prod-migration-plan.md](./prod-migration-plan.md); precheck first
+- [ ] [organizer-acceptance-checklist.md](./organizer-acceptance-checklist.md) signed off for admin player + annual reuse
 - [ ] Post-deploy smoke test complete ([deployment.md](./deployment.md))
 - [ ] Organizers received [launch-handoff.md](./launch-handoff.md)
 

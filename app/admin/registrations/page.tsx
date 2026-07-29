@@ -1,35 +1,41 @@
-import {
-  adminPageHeadingClassName,
-  adminPageSubheadingClassName,
-} from "@/components/admin/admin-text-styles";
-import { RegistrationListFilters } from "@/components/admin/registration-list-filters";
-import { RegistrationListTable } from "@/components/admin/registration-list-table";
+import { RegistrationsPageBody } from "@/components/admin/registrations-page-body";
+import { adminViewReadOnlyReason } from "@/lib/content/admin-archived-readonly";
 import { listRegistrationsForAdmin } from "@/lib/services/admin-registration-list";
+import { resolveAdminTournamentContext } from "@/lib/services/admin-tournament-context";
 import { parseAdminRegistrationListFilters } from "@/lib/validation/admin-filters";
 
 export const dynamic = "force-dynamic";
 
-type AdminRegistrationsPageProps = {
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
-};
+async function loadRegistrationsPage(searchParams: Record<string, string | string[] | undefined>) {
+  const filters = parseAdminRegistrationListFilters(searchParams);
+  const [registrations, context] = await Promise.all([
+    listRegistrationsForAdmin(filters),
+    resolveAdminTournamentContext(),
+  ]);
+
+  return { filters, registrations, context };
+}
 
 export default async function AdminRegistrationsPage({
   searchParams,
-}: AdminRegistrationsPageProps) {
-  const filters = parseAdminRegistrationListFilters(await searchParams);
-  const registrations = await listRegistrationsForAdmin(filters);
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const { filters, registrations, context } = await loadRegistrationsPage(await searchParams);
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className={adminPageHeadingClassName}>Registrations</h1>
-        <p className={adminPageSubheadingClassName}>
-          Search and review player registrations for the active tournament.
-        </p>
-      </div>
-
-      <RegistrationListFilters filters={filters} />
-      <RegistrationListTable registrations={registrations} />
+      <RegistrationsPageBody
+        filters={filters}
+        registrations={registrations}
+        readOnlyReason={adminViewReadOnlyReason(
+          context.tournament.lifecycleStatus,
+          context.isViewingActiveTournament,
+        )}
+        tournamentYear={context.tournament.year}
+        lifecycleStatus={context.tournament.lifecycleStatus}
+        isViewingActiveTournament={context.isViewingActiveTournament}
+      />
     </div>
   );
 }

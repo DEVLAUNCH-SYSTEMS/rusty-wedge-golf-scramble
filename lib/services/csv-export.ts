@@ -2,8 +2,9 @@ import { eq } from "drizzle-orm";
 
 import { getDb } from "@/lib/db";
 import { registrations, teamMembers, teams } from "@/lib/db/schema";
+import { requireAdminTournamentContext } from "@/lib/services/admin-tournament-context";
 import { formatCsvRow } from "@/lib/services/csv";
-import { requireActiveTournament } from "@/lib/services/tournament";
+import { requireTournamentById } from "@/lib/services/tournament";
 
 export { escapeCsvCell, formatCsvRow } from "@/lib/services/csv";
 
@@ -57,8 +58,10 @@ function registrationRowToCsv(row: RegistrationExportRow): string {
   ]);
 }
 
-export async function exportRegistrationsCsv(): Promise<string> {
-  const tournament = await requireActiveTournament();
+export async function exportRegistrationsCsvForTournament(
+  tournamentId: string,
+): Promise<string> {
+  await requireTournamentById(tournamentId);
   const db = getDb();
   const rows = await db
     .select({
@@ -79,9 +82,14 @@ export async function exportRegistrationsCsv(): Promise<string> {
     .from(registrations)
     .leftJoin(teamMembers, eq(teamMembers.registrationId, registrations.id))
     .leftJoin(teams, eq(teams.id, teamMembers.teamId))
-    .where(eq(registrations.tournamentId, tournament.id));
+    .where(eq(registrations.tournamentId, tournamentId));
 
   return `${[formatCsvRow([...REGISTRATION_HEADERS]), ...rows.map(registrationRowToCsv)].join("\n")}\n`;
+}
+
+export async function exportRegistrationsCsv(): Promise<string> {
+  const tournament = await requireAdminTournamentContext();
+  return exportRegistrationsCsvForTournament(tournament.id);
 }
 
 const TEAM_HEADERS = [
@@ -107,8 +115,10 @@ function teamRowToCsv(row: {
   ]);
 }
 
-export async function exportTeamsCsv(): Promise<string> {
-  const tournament = await requireActiveTournament();
+export async function exportTeamsCsvForTournament(
+  tournamentId: string,
+): Promise<string> {
+  await requireTournamentById(tournamentId);
   const db = getDb();
   const rows = await db
     .select({
@@ -120,7 +130,12 @@ export async function exportTeamsCsv(): Promise<string> {
     .from(teams)
     .leftJoin(teamMembers, eq(teamMembers.teamId, teams.id))
     .leftJoin(registrations, eq(registrations.id, teamMembers.registrationId))
-    .where(eq(teams.tournamentId, tournament.id));
+    .where(eq(teams.tournamentId, tournamentId));
 
   return `${[formatCsvRow([...TEAM_HEADERS]), ...rows.map(teamRowToCsv)].join("\n")}\n`;
+}
+
+export async function exportTeamsCsv(): Promise<string> {
+  const tournament = await requireAdminTournamentContext();
+  return exportTeamsCsvForTournament(tournament.id);
 }

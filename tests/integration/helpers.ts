@@ -7,6 +7,51 @@ import { adminUsers, registrations, tournaments } from "@/lib/db/schema";
 
 import type { AdminSession } from "@/lib/services/admin-auth";
 
+const TEST_YEAR_MIN = 2080;
+const TEST_YEAR_MAX = 2099;
+
+async function isYearAvailable(year: number): Promise<boolean> {
+  const db = getDb();
+  const row = (
+    await db
+      .select({ id: tournaments.id })
+      .from(tournaments)
+      .where(eq(tournaments.year, year))
+      .limit(1)
+  )[0];
+
+  return !row;
+}
+
+export async function reserveUniqueTestYear(): Promise<number> {
+  const yearCount = TEST_YEAR_MAX - TEST_YEAR_MIN + 1;
+  const start = Math.floor(Math.random() * yearCount);
+
+  for (let offset = 0; offset < yearCount; offset++) {
+    const year = TEST_YEAR_MIN + ((start + offset) % yearCount);
+
+    if (await isYearAvailable(year)) {
+      return year;
+    }
+  }
+
+  throw new Error(
+    `No unused tournament year available between ${TEST_YEAR_MIN} and ${TEST_YEAR_MAX}.`,
+  );
+}
+
+export async function reserveUniqueTestYearPair(): Promise<[number, number]> {
+  for (let first = TEST_YEAR_MIN; first < TEST_YEAR_MAX; first++) {
+    if ((await isYearAvailable(first)) && (await isYearAvailable(first + 1))) {
+      return [first, first + 1];
+    }
+  }
+
+  throw new Error(
+    `No consecutive unused tournament years available between ${TEST_YEAR_MIN} and ${TEST_YEAR_MAX}.`,
+  );
+}
+
 export function uniqueTestEmail(label: string): string {
   return `${label}-${randomUUID()}@example.com`;
 }

@@ -7,7 +7,13 @@ export const AUDIT_EVENT_TYPES = {
   playerAssignedToTeam: "player_assigned_to_team",
   playerRemovedFromTeam: "player_removed_from_team",
   adminNotesUpdated: "admin_notes_updated",
+  registrationProfileUpdated: "registration_profile_updated",
+  registrationCreatedByAdmin: "registration_created_by_admin",
+  waitlistCreatedByAdmin: "waitlist_created_by_admin",
+  tournamentCreated: "tournament_created",
   verifyBlockedCapacity: "verify_blocked_capacity",
+  tournamentLifecycleChanged: "tournament_lifecycle_changed",
+  tournamentActivated: "tournament_activated",
 } as const;
 
 export type AuditEventType =

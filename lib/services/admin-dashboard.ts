@@ -2,8 +2,8 @@ import { and, count, eq } from "drizzle-orm";
 
 import { getDb } from "@/lib/db";
 import { registrations, waitlistEntries } from "@/lib/db/schema";
+import { requireAdminTournamentContext } from "@/lib/services/admin-tournament-context";
 import { getTeamAssignmentReport } from "@/lib/services/team-assignment-report";
-import { requireActiveTournament } from "@/lib/services/tournament";
 
 export type AdminDashboardSummary = {
   tournamentName: string;
@@ -56,7 +56,7 @@ async function countByPaymentStatus(
 }
 
 export async function getAdminDashboardSummary(): Promise<AdminDashboardSummary> {
-  const tournament = await requireActiveTournament();
+  const tournament = await requireAdminTournamentContext();
   const db = getDb();
 
   const waitlistRows = await db

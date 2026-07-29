@@ -4,6 +4,7 @@ import {
   AdminAuthError,
   requireAdminSession,
 } from "@/lib/services/admin-auth";
+import { requireAdminTournamentContext } from "@/lib/services/admin-tournament-context";
 import {
   getBlobCredentialDevMessage,
   getBlobCredentialProductionMessage,
@@ -14,10 +15,7 @@ import {
 } from "@/lib/services/payment-proof-blob";
 import { findRegistrationById } from "@/lib/services/registration-queries";
 import { ServiceError } from "@/lib/services/service-error";
-import {
-  assertTournamentScope,
-  requireActiveTournament,
-} from "@/lib/services/tournament";
+import { assertTournamentScope } from "@/lib/services/tournament";
 
 export class PaymentProofViewerError extends Error {
   readonly statusCode: 404 | 503;
@@ -115,10 +113,10 @@ export async function getPaymentProofForAdmin(
 ): Promise<AdminPaymentProof> {
   await requireAdminSession();
 
-  let activeTournament;
+  let scopedTournament;
 
   try {
-    activeTournament = await requireActiveTournament();
+    scopedTournament = await requireAdminTournamentContext();
   } catch (error) {
     mapScopeError(error);
   }
@@ -130,7 +128,7 @@ export async function getPaymentProofForAdmin(
   }
 
   try {
-    assertTournamentScope(registration.tournamentId, activeTournament.id);
+    assertTournamentScope(registration.tournamentId, scopedTournament.id);
   } catch (error) {
     mapScopeError(error);
   }

@@ -1,0 +1,49 @@
+import { AUDIT_EVENT_TYPES, recordAuditEvent } from "@/lib/services/audit";
+import {
+  assertWaitlistEmailAvailable,
+  insertWaitlistRecord,
+} from "@/lib/services/player-create-shared";
+import { requireWritableActiveTournament } from "@/lib/services/tournament";
+import {
+  normalizePlayerEmail,
+  playerProfileSchema,
+} from "@/lib/validation/player-profile";
+
+import type { AdminSession } from "@/lib/services/admin-auth";
+import type { PlayerProfileInput } from "@/lib/validation/player-profile";
+
+export type CreateAdminWaitlistInput = PlayerProfileInput;
+
+export async function createAdminWaitlistEntry(
+  input: CreateAdminWaitlistInput,
+  admin: AdminSession,
+): Promise<{ id: string }> {
+  const tournament = await requireWritableActiveTournament();
+
+  const profile = playerProfileSchema.parse(input);
+  const email = normalizePlayerEmail(profile.email);
+
+  await assertWaitlistEmailAvailable(tournament.id, email);
+
+  const created = await insertWaitlistRecord({
+    tournamentId: tournament.id,
+    firstName: profile.firstName,
+    lastName: profile.lastName,
+    email,
+    phone: profile.phone,
+    skillLevel: profile.skillLevel,
+    preferredPlayers: profile.preferredPlayers,
+    notes: profile.notes,
+    createdSource: "admin",
+    createdByAdminId: admin.adminUserId,
+  });
+
+  await recordAuditEvent({
+    tournamentId: tournament.id,
+    waitlistEntryId: created.id,
+    adminUserId: admin.adminUserId,
+    eventType: AUDIT_EVENT_TYPES.waitlistCreatedByAdmin,
+  });
+
+  return created;
+}

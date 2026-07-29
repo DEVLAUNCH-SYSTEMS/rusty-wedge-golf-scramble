@@ -1,4 +1,4 @@
-import { and, eq, inArray, sql } from "drizzle-orm";
+import { and, eq, inArray, ne, sql } from "drizzle-orm";
 
 import { getDb } from "@/lib/db";
 import { registrations, waitlistEntries } from "@/lib/db/schema";
@@ -19,6 +19,7 @@ export async function findRegistrationById(registrationId: string) {
 export async function hasActiveRegistrationEmail(
   tournamentId: string,
   email: string,
+  excludeRegistrationId?: string,
 ): Promise<boolean> {
   const db = getDb();
   const rows = await db
@@ -28,7 +29,12 @@ export async function hasActiveRegistrationEmail(
       and(
         eq(registrations.tournamentId, tournamentId),
         sql`lower(${registrations.email}) = lower(${email})`,
-        inArray(registrations.registrationStatus, [...ACTIVE_REGISTRATION_STATUSES]),
+        inArray(registrations.registrationStatus, [
+          ...ACTIVE_REGISTRATION_STATUSES,
+        ]),
+        excludeRegistrationId
+          ? ne(registrations.id, excludeRegistrationId)
+          : undefined,
       ),
     )
     .limit(1);

@@ -11,6 +11,11 @@ export const submitWaitlistSchema = playerProfileSchema;
 
 export type SubmitWaitlistInput = z.infer<typeof submitWaitlistSchema>;
 
+export {
+  updateRegistrationProfileSchema,
+  type UpdateRegistrationProfileInput,
+} from "@/lib/validation/player-profile";
+
 export const rejectRegistrationSchema = z.object({
   reason: z.string().trim().min(1).max(FIELD_LIMITS.rejectionReason),
 });

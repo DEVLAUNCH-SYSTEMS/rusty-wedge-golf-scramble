@@ -1,11 +1,12 @@
 import Link from "next/link";
 
+import { AdminTableScrollShell } from "@/components/admin/admin-table-scroll-shell";
 import {
   adminLinkClassName,
   adminTableBorderClassName,
-  adminTableHeadClassName,
 } from "@/components/admin/admin-text-styles";
 import { TeamMemberRemoveButton } from "@/components/admin/team-member-remove-button";
+import { TeamMembersTableHead } from "@/components/admin/team-members-table-head";
 
 import type { AdminTeamDetail } from "@/lib/services/admin-teams-list";
 
@@ -26,45 +27,54 @@ function TeamMemberNameCell({
   );
 }
 
-function TeamMemberActionsCell({
-  teamId,
+function TeamMemberRow({
+  team,
   member,
+  readOnlyReason,
 }: {
-  teamId: string;
+  team: AdminTeamDetail;
   member: AdminTeamDetail["members"][number];
+  readOnlyReason?: string;
 }) {
   return (
-    <td className="px-4 py-3 text-right">
-      <TeamMemberRemoveButton
-        teamId={teamId}
-        registrationId={member.registrationId}
-        playerName={`${member.firstName} ${member.lastName}`}
-      />
-    </td>
+    <tr key={member.registrationId} className="hover:bg-rw-gray/60">
+      <TeamMemberNameCell member={member} />
+      <td className="px-4 py-3 text-rw-navy">{member.skillLevel}</td>
+      <td className="px-4 py-3 text-right">
+        <TeamMemberRemoveButton
+          teamId={team.id}
+          registrationId={member.registrationId}
+          playerName={`${member.firstName} ${member.lastName}`}
+          disabled={Boolean(readOnlyReason)}
+          disabledMessage={readOnlyReason}
+        />
+      </td>
+    </tr>
   );
 }
 
-export function TeamMembersTable({ team }: { team: AdminTeamDetail }) {
+export function TeamMembersTable({
+  team,
+  readOnlyReason,
+}: {
+  team: AdminTeamDetail;
+  readOnlyReason?: string;
+}) {
   return (
-    <div className={`mt-4 overflow-x-auto rounded-xl border ${adminTableBorderClassName}`}>
-      <table className={`min-w-full divide-y ${adminTableBorderClassName} text-sm`}>
-        <thead className={adminTableHeadClassName}>
-          <tr>
-            <th className="px-4 py-3 font-medium">Player</th>
-            <th className="px-4 py-3 font-medium">Skill</th>
-            <th className="px-4 py-3 font-medium text-right">Actions</th>
-          </tr>
-        </thead>
+    <AdminTableScrollShell className="mt-4 rounded-xl">
+      <table className={`min-w-[28rem] divide-y ${adminTableBorderClassName} text-sm`}>
+        <TeamMembersTableHead />
         <tbody className={`divide-y ${adminTableBorderClassName}`}>
           {team.members.map((member) => (
-            <tr key={member.registrationId} className="hover:bg-rw-gray/60">
-              <TeamMemberNameCell member={member} />
-              <td className="px-4 py-3 text-rw-navy">{member.skillLevel}</td>
-              <TeamMemberActionsCell teamId={team.id} member={member} />
-            </tr>
+            <TeamMemberRow
+              key={member.registrationId}
+              team={team}
+              member={member}
+              readOnlyReason={readOnlyReason}
+            />
           ))}
         </tbody>
       </table>
-    </div>
+    </AdminTableScrollShell>
   );
 }

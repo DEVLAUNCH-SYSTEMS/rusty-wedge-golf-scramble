@@ -17,6 +17,9 @@ export default defineConfig({
           name: "integration",
           include: ["tests/integration/**/*.{test,spec}.ts"],
           setupFiles: ["tests/integration/load-env.ts"],
+          // Shared CI/dev DB: many suites mutate the single active tournament row
+          // (lifecycle, capacity, registration_enabled). Run files sequentially.
+          fileParallelism: false,
         },
       },
       {

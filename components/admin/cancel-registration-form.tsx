@@ -7,15 +7,23 @@ import { FIELD_LIMITS } from "@/lib/validation/field-limits";
 
 type CancelRegistrationFormProps = {
   registrationId: string;
+  disabled?: boolean;
+  disabledMessage?: string;
 };
 
-export function CancelRegistrationForm({ registrationId }: CancelRegistrationFormProps) {
+export function CancelRegistrationForm({
+  registrationId,
+  disabled,
+  disabledMessage,
+}: CancelRegistrationFormProps) {
   return (
     <AdminActionForm
       title="Cancel registration"
       submitLabel="Cancel registration"
       pendingLabel="Cancelling…"
       danger
+      disabled={disabled}
+      disabledMessage={disabledMessage}
       onSubmit={(formData) => cancelRegistrationAction(registrationId, formData)}
     >
       <AdminTextAreaField

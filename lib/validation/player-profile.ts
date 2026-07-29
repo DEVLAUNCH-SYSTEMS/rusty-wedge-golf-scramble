@@ -35,3 +35,19 @@ export const playerProfileSchema = playerNameSchema
   .extend({
     skillLevel: skillLevelSchema,
   });
+
+export function normalizePlayerEmail(email: string): string {
+  return email.trim().toLowerCase();
+}
+
+/** Admin profile edit — same fields as public profile, email lowercased. */
+export const updateRegistrationProfileSchema = playerProfileSchema.transform(
+  (profile) => ({
+    ...profile,
+    email: normalizePlayerEmail(profile.email),
+  }),
+);
+
+export type UpdateRegistrationProfileInput = z.infer<
+  typeof updateRegistrationProfileSchema
+>;

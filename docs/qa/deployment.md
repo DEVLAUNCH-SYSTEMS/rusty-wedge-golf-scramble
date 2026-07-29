@@ -32,14 +32,15 @@ NEON_AUTH_BASE_URL="your-neon-auth-url" node scripts/validate-neon-auth-env.mjs
 
 ## 2. Apply database migrations
 
-Run against the **production** branch before or immediately after the first deploy:
+Follow [prod-migration-plan.md](./prod-migration-plan.md) before touching production. Read-only precheck first:
 
 ```bash
 DATABASE_URL="postgresql://..." npm run db:verify-target
+DATABASE_URL="postgresql://..." npm run db:migration-precheck
 DATABASE_URL="postgresql://..." npm run db:migrate
 ```
 
-Seed the active tournament only on a fresh production database:
+Seed the active tournament only on a **fresh** production database (never on an existing live database):
 
 ```bash
 DATABASE_URL="postgresql://..." npm run db:seed
@@ -96,4 +97,4 @@ Each organizer needs their own Neon Auth account and `admin_users` row. See [adm
 
 ## 8. Hand off to organizers
 
-Walk organizers through [launch-handoff.md](./launch-handoff.md) covering event-day exports and post-event shutdown.
+Walk organizers through [launch-handoff.md](./launch-handoff.md) covering event-day exports and post-event shutdown. For this release, collect sign-off on [organizer-acceptance-checklist.md](./organizer-acceptance-checklist.md). Developer record: [release-readiness-report.md](./release-readiness-report.md).

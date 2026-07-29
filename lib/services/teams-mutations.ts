@@ -7,6 +7,7 @@ import { findRegistrationById } from "@/lib/services/registration-queries";
 import { ServiceError } from "@/lib/services/service-error";
 import {
   assertTournamentScope,
+  assertTournamentWritable,
   requireActiveTournament,
 } from "@/lib/services/tournament";
 import { createTeamSchema } from "@/lib/validation/forms";
@@ -37,6 +38,7 @@ async function requireTeam(teamId: string) {
   }
 
   assertTournamentScope(team.tournamentId, tournament.id);
+  assertTournamentWritable(tournament);
 
   return { tournament, team };
 }
@@ -44,6 +46,7 @@ async function requireTeam(teamId: string) {
 export async function createTeam(name: string, admin: AdminSession) {
   const parsed = createTeamSchema.parse({ name });
   const tournament = await requireActiveTournament();
+  assertTournamentWritable(tournament);
   const db = getDb();
   const team = (
     await db

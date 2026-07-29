@@ -1,26 +1,26 @@
-import {
-  adminPageHeadingClassName,
-  adminPageSubheadingClassName,
-} from "@/components/admin/admin-text-styles";
-import { WaitlistListTable } from "@/components/admin/waitlist-list-table";
+import { WaitlistPageContent } from "@/components/admin/waitlist-page-content";
+import { adminViewReadOnlyReason } from "@/lib/content/admin-archived-readonly";
+import { resolveAdminTournamentContext } from "@/lib/services/admin-tournament-context";
 import { listActiveWaitlistEntries } from "@/lib/services/admin-waitlist-list";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminWaitlistPage() {
-  const entries = await listActiveWaitlistEntries();
+  const [entries, context] = await Promise.all([
+    listActiveWaitlistEntries(),
+    resolveAdminTournamentContext(),
+  ]);
 
   return (
-    <div className="flex flex-col gap-6">
-      <div>
-        <h1 className={adminPageHeadingClassName}>Waitlist</h1>
-        <p className={adminPageSubheadingClassName}>
-          Promote active waitlist entries to pending registration review, or remove
-          entries that are no longer needed.
-        </p>
-      </div>
-
-      <WaitlistListTable entries={entries} />
-    </div>
+    <WaitlistPageContent
+      entries={entries}
+      readOnlyReason={adminViewReadOnlyReason(
+        context.tournament.lifecycleStatus,
+        context.isViewingActiveTournament,
+      )}
+      tournamentYear={context.tournament.year}
+      lifecycleStatus={context.tournament.lifecycleStatus}
+      isViewingActiveTournament={context.isViewingActiveTournament}
+    />
   );
 }

@@ -11,6 +11,8 @@ export const adminBodyTextClassName = "text-sm text-slate-600";
 
 export const adminMutedTextClassName = "text-xs text-slate-500";
 
+export const adminBreakableTextClassName = "break-all";
+
 export const adminLinkClassName =
   "font-medium text-rw-navy hover:text-rw-gold-accessible hover:underline";
 

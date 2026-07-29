@@ -9,7 +9,7 @@ type AdminClientShellProps = {
 export function AdminClientShell({ children }: AdminClientShellProps) {
   return (
     <ClientErrorBoundary message="Something went wrong in this admin view. Refresh the page and try again.">
-      {children}
+      <div className="min-w-0">{children}</div>
     </ClientErrorBoundary>
   );
 }

@@ -21,3 +21,14 @@ export const waitlistStatusEnum = pgEnum("waitlist_status", [
   "promoted",
   "removed",
 ]);
+
+export const tournamentLifecycleStatusEnum = pgEnum(
+  "tournament_lifecycle_status",
+  ["draft", "registration_open", "registration_closed", "completed", "archived"],
+);
+
+export const createdSourceEnum = pgEnum("created_source", [
+  "public",
+  "admin",
+  "waitlist_promote",
+]);

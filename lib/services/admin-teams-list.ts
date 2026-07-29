@@ -2,12 +2,10 @@ import { and, asc, count, eq, isNull } from "drizzle-orm";
 
 import { getDb } from "@/lib/db";
 import { registrations, teamMembers, teams } from "@/lib/db/schema";
+import { requireAdminTournamentContext } from "@/lib/services/admin-tournament-context";
 import { ServiceError } from "@/lib/services/service-error";
 import { MAX_TEAM_SIZE } from "@/lib/services/teams-mutations";
-import {
-  assertTournamentScope,
-  requireActiveTournament,
-} from "@/lib/services/tournament";
+import { assertTournamentScope } from "@/lib/services/tournament";
 
 export type AdminTeamListItem = {
   id: string;
@@ -39,7 +37,7 @@ export type AdminAssignablePlayer = {
 };
 
 export async function listTeamsForAdmin(): Promise<AdminTeamListItem[]> {
-  const tournament = await requireActiveTournament();
+  const tournament = await requireAdminTournamentContext();
   const db = getDb();
 
   const rows = await db
@@ -64,7 +62,7 @@ export async function listTeamsForAdmin(): Promise<AdminTeamListItem[]> {
 }
 
 export async function getTeamDetailForAdmin(teamId: string): Promise<AdminTeamDetail> {
-  const tournament = await requireActiveTournament();
+  const tournament = await requireAdminTournamentContext();
   const db = getDb();
   const team = (
     await db.select().from(teams).where(eq(teams.id, teamId)).limit(1)
@@ -100,7 +98,7 @@ export async function getTeamDetailForAdmin(teamId: string): Promise<AdminTeamDe
 }
 
 export async function listAssignablePlayersForTeam(): Promise<AdminAssignablePlayer[]> {
-  const tournament = await requireActiveTournament();
+  const tournament = await requireAdminTournamentContext();
   const db = getDb();
 
   return db
