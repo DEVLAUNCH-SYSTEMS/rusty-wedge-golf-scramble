@@ -197,10 +197,16 @@ export default defineConfig([
 * Keep this override narrow so it does not relax standards elsewhere.
   */
   {
-    files: ["lib/db/seed.ts", "lib/db/migrate.ts", "lib/db/verify-migration-target.ts"],
+    files: [
+      "lib/db/seed.ts",
+      "lib/db/migrate.ts",
+      "lib/db/verify-migration-target.ts",
+      "lib/db/migration-precheck.ts",
+    ],
     rules: {
       "no-console": "off",
       "max-lines": "off",
+      "max-lines-per-function": "off",
       complexity: "off",
     },
   },

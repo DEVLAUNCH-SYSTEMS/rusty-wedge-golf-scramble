@@ -91,6 +91,33 @@ Store settings:
 - [ ] Test upload on preview deployment before go-live
 - [ ] Confirm proof viewer returns `401`/`403` without admin session
 
-## 7. Post-event cleanup (manual V1)
+## 7. Post-event cleanup and retention (P3–P4)
 
-See [post-event-checklist.md](./qa/post-event-checklist.md) item **P4**: delete blobs from the Vercel Blob dashboard (or via SDK `del()`) and clear `payment_proof_path` in the database when proofs are no longer needed.
+Organizers complete **P3–P7** in [post-event-checklist.md](./qa/post-event-checklist.md). Summary:
+
+### Organizer decisions (P3)
+
+| Retain proofs | Delete proofs |
+|---------------|---------------|
+| Leave Blob objects and DB paths unchanged | Remove storage to reduce cost and PII exposure |
+| Admins can still view proofs on registration detail | Registration rows remain; only the screenshot/PDF is removed |
+| Suitable when disputes may continue | Suitable when records are finalized and CSV exports are archived offline |
+
+Document the decision and date (**P7**).
+
+### Developer steps when deleting (P4)
+
+1. Identify registrations with `payment_proof_path` set for the archived tournament year.
+2. Delete each object from the Vercel Blob dashboard or via SDK `del()` using the **pathname stored in the database** (never guess paths from URLs).
+3. Set `payment_proof_path` to `NULL` on those registration rows.
+4. Confirm admin proof viewer returns `404` for cleared registrations.
+
+There is **no** admin UI for bulk proof deletion in V1 — plan developer time if organizers choose delete.
+
+### What the app does not do
+
+- Auto-delete blobs when a tournament is archived
+- Expose proof files on public routes
+- Send notifications when proofs are removed
+
+See [admin-onboarding.md](./admin-onboarding.md) for viewing proofs during the season.

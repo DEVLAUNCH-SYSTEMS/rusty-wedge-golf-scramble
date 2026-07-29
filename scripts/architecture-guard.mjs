@@ -57,6 +57,10 @@ function isPublicUiFile(relativePath) {
     return false;
   }
 
+  if (relativePath.startsWith("components/admin/")) {
+    return false;
+  }
+
   if (relativePath.startsWith("components/")) {
     return true;
   }

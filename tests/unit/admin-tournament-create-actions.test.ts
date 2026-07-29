@@ -93,6 +93,7 @@ describe("admin tournament create and activate actions", () => {
         lifecycleStatus: "draft",
         slug: "2028-rusty-wedge",
       }),
+      { adminUserId: "admin-1" },
     );
   });
 

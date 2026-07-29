@@ -3,6 +3,7 @@ import {
   resolveAdminManualPayment,
 } from "@/lib/services/admin-manual-payment";
 import { resolveAdminPaymentProof } from "@/lib/services/admin-payment-proof";
+import { AUDIT_EVENT_TYPES, recordAuditEvent } from "@/lib/services/audit";
 import { confirmRegistrationIfCapacity } from "@/lib/services/capacity-confirm";
 import {
   assertRegistrationEmailAvailable,
@@ -52,7 +53,9 @@ export async function createAdminRegistration(
   const tournament = await requireWritableActiveTournament();
 
   const profile = playerProfileSchema.parse(input);
-  const paymentStatus = adminManualPaymentStatusSchema.parse(input.paymentStatus);
+  const paymentStatus = adminManualPaymentStatusSchema.parse(
+    input.paymentStatus,
+  );
   const payment = resolveAdminManualPayment(paymentStatus);
   const proof = await resolveAdminPaymentProof({
     paymentStatus,
@@ -86,6 +89,19 @@ export async function createAdminRegistration(
   if (payment.requiresCapacityConfirm) {
     await confirmCreatedRegistration(created.id, tournament.id, admin);
   }
+
+  await recordAuditEvent({
+    tournamentId: tournament.id,
+    registrationId: created.id,
+    adminUserId: admin.adminUserId,
+    eventType: AUDIT_EVENT_TYPES.registrationCreatedByAdmin,
+    metadata: {
+      paymentStatus: payment.insertPaymentStatus,
+      registrationStatus: payment.requiresCapacityConfirm
+        ? "confirmed"
+        : "pending_review",
+    },
+  });
 
   return created;
 }

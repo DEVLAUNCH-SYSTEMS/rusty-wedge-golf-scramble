@@ -1,18 +1,31 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 
-import {
-  hasAdminE2EAuth,
-  selectAdminTournamentView,
-  signInAsAdmin,
-} from "./helpers/admin-auth";
-import {
-  deleteMultiYearE2EFixture,
-  E2E_MULTI_YEAR_PLAYER_LAST_NAME,
-  E2E_MULTI_YEAR_TOURNAMENT_NAME,
-  seedMultiYearE2EFixture,
-} from "./helpers/multi-year-test-tournament";
-
+const adminEmail = process.env.E2E_ADMIN_EMAIL?.trim();
+const adminPassword = process.env.E2E_ADMIN_PASSWORD?.trim();
+const hasAdminE2EAuth = Boolean(adminEmail && adminPassword);
 const hasMultiYearE2E = hasAdminE2EAuth && Boolean(process.env.DATABASE_URL);
+
+async function signInAsAdmin(page: Page): Promise<void> {
+  const response = await page.request.post("/api/auth/sign-in/email", {
+    data: {
+      email: adminEmail,
+      password: adminPassword,
+    },
+  });
+
+  expect(response.ok(), `Admin sign-in failed: ${response.status()}`).toBeTruthy();
+  await page.goto("/admin");
+  await expect(page).toHaveURL(/\/admin/);
+}
+
+async function selectAdminTournamentView(
+  page: Page,
+  tournamentId: string,
+): Promise<void> {
+  const selector = page.getByLabel("Select tournament view");
+  await selector.selectOption(tournamentId);
+  await expect(selector).toHaveValue(tournamentId);
+}
 
 test("H-multi-year-switch: admin tournament selector scopes registration lists", async ({
   page,
@@ -22,7 +35,8 @@ test("H-multi-year-switch: admin tournament selector scopes registration lists",
     "Set E2E_ADMIN_EMAIL, E2E_ADMIN_PASSWORD, and DATABASE_URL for multi-year E2E.",
   );
 
-  const fixture = await seedMultiYearE2EFixture();
+  const multiYear = await import("./helpers/multi-year-test-tournament");
+  const fixture = await multiYear.seedMultiYearE2EFixture();
 
   try {
     await signInAsAdmin(page);
@@ -32,12 +46,12 @@ test("H-multi-year-switch: admin tournament selector scopes registration lists",
 
     await selectAdminTournamentView(page, fixture.draftTournamentId);
     await expect(page.getByText(fixture.draftEmail)).toBeVisible();
-    await expect(page.getByText(E2E_MULTI_YEAR_PLAYER_LAST_NAME)).toBeVisible();
+    await expect(page.getByText(multiYear.E2E_MULTI_YEAR_PLAYER_LAST_NAME)).toBeVisible();
 
     await selectAdminTournamentView(page, fixture.activeTournamentId);
     await expect(page.getByText(fixture.draftEmail)).toHaveCount(0);
   } finally {
-    await deleteMultiYearE2EFixture(fixture.draftTournamentId);
+    await multiYear.deleteMultiYearE2EFixture(fixture.draftTournamentId);
   }
 });
 
@@ -49,7 +63,8 @@ test("H-multi-year-export: CSV export follows the selected tournament context", 
     "Set E2E_ADMIN_EMAIL, E2E_ADMIN_PASSWORD, and DATABASE_URL for multi-year E2E.",
   );
 
-  const fixture = await seedMultiYearE2EFixture();
+  const multiYear = await import("./helpers/multi-year-test-tournament");
+  const fixture = await multiYear.seedMultiYearE2EFixture();
 
   try {
     await signInAsAdmin(page);
@@ -66,7 +81,7 @@ test("H-multi-year-export: CSV export follows the selected tournament context", 
     expect(csv).toContain(fixture.draftEmail);
     expect(csv).toContain("first_name");
   } finally {
-    await deleteMultiYearE2EFixture(fixture.draftTournamentId);
+    await multiYear.deleteMultiYearE2EFixture(fixture.draftTournamentId);
   }
 });
 
@@ -78,6 +93,7 @@ test("H-multi-year-create-switch-export: create, switch, and export stay isolate
     "Set E2E_ADMIN_EMAIL, E2E_ADMIN_PASSWORD, and DATABASE_URL for multi-year E2E.",
   );
 
+  const multiYear = await import("./helpers/multi-year-test-tournament");
   const year = 2090 + Math.floor(Math.random() * 1000);
   const slug = `${year}-e2e-multi-year-flow`;
   const name = `E2E Multi-Year Flow ${year}`;
@@ -122,5 +138,5 @@ test("H-multi-year-create-switch-export: create, switch, and export stay isolate
 
   await page.goto("/");
   await expect(page.getByText(name)).toHaveCount(0);
-  await expect(page.getByText(E2E_MULTI_YEAR_TOURNAMENT_NAME)).toHaveCount(0);
+  await expect(page.getByText(multiYear.E2E_MULTI_YEAR_TOURNAMENT_NAME)).toHaveCount(0);
 });

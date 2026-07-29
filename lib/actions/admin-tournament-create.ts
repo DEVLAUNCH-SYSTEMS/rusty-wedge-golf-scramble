@@ -13,9 +13,11 @@ export async function createTournamentAction(
   formData: FormData,
 ): Promise<ActionResult> {
   try {
-    await requireAdminSession();
+    const admin = await requireAdminSession();
     const input = parseCreateTournamentFormData(formData);
-    const created = await createTournament(input);
+    const created = await createTournament(input, {
+      adminUserId: admin.adminUserId,
+    });
 
     return actionSuccess(
       `Created ${created.year} tournament draft (${created.slug}).`,

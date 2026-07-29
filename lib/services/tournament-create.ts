@@ -2,6 +2,7 @@ import { eq } from "drizzle-orm";
 
 import { getDb } from "@/lib/db";
 import { tournaments } from "@/lib/db/schema";
+import { AUDIT_EVENT_TYPES, recordAuditEvent } from "@/lib/services/audit";
 import { ServiceError } from "@/lib/services/service-error";
 import { registrationEnabledFromLifecycle } from "@/lib/services/tournament-lifecycle";
 import { assertRegistrationOpenCreateAllowed } from "@/lib/services/tournament-registration-open-rule";
@@ -85,6 +86,7 @@ function buildInsertValues(parsed: CreateTournamentInput) {
 
 export async function createTournament(
   input: CreateTournamentInput,
+  audit?: { adminUserId: string },
 ): Promise<Tournament> {
   const parsed = createTournamentSchema.parse(input);
 
@@ -105,6 +107,15 @@ export async function createTournament(
 
   if (!created) {
     throw new ServiceError("CREATE_FAILED", "Unable to create tournament.");
+  }
+
+  if (audit) {
+    await recordAuditEvent({
+      tournamentId: created.id,
+      adminUserId: audit.adminUserId,
+      eventType: AUDIT_EVENT_TYPES.tournamentCreated,
+      metadata: { year: created.year, slug: created.slug },
+    });
   }
 
   return created;

@@ -118,6 +118,16 @@ export async function updateRegistrationProfile(
     throw new ServiceError("NOT_FOUND", "Registration not found.");
   }
 
+  if (
+    registration.registrationStatus !== "pending_review" &&
+    registration.registrationStatus !== "confirmed"
+  ) {
+    throw new ServiceError(
+      "INVALID_STATUS",
+      "Only pending or confirmed registrations can be edited.",
+    );
+  }
+
   assertTournamentScope(registration.tournamentId, tournament.id);
   await assertProfileEmailAvailable(tournament.id, parsed.email, registrationId);
 

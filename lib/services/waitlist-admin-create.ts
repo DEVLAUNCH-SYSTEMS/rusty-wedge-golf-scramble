@@ -1,3 +1,4 @@
+import { AUDIT_EVENT_TYPES, recordAuditEvent } from "@/lib/services/audit";
 import {
   assertWaitlistEmailAvailable,
   insertWaitlistRecord,
@@ -24,7 +25,7 @@ export async function createAdminWaitlistEntry(
 
   await assertWaitlistEmailAvailable(tournament.id, email);
 
-  return insertWaitlistRecord({
+  const created = await insertWaitlistRecord({
     tournamentId: tournament.id,
     firstName: profile.firstName,
     lastName: profile.lastName,
@@ -36,4 +37,13 @@ export async function createAdminWaitlistEntry(
     createdSource: "admin",
     createdByAdminId: admin.adminUserId,
   });
+
+  await recordAuditEvent({
+    tournamentId: tournament.id,
+    waitlistEntryId: created.id,
+    adminUserId: admin.adminUserId,
+    eventType: AUDIT_EVENT_TYPES.waitlistCreatedByAdmin,
+  });
+
+  return created;
 }
