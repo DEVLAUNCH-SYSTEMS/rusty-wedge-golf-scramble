@@ -1,17 +1,23 @@
-import { and, asc, count, eq, isNull } from "drizzle-orm";
+import { and, asc, count, desc, eq, isNull } from "drizzle-orm";
 
 import { getDb } from "@/lib/db";
 import { registrations, teamMembers, teams } from "@/lib/db/schema";
+import { loadTeamRosterMembersByTeamId } from "@/lib/services/admin-team-list-roster";
 import { requireAdminTournamentContext } from "@/lib/services/admin-tournament-context";
 import { ServiceError } from "@/lib/services/service-error";
 import { MAX_TEAM_SIZE } from "@/lib/services/teams-mutations";
 import { assertTournamentScope } from "@/lib/services/tournament";
 
+import type { TeamRosterMember } from "@/lib/format/team-roster-display";
+import type { AdminTeamListSort } from "@/lib/validation/admin-team-list-sort";
+
 export type AdminTeamListItem = {
   id: string;
   name: string;
+  teamNumber: number | null;
   memberCount: number;
   createdAt: Date;
+  rosterMembers: TeamRosterMember[];
 };
 
 export type AdminTeamMember = {
@@ -24,6 +30,7 @@ export type AdminTeamMember = {
 export type AdminTeamDetail = {
   id: string;
   name: string;
+  teamNumber: number | null;
   members: AdminTeamMember[];
   memberCount: number;
   slotsRemaining: number;
@@ -36,7 +43,13 @@ export type AdminAssignablePlayer = {
   skillLevel: string;
 };
 
-export async function listTeamsForAdmin(): Promise<AdminTeamListItem[]> {
+function teamNumberOrder(sort: AdminTeamListSort) {
+  return sort === "desc" ? desc(teams.teamNumber) : asc(teams.teamNumber);
+}
+
+export async function listTeamsForAdmin(
+  sort: AdminTeamListSort = "asc",
+): Promise<AdminTeamListItem[]> {
   const tournament = await requireAdminTournamentContext();
   const db = getDb();
 
@@ -44,20 +57,25 @@ export async function listTeamsForAdmin(): Promise<AdminTeamListItem[]> {
     .select({
       id: teams.id,
       name: teams.name,
+      teamNumber: teams.teamNumber,
       createdAt: teams.createdAt,
       memberCount: count(teamMembers.id),
     })
     .from(teams)
     .leftJoin(teamMembers, eq(teamMembers.teamId, teams.id))
     .where(eq(teams.tournamentId, tournament.id))
-    .groupBy(teams.id, teams.name, teams.createdAt)
-    .orderBy(asc(teams.name));
+    .groupBy(teams.id, teams.name, teams.teamNumber, teams.createdAt)
+    .orderBy(teamNumberOrder(sort));
+
+  const rosters = await loadTeamRosterMembersByTeamId(tournament.id);
 
   return rows.map((row) => ({
     id: row.id,
     name: row.name,
+    teamNumber: row.teamNumber,
     createdAt: row.createdAt,
     memberCount: Number(row.memberCount),
+    rosterMembers: rosters.get(row.id) ?? [],
   }));
 }
 
@@ -91,6 +109,7 @@ export async function getTeamDetailForAdmin(teamId: string): Promise<AdminTeamDe
   return {
     id: team.id,
     name: team.name,
+    teamNumber: team.teamNumber,
     members,
     memberCount,
     slotsRemaining: Math.max(0, MAX_TEAM_SIZE - memberCount),

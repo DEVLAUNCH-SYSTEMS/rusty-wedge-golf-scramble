@@ -29,6 +29,9 @@
     "db:migrate": "tsx lib/db/migrate.ts",
     "db:verify-target": "tsx lib/db/verify-migration-target.ts",
     "db:migration-precheck": "tsx lib/db/migration-precheck.ts",
+    "db:team-number-precheck": "tsx lib/db/team-number-precheck.ts",
+    "db:fixture-team-cleanup": "tsx lib/db/fixture-team-cleanup.ts",
+    "db:team-number-gate-b": "tsx lib/db/team-number-gate-b-verify.ts",
     "db:seed": "tsx lib/db/seed.ts",
     "pr": "node scripts/pr-gate.mjs",
     "prepare": "husky"

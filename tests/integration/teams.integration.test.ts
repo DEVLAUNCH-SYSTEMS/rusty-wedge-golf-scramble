@@ -17,7 +17,7 @@ describe.skipIf(!hasIntegrationDatabase())("team assignment integration", () => 
   it("H8: only confirmed players can be assigned to teams", async () => {
     const tournamentId = await getActiveTournamentId();
     const admin = await createTestAdminSession();
-    const team = await createTeam("Integration Team A", admin);
+    const team = await createTeam(admin);
     const pending = await insertRegistrationRow({
       tournamentId,
       email: uniqueTestEmail("pending-team"),
@@ -32,7 +32,7 @@ describe.skipIf(!hasIntegrationDatabase())("team assignment integration", () => 
   it("H9: teams cannot exceed four players", async () => {
     const tournamentId = await getActiveTournamentId();
     const admin = await createTestAdminSession();
-    const team = await createTeam("Integration Team B", admin);
+    const team = await createTeam(admin);
 
     for (let index = 0; index < 4; index += 1) {
       const player = await insertRegistrationRow({

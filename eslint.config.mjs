@@ -202,6 +202,10 @@ export default defineConfig([
       "lib/db/migrate.ts",
       "lib/db/verify-migration-target.ts",
       "lib/db/migration-precheck.ts",
+      "lib/db/team-number-precheck.ts",
+      "lib/db/fixture-team-cleanup.ts",
+      "lib/db/dev-fixture-cleanup-guard.ts",
+      "lib/db/team-number-gate-b-verify.ts",
     ],
     rules: {
       "no-console": "off",

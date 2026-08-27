@@ -10,7 +10,9 @@ import {
 } from "@/components/admin/admin-text-styles";
 import { ArchivedTournamentBanner } from "@/components/admin/archived-tournament-banner";
 import { AssignPlayerForm } from "@/components/admin/assign-player-form";
+import { DeleteTeamForm } from "@/components/admin/delete-team-form";
 import { TeamMembersTable } from "@/components/admin/team-members-table";
+import { formatAdminTeamLabel } from "@/lib/format/team-display";
 
 import type {
   AdminAssignablePlayer,
@@ -18,12 +20,14 @@ import type {
 } from "@/lib/services/admin-teams-list";
 
 function TeamDetailHeader({ team }: { team: AdminTeamDetail }) {
+  const teamLabel = formatAdminTeamLabel(team);
+
   return (
     <div>
       <Link href="/admin/teams" className={`${adminLinkClassName} text-sm`}>
         ← Back to teams
       </Link>
-      <h1 className={`${adminPageHeadingClassName} mt-2`}>{team.name}</h1>
+      <h1 className={`${adminPageHeadingClassName} mt-2`}>{teamLabel}</h1>
       <p className={adminBodyTextClassName}>
         {team.memberCount} of 4 players assigned · {team.slotsRemaining} open slot
         {team.slotsRemaining === 1 ? "" : "s"}
@@ -53,6 +57,48 @@ function TeamRosterSection({
   );
 }
 
+function TeamDetailDeleteSection({
+  team,
+  readOnlyReason,
+}: {
+  team: AdminTeamDetail;
+  readOnlyReason?: string;
+}) {
+  return (
+    <DeleteTeamForm
+      teamId={team.id}
+      teamLabel={formatAdminTeamLabel(team)}
+      memberCount={team.memberCount}
+      disabled={Boolean(readOnlyReason)}
+      disabledMessage={readOnlyReason}
+      redirectOnSuccess="/admin/teams"
+    />
+  );
+}
+
+function TeamDetailAssignSection({
+  team,
+  assignablePlayers,
+  readOnlyReason,
+}: {
+  team: AdminTeamDetail;
+  assignablePlayers: AdminAssignablePlayer[];
+  readOnlyReason?: string;
+}) {
+  if (team.slotsRemaining <= 0) {
+    return null;
+  }
+
+  return (
+    <AssignPlayerForm
+      teamId={team.id}
+      players={assignablePlayers}
+      disabled={Boolean(readOnlyReason)}
+      disabledMessage={readOnlyReason}
+    />
+  );
+}
+
 export function TeamDetailView({
   team,
   assignablePlayers,
@@ -67,14 +113,12 @@ export function TeamDetailView({
       {readOnlyReason ? <ArchivedTournamentBanner /> : null}
       <TeamDetailHeader team={team} />
       <TeamRosterSection team={team} readOnlyReason={readOnlyReason} />
-      {team.slotsRemaining > 0 ? (
-        <AssignPlayerForm
-          teamId={team.id}
-          players={assignablePlayers}
-          disabled={Boolean(readOnlyReason)}
-          disabledMessage={readOnlyReason}
-        />
-      ) : null}
+      <TeamDetailAssignSection
+        team={team}
+        assignablePlayers={assignablePlayers}
+        readOnlyReason={readOnlyReason}
+      />
+      <TeamDetailDeleteSection team={team} readOnlyReason={readOnlyReason} />
     </div>
   );
 }

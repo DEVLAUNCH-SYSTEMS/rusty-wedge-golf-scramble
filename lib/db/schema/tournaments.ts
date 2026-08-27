@@ -34,6 +34,7 @@ export const tournaments = pgTable("tournaments", {
   }),
   archivedAt: timestamp("archived_at", { withTimezone: true }),
   archivedByAdminId: uuid("archived_by_admin_id").references(() => adminUsers.id),
+  teamsPublished: boolean("teams_published").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });

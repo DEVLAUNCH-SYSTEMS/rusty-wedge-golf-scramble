@@ -6,6 +6,7 @@ import {
 import { TeamAssignmentPanel } from "@/components/admin/team-assignment-panel";
 import { TeamsManagementPanels } from "@/components/admin/teams-management-panels";
 import { TeamsPageContext } from "@/components/admin/teams-page-context";
+import { TeamsPublicationPanel } from "@/components/admin/teams-publication-panel";
 import { adminViewReadOnlyReason } from "@/lib/content/admin-archived-readonly";
 import { buildAdminExportHrefs } from "@/lib/services/admin-export-hrefs";
 import {
@@ -15,10 +16,12 @@ import {
 import { resolveAdminTournamentContext } from "@/lib/services/admin-tournament-context";
 import { getTeamAssignmentReport } from "@/lib/services/team-assignment-report";
 
-async function loadTeamsPageData() {
+import type { AdminTeamListSort } from "@/lib/validation/admin-team-list-sort";
+
+async function loadTeamsPageData(sort: AdminTeamListSort) {
   const context = await resolveAdminTournamentContext();
   const [teams, report, unassignedPlayers] = await Promise.all([
-    listTeamsForAdmin(),
+    listTeamsForAdmin(sort),
     getTeamAssignmentReport(context.tournament.id),
     listAssignablePlayersForTeam(),
   ]);
@@ -35,9 +38,9 @@ async function loadTeamsPageData() {
   };
 }
 
-export async function TeamsPageContent() {
+export async function TeamsPageContent({ sort }: { sort: AdminTeamListSort }) {
   const { context, teams, unassignedPlayers, report, readOnlyReason } =
-    await loadTeamsPageData();
+    await loadTeamsPageData(sort);
 
   return (
     <>
@@ -47,9 +50,14 @@ export async function TeamsPageContent() {
         isViewingActiveTournament={context.isViewingActiveTournament}
       />
       <TeamAssignmentPanel report={report} />
+      <TeamsPublicationPanel
+        teamsPublished={context.tournament.teamsPublished}
+        readOnlyReason={readOnlyReason}
+      />
       <TeamsManagementPanels
         teams={teams}
         unassignedPlayers={unassignedPlayers}
+        sort={sort}
         readOnlyReason={readOnlyReason}
       />
       <AdminExportLinks hrefs={buildAdminExportHrefs(context)} />

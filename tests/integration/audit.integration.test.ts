@@ -12,7 +12,7 @@ import { createTestAdminSession } from "./helpers";
 describe.skipIf(!hasIntegrationDatabase())("audit integration", () => {
   it("T26: team creation records an audit event", async () => {
     const admin = await createTestAdminSession();
-    const team = await createTeam("Audit Team", admin);
+    const team = await createTeam(admin);
     const db = getDb();
 
     const events = await db

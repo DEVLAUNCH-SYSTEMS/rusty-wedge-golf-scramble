@@ -399,7 +399,7 @@ describe.skipIf(!hasIntegrationDatabase())(
         email: originalEmail,
         registrationStatus: "confirmed",
       });
-      const team = await createTeam(`H-edit team ${randomUUID()}`, admin);
+      const team = await createTeam(admin);
 
       await assignPlayerToTeam(team.id, player.id, admin);
 

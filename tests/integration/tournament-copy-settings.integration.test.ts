@@ -102,6 +102,7 @@ describe.skipIf(!hasIntegrationDatabase())(
       await db.insert(teams).values({
         tournamentId: source.id,
         name: "Do Not Copy Team",
+        teamNumber: 1,
       });
 
       const sourceCounts = await countPlayerRecords(source.id);
