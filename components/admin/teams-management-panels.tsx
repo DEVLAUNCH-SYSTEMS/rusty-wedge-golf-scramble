@@ -3,6 +3,7 @@ import { TeamsListTable } from "@/components/admin/teams-list-table";
 import { UnassignedPlayersPanel } from "@/components/admin/unassigned-players-panel";
 
 import type { AdminAssignablePlayer, AdminTeamListItem } from "@/lib/services/admin-teams-list";
+import type { AdminTeamListSort } from "@/lib/validation/admin-team-list-sort";
 
 function TeamsEmptyState() {
   return (
@@ -15,10 +16,12 @@ function TeamsEmptyState() {
 export function TeamsManagementPanels({
   teams,
   unassignedPlayers,
+  sort,
   readOnlyReason,
 }: {
   teams: AdminTeamListItem[];
   unassignedPlayers: AdminAssignablePlayer[];
+  sort: AdminTeamListSort;
   readOnlyReason?: string;
 }) {
   return (
@@ -27,7 +30,9 @@ export function TeamsManagementPanels({
         disabled={Boolean(readOnlyReason)}
         disabledMessage={readOnlyReason}
       />
-      {teams.length === 0 ? <TeamsEmptyState /> : <TeamsListTable teams={teams} />}
+      {teams.length === 0 ? <TeamsEmptyState /> : (
+        <TeamsListTable teams={teams} sort={sort} readOnlyReason={readOnlyReason} />
+      )}
       <UnassignedPlayersPanel players={unassignedPlayers} />
     </>
   );

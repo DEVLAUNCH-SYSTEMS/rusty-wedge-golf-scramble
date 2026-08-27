@@ -8,6 +8,8 @@ import {
   HERO_TAGLINE,
 } from "@/lib/content/landing-content";
 
+import type { PublicNavLink } from "@/lib/content/landing-content";
+
 // function HeroEyebrow() {
 //   return (
 //     <p className="mt-2 flex items-center justify-center gap-3 text-xs font-semibold uppercase tracking-[0.3em] text-rw-gold">
@@ -27,10 +29,10 @@ function HeroHeading() {
   );
 }
 
-export function HeroSection() {
+export function HeroSection({ navLinks }: { navLinks: readonly PublicNavLink[] }) {
   return (
     <section className="relative overflow-hidden bg-rw-navy pb-20 pt-28 text-white">
-      <SiteHeader />
+      <SiteHeader navLinks={navLinks} />
       <div className="mx-auto max-w-4xl px-6 text-center">
         <BrandLogo size="hero" priority className="mx-auto" />
         {/* <HeroEyebrow /> */}

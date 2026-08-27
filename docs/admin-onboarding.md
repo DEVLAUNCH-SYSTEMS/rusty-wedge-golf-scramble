@@ -35,7 +35,8 @@ Delete the row from `admin_users` for that `neon_auth_user_id`. This immediately
 | `/admin/registrations/new` | Manually add a registration or waitlist entry |
 | `/admin/registrations/[id]` | Registration detail, payment proof, verify/reject, edit profile |
 | `/admin/waitlist` | Promote or remove waitlist entries |
-| `/admin/teams` | Create teams, assign players, export teams |
+| `/admin/teams` | Create teams, assign players, **publish/hide public rosters**, delete teams, export teams |
+| `/teams` | **Public team rosters** (visible only when published for the active tournament) |
 | `/admin/tournaments` | Lifecycle (open/close/complete/archive), **Make current** |
 | `/admin/tournaments/new` | Create next year's tournament (draft) |
 
@@ -91,6 +92,29 @@ Payment status, team assignment, and verify/reject actions use separate controls
 
 ---
 
+## Public teams (publish rosters)
+
+Team numbers are assigned **automatically** when you create a team on `/admin/teams`. The admin list shows **Team #N** (not legacy composite names) with assigned player names below each team.
+
+### Publish workflow
+
+1. Finish creating teams and assigning confirmed players.
+2. On `/admin/teams`, use **Publish teams to public site** (confirmation required).
+3. The public **Teams** nav link appears on `/` and `/teams`.
+4. Visitors at `/teams` see Team #N cards with up to four roster slots (First Last names only).
+5. To hide rosters, use **Hide teams from public site** (confirmation required). The Teams nav link disappears; `/teams` shows a friendly unpublished message.
+
+Publication applies to the **active** tournament only. Archived years are read-only — you cannot publish, hide, create, or delete teams for an archived tournament.
+
+### Delete team
+
+- **Empty team** — deleted permanently after confirmation.
+- **Team with players** — deletes the team and **unassigns** players; registrations are preserved.
+
+See [public-teams-feature.md](./qa/public-teams-feature.md) for privacy rules and production migration gates.
+
+---
+
 ## Read-only banners
 
 | Message | Meaning |
@@ -106,4 +130,5 @@ Payment status, team assignment, and verify/reject actions use separate controls
 |-----|--------|
 | [launch-handoff.md](./qa/launch-handoff.md) | Pre-launch sign-off, event-week exports, **next-year setup** |
 | [post-event-checklist.md](./qa/post-event-checklist.md) | Archive, exports, **payment proof retention (P3–P4)** |
+| [public-teams-feature.md](./qa/public-teams-feature.md) | Public teams, publish/hide, privacy, gates |
 | [blob-setup.md](./blob-setup.md) | Vercel Blob setup and proof deletion (developers + P4) |

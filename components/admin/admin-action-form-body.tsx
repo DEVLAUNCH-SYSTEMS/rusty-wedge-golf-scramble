@@ -13,13 +13,14 @@ type AdminActionFormBodyProps = {
   pendingLabel: string;
   displayMessage: FormMessage | null;
   onSubmit: (formData: FormData) => void;
+  formClassName?: string;
   children: React.ReactNode;
 };
 
 export function AdminActionFormBody(props: AdminActionFormBodyProps) {
   return (
     <form
-      className="mt-4 flex flex-col gap-4"
+      className={props.formClassName ?? "mt-4 flex flex-col gap-4"}
       onSubmit={(event) => {
         event.preventDefault();
         props.onSubmit(new FormData(event.currentTarget));

@@ -89,7 +89,7 @@ describe.skipIf(!hasIntegrationDatabase())(
           code: "TOURNAMENT_ARCHIVED",
         } satisfies Partial<ServiceError>);
 
-        await expect(createTeam("Archived Guard Team", admin)).rejects.toMatchObject({
+        await expect(createTeam(admin)).rejects.toMatchObject({
           code: "TOURNAMENT_ARCHIVED",
         } satisfies Partial<ServiceError>);
 

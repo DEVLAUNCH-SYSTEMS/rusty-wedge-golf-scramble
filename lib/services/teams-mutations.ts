@@ -1,70 +1,40 @@
-import { and, count, eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 
 import { getDb } from "@/lib/db";
-import { teamMembers, teams } from "@/lib/db/schema";
+import { teamMembers } from "@/lib/db/schema";
 import { AUDIT_EVENT_TYPES, recordAuditEvent } from "@/lib/services/audit";
 import { findRegistrationById } from "@/lib/services/registration-queries";
 import { ServiceError } from "@/lib/services/service-error";
+import { allocateAndInsertTeam } from "@/lib/services/team-number-allocate";
+import {
+  countTeamMembers,
+  requireWritableTeam,
+} from "@/lib/services/team-scope";
 import {
   assertTournamentScope,
   assertTournamentWritable,
   requireActiveTournament,
 } from "@/lib/services/tournament";
-import { createTeamSchema } from "@/lib/validation/forms";
 
 import type { AdminSession } from "@/lib/services/admin-auth";
 
 export const MAX_TEAM_SIZE = 4;
 
-async function countTeamMembers(teamId: string): Promise<number> {
-  const db = getDb();
-  const rows = await db
-    .select({ total: count() })
-    .from(teamMembers)
-    .where(eq(teamMembers.teamId, teamId));
-
-  return Number(rows[0]?.total ?? 0);
-}
-
 async function requireTeam(teamId: string) {
-  const tournament = await requireActiveTournament();
-  const db = getDb();
-  const team = (
-    await db.select().from(teams).where(eq(teams.id, teamId)).limit(1)
-  )[0];
-
-  if (!team) {
-    throw new ServiceError("NOT_FOUND", "Team not found.");
-  }
-
-  assertTournamentScope(team.tournamentId, tournament.id);
-  assertTournamentWritable(tournament);
-
-  return { tournament, team };
+  return requireWritableTeam(teamId);
 }
 
-export async function createTeam(name: string, admin: AdminSession) {
-  const parsed = createTeamSchema.parse({ name });
+export async function createTeam(admin: AdminSession) {
   const tournament = await requireActiveTournament();
   assertTournamentWritable(tournament);
-  const db = getDb();
-  const team = (
-    await db
-      .insert(teams)
-      .values({ tournamentId: tournament.id, name: parsed.name })
-      .returning({ id: teams.id, name: teams.name })
-  )[0];
-
-  if (!team) {
-    throw new ServiceError("CREATE_TEAM_FAILED", "Unable to create team.");
-  }
+  const team = await allocateAndInsertTeam(tournament.id);
 
   await recordAuditEvent({
     tournamentId: tournament.id,
     teamId: team.id,
     adminUserId: admin.adminUserId,
     eventType: AUDIT_EVENT_TYPES.teamCreated,
-    metadata: { teamName: team.name },
+    metadata: { teamName: team.name, teamNumber: team.teamNumber },
   });
 
   return team;

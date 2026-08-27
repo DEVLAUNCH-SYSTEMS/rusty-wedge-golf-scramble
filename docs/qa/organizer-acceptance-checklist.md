@@ -68,11 +68,26 @@ On a phone (or narrow browser window):
 
 ---
 
+## G. Public teams (publish, `/teams`, delete)
+
+On `/admin/teams` for the **active** tournament:
+
+- [ ] **G1** Create team — receives next **Team #N** automatically; list sorts numerically (default ascending)
+- [ ] **G2** Assign confirmed player — name appears under Team #N as **First Last**
+- [ ] **G3** **Publish teams** — acknowledgment required; public `/teams` loads rosters; **Teams** nav link visible on `/`
+- [ ] **G4** Public `/teams` — teams in numeric order; each card shows Team #N; four roster slots; open slots show placeholder; **no** emails, skill, or legacy team name strings
+- [ ] **G5** **Hide teams** — acknowledgment required; Teams nav hidden; `/teams` shows unpublished message (no roster)
+- [ ] **G6** Delete **empty** team — confirmation required; team removed
+- [ ] **G7** Delete **populated** team — players unassigned; registrations remain on registrations list
+- [ ] **G8** Archived tournament — publish/hide/create/delete blocked with clear read-only messaging
+
+---
+
 ## Sign-off
 
 | Role | Name | Date | Notes |
 |------|------|------|-------|
-| Organizer | | | A1–F3 complete on staging/production |
+| Organizer | | | A1–G8 complete on staging/production |
 | Developer | | | Assisted walkthrough; issues logged below |
 
 ### Issues found (if any)
@@ -87,4 +102,5 @@ On a phone (or narrow browser window):
 
 - [launch-handoff.md](./launch-handoff.md) — ongoing organizer runbook
 - [admin-onboarding.md](../admin-onboarding.md) — URLs and workflows
-- [release-readiness-report.md](./release-readiness-report.md) — developer release summary and open risks
+- [public-teams-feature.md](./public-teams-feature.md) — public teams feature + production gates
+- [public-teams-release-readiness.md](./public-teams-release-readiness.md) — dev Slice 12 readiness

@@ -10,12 +10,52 @@ export const HERO_SECONDARY_CTA = {
   href: "#about",
 } as const;
 
-export const NAV_LINKS = [
+export type PublicNavLink = {
+  href: string;
+  label: string;
+};
+
+const PUBLIC_NAV_SECTION_LINKS: PublicNavLink[] = [
   { href: "#about", label: "Event Details" },
   { href: "#trophy", label: "Trophy" },
   { href: "#experience", label: "Experience" },
   { href: "#contact", label: "Contact" },
-] as const;
+];
+
+/** @deprecated Use buildPublicNavLinks for publication-aware navigation. */
+export const NAV_LINKS = PUBLIC_NAV_SECTION_LINKS;
+
+const TEAMS_PUBLIC_NAV_LINK: PublicNavLink = {
+  href: "/teams",
+  label: "Teams",
+};
+
+export function buildPublicNavLinks({
+  teamsPublished,
+  anchorBase = "",
+}: {
+  teamsPublished: boolean;
+  anchorBase?: "" | "/";
+}): PublicNavLink[] {
+  const sectionLinks = PUBLIC_NAV_SECTION_LINKS.map((link) => ({
+    label: link.label,
+    href: `${anchorBase}${link.href}`,
+  }));
+
+  if (!teamsPublished) {
+    return sectionLinks;
+  }
+
+  return [
+    ...sectionLinks.slice(0, 3),
+    TEAMS_PUBLIC_NAV_LINK,
+    ...sectionLinks.slice(3),
+  ];
+}
+
+export function buildPublicRegisterHref(anchorBase: "" | "/" = ""): string {
+  return `${anchorBase}#register`;
+}
 
 export const INFO_SECTION = {
   label: "EVENT DETAILS",

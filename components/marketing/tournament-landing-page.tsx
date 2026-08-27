@@ -6,20 +6,23 @@ import { SupportSection } from "@/components/marketing/support-section";
 import { TrophySection } from "@/components/marketing/trophy-section";
 import { RegistrationSection } from "@/components/registration/registration-section";
 
+import type { PublicNavLink } from "@/lib/content/landing-content";
 import type { PublicTournamentView } from "@/lib/format/tournament-display";
 
 type TournamentLandingPageProps = {
   tournament: PublicTournamentView;
   hasCapacity: boolean;
+  navLinks: readonly PublicNavLink[];
 };
 
 export function TournamentLandingPage({
   tournament,
   hasCapacity,
+  navLinks,
 }: TournamentLandingPageProps) {
   return (
     <main>
-      <HeroSection />
+      <HeroSection navLinks={navLinks} />
       <InfoGridSection tournament={tournament} />
       <FormatSection />
       <TrophySection />

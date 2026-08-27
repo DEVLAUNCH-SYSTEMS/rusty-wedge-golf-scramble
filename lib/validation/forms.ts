@@ -38,9 +38,3 @@ export const updateRegistrationNotesSchema = z
       value.paymentReviewNotes !== undefined || value.adminNotes !== undefined,
     { message: "At least one notes field is required." },
   );
-
-export const createTeamSchema = z.object({
-  name: z.string().trim().min(1).max(FIELD_LIMITS.teamName),
-});
-
-export type CreateTeamInput = z.infer<typeof createTeamSchema>;

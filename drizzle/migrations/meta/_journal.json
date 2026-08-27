@@ -15,6 +15,20 @@
       "when": 1785187405951,
       "tag": "0001_broad_archangel",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1787850077968,
+      "tag": "0002_teams_phase_a",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1787850077970,
+      "tag": "0003_teams_phase_c",
+      "breakpoints": true
     }
   ]
 }

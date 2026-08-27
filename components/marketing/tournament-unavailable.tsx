@@ -1,9 +1,15 @@
 import { SiteHeader } from "@/components/marketing/site-header";
 
-export function TournamentUnavailable() {
+import type { PublicNavLink } from "@/lib/content/landing-content";
+
+export function TournamentUnavailable({
+  navLinks,
+}: {
+  navLinks: readonly PublicNavLink[];
+}) {
   return (
     <main className="relative min-h-[50vh] bg-rw-navy pb-20 pt-28 text-white">
-      <SiteHeader />
+      <SiteHeader navLinks={navLinks} />
       <div className="mx-auto max-w-3xl px-6 text-center">
         <p className="font-display text-2xl">The Rusty Wedge Golf Scramble</p>
         <p className="mt-4 text-white/80">

@@ -28,6 +28,7 @@ function sourceTournament(overrides: Partial<Tournament> = {}): Tournament {
     registrationClosesAt: new Date("2026-08-01T00:00:00.000Z"),
     archivedAt: null,
     archivedByAdminId: null,
+    teamsPublished: false,
     createdAt: new Date("2025-01-01T00:00:00.000Z"),
     updatedAt: new Date("2025-01-01T00:00:00.000Z"),
     ...overrides,
