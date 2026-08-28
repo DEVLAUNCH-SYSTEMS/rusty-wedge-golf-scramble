@@ -10,14 +10,15 @@ import { ServiceError } from "@/lib/services/service-error";
 import { requireActiveTournament } from "@/lib/services/tournament";
 import { createWaitlistEntry } from "@/lib/services/waitlist-create";
 
-import { uniqueTestEmail } from "./helpers";
+import { snapshotActiveTournament, uniqueTestEmail } from "./helpers";
 
 describe.skipIf(!hasIntegrationDatabase())(
   "public registration lifecycle gates",
   () => {
     it("blocks public registration when lifecycle is not registration_open", async () => {
-      const tournament = await requireActiveTournament();
+      const tournamentId = await snapshotActiveTournament();
       const db = getDb();
+      const tournament = await requireActiveTournament();
       const priorLifecycle = tournament.lifecycleStatus;
       const priorRegistrationEnabled = tournament.registrationEnabled;
 
@@ -28,7 +29,7 @@ describe.skipIf(!hasIntegrationDatabase())(
             lifecycleStatus: "registration_closed",
             registrationEnabled: true,
           })
-          .where(eq(tournaments.id, tournament.id));
+          .where(eq(tournaments.id, tournamentId));
 
         await expect(
           createPendingRegistration(
@@ -38,7 +39,7 @@ describe.skipIf(!hasIntegrationDatabase())(
               email: uniqueTestEmail("closed-reg"),
               phone: "5095550101",
               skillLevel: "C",
-              paymentProofPath: `payment-proofs/${tournament.id}/${randomUUID()}.png`,
+              paymentProofPath: `payment-proofs/${tournamentId}/${randomUUID()}.png`,
               paymentProofContentType: "image/png",
             },
             await requireActiveTournament(),
@@ -53,13 +54,14 @@ describe.skipIf(!hasIntegrationDatabase())(
             lifecycleStatus: priorLifecycle,
             registrationEnabled: priorRegistrationEnabled,
           })
-          .where(eq(tournaments.id, tournament.id));
+          .where(eq(tournaments.id, tournamentId));
       }
     });
 
     it("blocks public waitlist when lifecycle is not registration_open", async () => {
-      const tournament = await requireActiveTournament();
+      const tournamentId = await snapshotActiveTournament();
       const db = getDb();
+      const tournament = await requireActiveTournament();
       const priorLifecycle = tournament.lifecycleStatus;
       const priorRegistrationEnabled = tournament.registrationEnabled;
 
@@ -70,7 +72,7 @@ describe.skipIf(!hasIntegrationDatabase())(
             lifecycleStatus: "registration_closed",
             registrationEnabled: true,
           })
-          .where(eq(tournaments.id, tournament.id));
+          .where(eq(tournaments.id, tournamentId));
 
         await expect(
           createWaitlistEntry(
@@ -93,13 +95,14 @@ describe.skipIf(!hasIntegrationDatabase())(
             lifecycleStatus: priorLifecycle,
             registrationEnabled: priorRegistrationEnabled,
           })
-          .where(eq(tournaments.id, tournament.id));
+          .where(eq(tournaments.id, tournamentId));
       }
     });
 
     it("blocks public registration when lifecycle is archived", async () => {
-      const tournament = await requireActiveTournament();
+      const tournamentId = await snapshotActiveTournament();
       const db = getDb();
+      const tournament = await requireActiveTournament();
       const priorLifecycle = tournament.lifecycleStatus;
       const priorRegistrationEnabled = tournament.registrationEnabled;
 
@@ -110,7 +113,7 @@ describe.skipIf(!hasIntegrationDatabase())(
             lifecycleStatus: "archived",
             registrationEnabled: true,
           })
-          .where(eq(tournaments.id, tournament.id));
+          .where(eq(tournaments.id, tournamentId));
 
         await expect(
           createPendingRegistration(
@@ -120,7 +123,7 @@ describe.skipIf(!hasIntegrationDatabase())(
               email: uniqueTestEmail("archived-reg"),
               phone: "5095550103",
               skillLevel: "C",
-              paymentProofPath: `payment-proofs/${tournament.id}/${randomUUID()}.png`,
+              paymentProofPath: `payment-proofs/${tournamentId}/${randomUUID()}.png`,
               paymentProofContentType: "image/png",
             },
             await requireActiveTournament(),
@@ -135,7 +138,7 @@ describe.skipIf(!hasIntegrationDatabase())(
             lifecycleStatus: priorLifecycle,
             registrationEnabled: priorRegistrationEnabled,
           })
-          .where(eq(tournaments.id, tournament.id));
+          .where(eq(tournaments.id, tournamentId));
       }
     });
   },

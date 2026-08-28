@@ -2,7 +2,7 @@
 
 **Status:** OPERATOR APPROVED — see [`gate-a-approval.md`](gate-a-approval.md).
 
-**Scope:** Neon **dev** branch only (`.env.local` → `ep-steep-block-…`).  
+**Scope:** Neon **dev** branch only (`.env.local` → `<development-db-host>`).  
 **Slice 5 Phase C on dev** was authorized after Gate A approval.
 
 **Completion criterion:**
@@ -36,7 +36,7 @@ Expect **failure** until cleanup completes. Recent dev snapshot:
 
 | Metric | Value |
 |--------|------:|
-| Host | `ep-steep-block-a6k4v8b2.us-west-2.aws.neon.tech` |
+| Host | `<development-db-host>` |
 | Total teams | 159 |
 | `NULL team_number` | 159 (all blockers) |
 | Recognized fixture artifacts | 144 |
@@ -119,10 +119,16 @@ Operator signs off: **UI delete path accepted** for empty (list + detail) and po
 
 ```bash
 # Dry run (default)
-FIXTURE_TEAM_CLEANUP_CONFIRM=dev-steep-block npm run db:fixture-team-cleanup
+DATABASE_TARGET=development \
+INTEGRATION_DATABASE_HOST=<development-db-host> \
+FIXTURE_TEAM_CLEANUP_CONFIRM=confirm-dev-fixture-cleanup \
+npm run db:fixture-team-cleanup
 
 # Execute (development only)
-FIXTURE_TEAM_CLEANUP_CONFIRM=dev-steep-block npm run db:fixture-team-cleanup -- --execute
+DATABASE_TARGET=development \
+INTEGRATION_DATABASE_HOST=<development-db-host> \
+FIXTURE_TEAM_CLEANUP_CONFIRM=confirm-dev-fixture-cleanup \
+npm run db:fixture-team-cleanup -- --execute
 ```
 
 Implementation: `lib/db/fixture-team-cleanup.ts`, `lib/services/fixture-team-cleanup.ts`, `lib/db/dev-fixture-cleanup-guard.ts`.
@@ -137,10 +143,9 @@ Remove the **144** repository-recognized fixture teams so Gate A can reach 0 `NU
 
 ### Hard guards (fail closed)
 
-1. **Host allowlist** — refuse unless `DATABASE_URL` hostname contains the dev branch token (same pattern as `scripts/cleanup-test-players.mjs`: `steep-block`). Reject pooler-only ambiguity; prefer unpooled URL for writes.
+1. **Explicit development target** — require `DATABASE_TARGET=development` and exact hostname match via `INTEGRATION_DATABASE_HOST` (same model as integration tests and `scripts/cleanup-test-players.mjs`). Reject pooler-only ambiguity; prefer unpooled URL for writes.
 2. **Explicit confirmation env** — require  
-   `FIXTURE_TEAM_CLEANUP_CONFIRM=dev-steep-block`  
-   (value must match the resolved hostname segment; mismatch → exit 1).
+   `FIXTURE_TEAM_CLEANUP_CONFIRM=confirm-dev-fixture-cleanup`
 3. **Reject CI / prod contexts** — exit if `CI=true`, `RUN_CI_GATE=1`, or `CI_GATE_DATABASE_URL` would override local dev URL.
 4. **Dry-run default** — no mutations unless `--execute` is passed.
 5. **Pattern-only deletion** — candidate set = teams where `classifyFixtureTeamName(name) !== null`.  
@@ -156,7 +161,10 @@ Remove the **144** repository-recognized fixture teams so Gate A can reach 0 `NU
 npm run db:fixture-team-cleanup
 
 # Mutating (after operator approval + confirm env)
-FIXTURE_TEAM_CLEANUP_CONFIRM=dev-steep-block npm run db:fixture-team-cleanup -- --execute
+DATABASE_TARGET=development \
+INTEGRATION_DATABASE_HOST=<development-db-host> \
+FIXTURE_TEAM_CLEANUP_CONFIRM=confirm-dev-fixture-cleanup \
+npm run db:fixture-team-cleanup -- --execute
 ```
 
 ### Remaining non-fixture blockers (~15)

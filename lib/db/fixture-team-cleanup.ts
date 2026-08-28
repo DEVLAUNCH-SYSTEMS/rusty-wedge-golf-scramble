@@ -1,4 +1,8 @@
 import { validateFixtureCleanupGuard } from "@/lib/db/dev-fixture-cleanup-guard";
+import {
+  readDatabaseTarget,
+  readIntegrationDatabaseHost,
+} from "@/lib/db/integration-database-target";
 import { loadEnvFiles } from "@/lib/db/load-env";
 import {
   describeMigrationDatabaseTarget,
@@ -29,6 +33,8 @@ function assertFixtureCleanupEnvironment(): void {
   const guard = validateFixtureCleanupGuard({
     hostname: target.hostname,
     confirmEnv: process.env.FIXTURE_TEAM_CLEANUP_CONFIRM,
+    databaseTarget: readDatabaseTarget(),
+    expectedHost: readIntegrationDatabaseHost(),
     ci: process.env.CI,
     runCiGate: process.env.RUN_CI_GATE,
     ciGateDatabaseUrl: process.env.CI_GATE_DATABASE_URL,

@@ -4,7 +4,7 @@ import { getDb } from "@/lib/db";
 import { tournaments } from "@/lib/db/schema";
 import { transitionTournamentLifecycle } from "@/lib/services/tournament-lifecycle-transition";
 
-import { getActiveTournamentId } from "./helpers";
+import { snapshotActiveTournament } from "./helpers";
 
 async function closeRegistrationOpenTournaments(
   adminUserId: string,
@@ -32,7 +32,7 @@ async function closeRegistrationOpenTournaments(
 export async function ensureSeedRegistrationOpen(
   adminUserId: string,
 ): Promise<string> {
-  const seedId = await getActiveTournamentId();
+  const seedId = await snapshotActiveTournament();
   const db = getDb();
 
   await closeRegistrationOpenTournaments(adminUserId);
@@ -60,7 +60,7 @@ export async function withExclusiveRegistrationOpen(
   adminUserId: string,
   run: () => Promise<void>,
 ): Promise<void> {
-  const seedId = await getActiveTournamentId();
+  const seedId = await snapshotActiveTournament();
   const db = getDb();
   const seed = (
     await db

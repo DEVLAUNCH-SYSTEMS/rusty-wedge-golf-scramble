@@ -1,7 +1,7 @@
 # STOP Gate A — Operator approval record
 
 **Status:** OPERATOR APPROVED (2026-08-27)  
-**Environment:** Neon dev (`ep-steep-block-…`) only — production untouched
+**Environment:** Neon dev (`<development-db-host>`) only — production untouched
 
 ---
 
@@ -30,7 +30,7 @@
 
 ## Deferred (not Gate A scope)
 
-**Integration-test team leakage / isolation** — historical fixture teams were recreated by broad integration suites against the shared dev database. Preserved as a **later test-hygiene item**. Do not expand scope during Slice 5 unless required by the public teams plan.
+**Integration-test DB isolation** — see [`integration-testing.md`](../../integration-testing.md). Fixture registry + protected-target guard enforce cleanup and fail closed against production.
 
 ---
 

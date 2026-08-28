@@ -1,27 +1,33 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  DEV_BRANCH_HOST_TOKEN,
   FIXTURE_CLEANUP_CONFIRM_VALUE,
   validateFixtureCleanupGuard,
 } from "@/lib/db/dev-fixture-cleanup-guard";
+import {
+  DATABASE_TARGET_ENV,
+  DEVELOPMENT_DATABASE_TARGET,
+  INTEGRATION_DATABASE_HOST_ENV,
+} from "@/lib/db/integration-database-target";
 import {
   partitionTeamsByFixtureCatalog,
   summarizeFixtureCandidates,
 } from "@/lib/services/fixture-team-cleanup";
 
-const validDevHost = `ep-${DEV_BRANCH_HOST_TOKEN}-a6k4v8b2.us-west-2.aws.neon.tech`;
+const DEV_HOST = "development-db.example.test";
 
 function validGuardInput(
   overrides: Partial<Parameters<typeof validateFixtureCleanupGuard>[0]> = {},
 ) {
   return {
-    hostname: validDevHost,
+    hostname: DEV_HOST,
     confirmEnv: FIXTURE_CLEANUP_CONFIRM_VALUE,
+    databaseTarget: DEVELOPMENT_DATABASE_TARGET,
+    expectedHost: DEV_HOST,
     ci: undefined,
     runCiGate: undefined,
     ciGateDatabaseUrl: undefined,
-    databaseUrl: "postgresql://user:pass@ep-steep-block.us-west-2.aws.neon.tech/neondb",
+    databaseUrl: `postgresql://user:pass@${DEV_HOST}/neondb`,
     ...overrides,
   };
 }
@@ -60,14 +66,25 @@ describe("fixture cleanup guard", () => {
     });
   });
 
-  it("rejects non-dev hostnames", () => {
+  it("rejects non-matching hostnames", () => {
     const result = validateFixtureCleanupGuard(
-      validGuardInput({ hostname: "ep-prod-branch.us-west-2.aws.neon.tech" }),
+      validGuardInput({ hostname: "production-db.example.test" }),
     );
 
     expect(result.ok).toBe(false);
     if (!result.ok) {
-      expect(result.reason).toContain(DEV_BRANCH_HOST_TOKEN);
+      expect(result.reason).toContain(INTEGRATION_DATABASE_HOST_ENV);
+    }
+  });
+
+  it("rejects production database target classification", () => {
+    const result = validateFixtureCleanupGuard(
+      validGuardInput({ databaseTarget: "production" }),
+    );
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.reason).toContain(DATABASE_TARGET_ENV);
     }
   });
 

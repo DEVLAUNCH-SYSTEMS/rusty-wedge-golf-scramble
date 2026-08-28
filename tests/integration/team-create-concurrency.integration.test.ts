@@ -5,32 +5,37 @@ import {
   formatInternalTeamName,
   queryNextTeamNumber,
 } from "@/lib/services/team-number-allocate";
-import { createTeam } from "@/lib/services/teams-mutations";
 
-import { createTestAdminSession, getActiveTournamentId } from "./helpers";
+import {
+  createIntegrationTeam,
+  createTestAdminSession,
+  withDisposableWritableActiveTournament,
+} from "./helpers";
 
 describe.skipIf(!hasIntegrationDatabase())("team create concurrency integration", () => {
   it("assigns distinct sequential team numbers under concurrent creates", async () => {
     const admin = await createTestAdminSession();
-    const tournamentId = await getActiveTournamentId();
-    const createCount = 6;
-    const startingNumber = await queryNextTeamNumber(tournamentId);
 
-    const created = await Promise.all(
-      Array.from({ length: createCount }, () => createTeam(admin)),
-    );
+    await withDisposableWritableActiveTournament(async (tournamentId) => {
+      const createCount = 6;
+      const startingNumber = await queryNextTeamNumber(tournamentId);
 
-    const teamNumbers = created.map((team) => team.teamNumber).sort((a, b) => a - b);
-    const expectedNumbers = Array.from(
-      { length: createCount },
-      (_, index) => startingNumber + index,
-    );
+      const created = await Promise.all(
+        Array.from({ length: createCount }, () => createIntegrationTeam(admin)),
+      );
 
-    expect(new Set(teamNumbers).size).toBe(createCount);
-    expect(teamNumbers).toEqual(expectedNumbers);
+      const teamNumbers = created.map((team) => team.teamNumber).sort((a, b) => a - b);
+      const expectedNumbers = Array.from(
+        { length: createCount },
+        (_, index) => startingNumber + index,
+      );
 
-    for (const team of created) {
-      expect(team.name).toBe(formatInternalTeamName(team.teamNumber));
-    }
+      expect(new Set(teamNumbers).size).toBe(createCount);
+      expect(teamNumbers).toEqual(expectedNumbers);
+
+      for (const team of created) {
+        expect(team.name).toBe(formatInternalTeamName(team.teamNumber));
+      }
+    });
   });
 });

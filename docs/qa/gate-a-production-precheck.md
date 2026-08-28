@@ -12,11 +12,11 @@
 
 | Field | Value |
 |-------|-------|
-| Hostname | `ep-wandering-dream-a62mvgap.us-west-2.aws.neon.tech` |
+| Hostname | `<production-db-host>` |
 | Database | `neondb` |
 | Pooled | **no** (direct/unpooled endpoint) |
-| Dev steep-block | **Confirmed NOT targeted** |
-| Active local `DATABASE_URL` | `ep-steep-block-a6k4v8b2.us-west-2.aws.neon.tech` (unchanged) |
+| Development target | **Confirmed NOT targeted** |
+| Active local `DATABASE_URL` | `<development-db-host>` (unchanged) |
 | Verification tooling | `npm run db:verify-target` — **valid** (prod URL via `CI_GATE_DATABASE_URL` override) |
 
 ---
@@ -176,7 +176,7 @@ Operator should confirm no hidden registrations, then delete via admin **Delete 
 ## Tooling reference
 
 ```bash
-# Verify target (override env to prod unpooled URL — never steep-block)
+# Verify target (override env to prod unpooled URL — never the development host)
 CI_GATE_DATABASE_URL="$PROD_UNPOOLED_URL" DATABASE_URL="$PROD_UNPOOLED_URL" npm run db:verify-target
 
 # Read-only precheck

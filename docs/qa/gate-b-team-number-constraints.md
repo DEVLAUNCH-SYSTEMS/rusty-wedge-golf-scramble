@@ -53,7 +53,7 @@ Checks:
 | Field | Value |
 |-------|-------|
 | Date | 2026-08-27 |
-| Hostname | `ep-steep-block-a6k4v8b2.us-west-2.aws.neon.tech` |
+| Hostname | `<development-db-host>` |
 | Precheck before migrate | exit **0** (`nullTeamNumber: 0`) |
 | Migrate `0003_teams_phase_c` | **success** |
 | Gate B verify (`db:team-number-gate-b`) | exit **0** |

@@ -14,6 +14,8 @@ Fill in values from the Neon dashboard and Vercel project settings.
 |----------|---------|
 | `DATABASE_URL` | Neon Postgres connection string (app runtime; pooled is OK) |
 | `DATABASE_URL_UNPOOLED` | Optional direct Neon URL for `drizzle-kit migrate` (recommended in CI) |
+| `DATABASE_TARGET` | Explicit classification (`development` or `production`) — required for DB-mutating integration tests |
+| `INTEGRATION_DATABASE_HOST` | Exact development branch hostname — must match resolved integration database URL |
 | `NEON_AUTH_BASE_URL` | Neon Auth project URL |
 | `NEON_AUTH_COOKIE_SECRET` | Session cookie signing secret (32+ chars) |
 | `BLOB_STORE_ID` | Vercel Blob store id (set when store is linked) |

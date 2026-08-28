@@ -13,34 +13,46 @@ import {
 } from "@/lib/services/registration-admin";
 import { ServiceError } from "@/lib/services/service-error";
 import { createTeam } from "@/lib/services/teams-mutations";
-import { requireActiveTournament } from "@/lib/services/tournament";
 import { promoteWaitlistEntry } from "@/lib/services/waitlist-promote";
 
 import {
   createTestAdminSession,
-  getActiveTournamentId,
+  integrationFixtureRegistry,
   insertRegistrationRow,
+  snapshotActiveTournament,
+  trackIntegrationWaitlistEntry,
   uniqueTestEmail,
 } from "./helpers";
 
 async function withArchivedActiveTournament(
   run: () => Promise<void>,
 ): Promise<void> {
-  const tournament = await requireActiveTournament();
+  const tournamentId = await snapshotActiveTournament();
   const db = getDb();
+  const tournament = (
+    await db
+      .select({ lifecycleStatus: tournaments.lifecycleStatus })
+      .from(tournaments)
+      .where(eq(tournaments.id, tournamentId))
+      .limit(1)
+  )[0];
+
+  if (!tournament) {
+    throw new Error("Active tournament not found.");
+  }
 
   try {
     await db
       .update(tournaments)
       .set({ lifecycleStatus: "archived" })
-      .where(eq(tournaments.id, tournament.id));
+      .where(eq(tournaments.id, tournamentId));
 
     await run();
   } finally {
     await db
       .update(tournaments)
       .set({ lifecycleStatus: tournament.lifecycleStatus })
-      .where(eq(tournaments.id, tournament.id));
+      .where(eq(tournaments.id, tournamentId));
   }
 }
 
@@ -49,7 +61,7 @@ describe.skipIf(!hasIntegrationDatabase())(
   () => {
     it("blocks admin write mutations with TOURNAMENT_ARCHIVED", async () => {
       const admin = await createTestAdminSession();
-      const tournamentId = await getActiveTournamentId();
+      const tournamentId = await snapshotActiveTournament();
       const db = getDb();
       const registration = await insertRegistrationRow({
         tournamentId,
@@ -75,6 +87,8 @@ describe.skipIf(!hasIntegrationDatabase())(
       if (!registration?.id || !waitlist?.id) {
         throw new Error("Unable to seed archived read-only test data.");
       }
+
+      trackIntegrationWaitlistEntry(integrationFixtureRegistry, waitlist.id);
 
       await withArchivedActiveTournament(async () => {
         await expect(

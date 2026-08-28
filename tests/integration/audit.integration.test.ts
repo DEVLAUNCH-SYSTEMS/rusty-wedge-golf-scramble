@@ -5,14 +5,13 @@ import { getDb } from "@/lib/db";
 import { hasIntegrationDatabase } from "@/lib/db/ci-gate-env";
 import { registrationEvents } from "@/lib/db/schema";
 import { AUDIT_EVENT_TYPES } from "@/lib/services/audit-types";
-import { createTeam } from "@/lib/services/teams-mutations";
 
-import { createTestAdminSession } from "./helpers";
+import { createIntegrationTeam, createTestAdminSession } from "./helpers";
 
 describe.skipIf(!hasIntegrationDatabase())("audit integration", () => {
   it("T26: team creation records an audit event", async () => {
     const admin = await createTestAdminSession();
-    const team = await createTeam(admin);
+    const team = await createIntegrationTeam(admin);
     const db = getDb();
 
     const events = await db
