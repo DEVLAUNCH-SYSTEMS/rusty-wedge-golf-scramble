@@ -16,3 +16,19 @@ export async function revalidatePublicLandingAndTeamsIfPublished(): Promise<void
     await revalidatePublicLandingAndTeams();
   }
 }
+
+export async function revalidatePublicLandingAndTeamsIfResultsPublished(): Promise<void> {
+  const tournament = await getActiveTournament();
+
+  if (tournament?.resultsPublished) {
+    await revalidatePublicLandingAndTeams();
+  }
+}
+
+export async function revalidatePublicTeamsSurfacesIfVisible(): Promise<void> {
+  const tournament = await getActiveTournament();
+
+  if (tournament?.teamsPublished || tournament?.resultsPublished) {
+    await revalidatePublicLandingAndTeams();
+  }
+}

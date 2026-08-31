@@ -13,6 +13,7 @@ export const teams = pgTable(
       .references(() => tournaments.id),
     name: text("name").notNull(),
     teamNumber: integer("team_number").notNull(),
+    finishingPlacement: integer("finishing_placement"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },

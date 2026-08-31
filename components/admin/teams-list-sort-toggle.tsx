@@ -29,7 +29,23 @@ function SortOptionLink({
   );
 }
 
-export function TeamsListSortToggle({ sort }: { sort: AdminTeamListSort }) {
+export function TeamsListSortToggle({
+  sort,
+  disabled = false,
+}: {
+  sort: AdminTeamListSort;
+  disabled?: boolean;
+}) {
+  if (disabled) {
+    return (
+      <div className="flex flex-wrap items-center gap-2">
+        <span className={`text-sm ${adminMutedTextClassName}`}>
+          Sorting is unavailable while editing results.
+        </span>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-wrap items-center gap-2">
       <span className={`text-sm ${adminMutedTextClassName}`}>Sort by team number</span>

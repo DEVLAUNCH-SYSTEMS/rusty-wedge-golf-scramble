@@ -17,6 +17,10 @@ export const AUDIT_EVENT_TYPES = {
   tournamentActivated: "tournament_activated",
   teamsPublished: "teams_published",
   teamsUnpublished: "teams_unpublished",
+  teamFinishingPlacementSet: "team_finishing_placement_set",
+  teamFinishingPlacementCleared: "team_finishing_placement_cleared",
+  resultsPublished: "results_published",
+  resultsUnpublished: "results_unpublished",
 } as const;
 
 export type AuditEventType =

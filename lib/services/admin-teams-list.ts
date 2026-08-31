@@ -15,6 +15,7 @@ export type AdminTeamListItem = {
   id: string;
   name: string;
   teamNumber: number | null;
+  finishingPlacement: number | null;
   memberCount: number;
   createdAt: Date;
   rosterMembers: TeamRosterMember[];
@@ -31,6 +32,7 @@ export type AdminTeamDetail = {
   id: string;
   name: string;
   teamNumber: number | null;
+  finishingPlacement: number | null;
   members: AdminTeamMember[];
   memberCount: number;
   slotsRemaining: number;
@@ -58,13 +60,20 @@ export async function listTeamsForAdmin(
       id: teams.id,
       name: teams.name,
       teamNumber: teams.teamNumber,
+      finishingPlacement: teams.finishingPlacement,
       createdAt: teams.createdAt,
       memberCount: count(teamMembers.id),
     })
     .from(teams)
     .leftJoin(teamMembers, eq(teamMembers.teamId, teams.id))
     .where(eq(teams.tournamentId, tournament.id))
-    .groupBy(teams.id, teams.name, teams.teamNumber, teams.createdAt)
+    .groupBy(
+      teams.id,
+      teams.name,
+      teams.teamNumber,
+      teams.finishingPlacement,
+      teams.createdAt,
+    )
     .orderBy(teamNumberOrder(sort));
 
   const rosters = await loadTeamRosterMembersByTeamId(tournament.id);
@@ -73,6 +82,7 @@ export async function listTeamsForAdmin(
     id: row.id,
     name: row.name,
     teamNumber: row.teamNumber,
+    finishingPlacement: row.finishingPlacement,
     createdAt: row.createdAt,
     memberCount: Number(row.memberCount),
     rosterMembers: rosters.get(row.id) ?? [],
@@ -110,6 +120,7 @@ export async function getTeamDetailForAdmin(teamId: string): Promise<AdminTeamDe
     id: team.id,
     name: team.name,
     teamNumber: team.teamNumber,
+    finishingPlacement: team.finishingPlacement,
     members,
     memberCount,
     slotsRemaining: Math.max(0, MAX_TEAM_SIZE - memberCount),

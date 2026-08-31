@@ -48,6 +48,8 @@ function publicTeamsUiSources(): string[] {
   return [
     "components/marketing/public-teams-page.tsx",
     "components/marketing/public-team-card.tsx",
+    "components/marketing/public-team-card-header.tsx",
+    "components/marketing/public-team-roster-rows.tsx",
     "components/marketing/teams-not-published.tsx",
     "components/marketing/public-teams-page-intro.tsx",
     "components/marketing/public-page-header-band.tsx",
@@ -155,10 +157,13 @@ describe("public privacy", () => {
   });
 
   it("H17: public teams UI uses Team #N identity and avoids legacy team names", () => {
-    const cardSource = readSource("components/marketing/public-team-card.tsx");
+    const cardSources = [
+      readSource("components/marketing/public-team-card.tsx"),
+      readSource("components/marketing/public-team-card-header.tsx"),
+    ].join("\n");
 
-    expect(cardSource).toContain("formatPublicTeamLabel");
-    expect(cardSource).not.toMatch(/\bteam\.name\b|\bteams\.name\b/);
+    expect(cardSources).toContain("formatPublicTeamLabel");
+    expect(cardSources).not.toMatch(/\bteam\.name\b|\bteams\.name\b/);
   });
 
   it("H18: public teams UI avoids private registration/team identifiers", () => {

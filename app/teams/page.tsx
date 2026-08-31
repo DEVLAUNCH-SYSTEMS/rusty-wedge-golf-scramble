@@ -11,16 +11,23 @@ import {
   type PublicTeamsPageData,
 } from "@/lib/services/public-teams-page";
 
-function buildTeamsPageNavLinks(teamsPublished: boolean) {
+function buildTeamsPageNavLinks(pageData: PublicTeamsPageData) {
+  if (pageData.status === "no_tournament") {
+    return buildPublicNavLinks({
+      teamsPublished: false,
+      resultsPublished: false,
+      anchorBase: "/",
+    });
+  }
+
   return buildPublicNavLinks({
-    teamsPublished,
+    ...pageData.publication,
     anchorBase: "/",
   });
 }
 
 function renderTeamsPageContent(pageData: PublicTeamsPageData) {
-  const teamsPublished = pageData.status === "published";
-  const navLinks = buildTeamsPageNavLinks(teamsPublished);
+  const navLinks = buildTeamsPageNavLinks(pageData);
   const registerHref = buildPublicRegisterHref("/");
 
   if (pageData.status === "no_tournament") {
@@ -43,6 +50,7 @@ function renderTeamsPageContent(pageData: PublicTeamsPageData) {
       teams={pageData.teams}
       navLinks={navLinks}
       registerHref={registerHref}
+      mode={pageData.status === "results" ? "results" : "roster"}
     />
   );
 }

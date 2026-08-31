@@ -1,3 +1,5 @@
+import { resolvePublicTeamsPageMode } from "@/lib/services/public-teams-page-mode";
+
 export const HERO_EYEBROW = "ANNUAL GOLF SCRAMBLE";
 
 export const HERO_TAGLINE = "Come Have Some Fun With Us!";
@@ -30,11 +32,18 @@ const TEAMS_PUBLIC_NAV_LINK: PublicNavLink = {
   label: "Teams",
 };
 
+const RESULTS_PUBLIC_NAV_LINK: PublicNavLink = {
+  href: "/teams",
+  label: "Results",
+};
+
 export function buildPublicNavLinks({
   teamsPublished,
+  resultsPublished = false,
   anchorBase = "",
 }: {
   teamsPublished: boolean;
+  resultsPublished?: boolean;
   anchorBase?: "" | "/";
 }): PublicNavLink[] {
   const sectionLinks = PUBLIC_NAV_SECTION_LINKS.map((link) => ({
@@ -42,13 +51,17 @@ export function buildPublicNavLinks({
     href: `${anchorBase}${link.href}`,
   }));
 
-  if (!teamsPublished) {
+  const mode = resolvePublicTeamsPageMode({ teamsPublished, resultsPublished });
+
+  if (mode === "not_published") {
     return sectionLinks;
   }
 
+  const teamsNavLink = mode === "results" ? RESULTS_PUBLIC_NAV_LINK : TEAMS_PUBLIC_NAV_LINK;
+
   return [
     ...sectionLinks.slice(0, 3),
-    TEAMS_PUBLIC_NAV_LINK,
+    teamsNavLink,
     ...sectionLinks.slice(3),
   ];
 }

@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 
 import { TeamDetailView } from "@/components/admin/team-detail-view";
 import { adminViewReadOnlyReason } from "@/lib/content/admin-archived-readonly";
+import { resolveFinishingPlacementMutationReason } from "@/lib/content/finishing-placement-mutation-reason";
 import {
   getTeamDetailForAdmin,
   listAssignablePlayersForTeam,
@@ -47,6 +48,10 @@ export default async function AdminTeamDetailPage({ params }: AdminTeamDetailPag
         context.tournament.lifecycleStatus,
         context.isViewingActiveTournament,
       )}
+      placementMutationReason={resolveFinishingPlacementMutationReason({
+        lifecycleStatus: context.tournament.lifecycleStatus,
+        isViewingActiveTournament: context.isViewingActiveTournament,
+      })}
     />
   );
 }

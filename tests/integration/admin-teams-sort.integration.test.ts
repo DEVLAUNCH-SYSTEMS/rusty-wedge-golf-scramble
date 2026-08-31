@@ -14,8 +14,8 @@ import {
   createTestAdminSession,
   insertDisposableTournament,
   insertRegistrationRow,
-  snapshotActiveTournament,
   uniqueTestEmail,
+  withDisposableWritableActiveTournament,
 } from "./helpers";
 
 function isAscendingNumeric(values: number[]): boolean {
@@ -26,11 +26,11 @@ function isDescendingNumeric(values: number[]): boolean {
   return values.every((value, index) => index === 0 || values[index - 1]! > value);
 }
 
-function mockActiveTournamentContext() {
+function mockAdminTournamentContext(tournamentId: string) {
   vi.spyOn(
     adminTournamentContextCookie,
     "readAdminTournamentContextCookie",
-  ).mockResolvedValue(null);
+  ).mockResolvedValue(tournamentId);
 }
 
 async function insertIsolatedSortTestTournament(): Promise<string> {
@@ -45,14 +45,12 @@ async function insertIsolatedSortTestTournament(): Promise<string> {
   });
 
   await db.insert(teams).values([
-    { tournamentId, teamNumber: 10, name: "Team #10" },
+    { tournamentId, teamNumber: 1, name: "Team #1" },
     { tournamentId, teamNumber: 2, name: "Team #2" },
+    { tournamentId, teamNumber: 10, name: "Team #10" },
   ]);
 
-  vi.spyOn(
-    adminTournamentContextCookie,
-    "readAdminTournamentContextCookie",
-  ).mockResolvedValue(tournamentId);
+  mockAdminTournamentContext(tournamentId);
 
   return tournamentId;
 }
@@ -68,47 +66,47 @@ describe.skipIf(!hasIntegrationDatabase())("admin teams list sort integration", 
     const asc = await listTeamsForAdmin("asc");
     const ascNumbers = asc.map((team) => team.teamNumber!);
 
-    expect(ascNumbers).toEqual([2, 10]);
+    expect(ascNumbers).toEqual([1, 2, 10]);
     expect(isAscendingNumeric(ascNumbers)).toBe(true);
 
     const desc = await listTeamsForAdmin("desc");
     const descNumbers = desc.map((team) => team.teamNumber!);
 
-    expect(descNumbers).toEqual([10, 2]);
+    expect(descNumbers).toEqual([10, 2, 1]);
     expect(isDescendingNumeric(descNumbers)).toBe(true);
   });
 
   it("labels teams as Team #N and maps roster preview from memberships", async () => {
-    mockActiveTournamentContext();
+    await withDisposableWritableActiveTournament(async (tournamentId) => {
+      mockAdminTournamentContext(tournamentId);
 
-    const admin = await createTestAdminSession();
-    const tournamentId = await snapshotActiveTournament();
-    const team = await createIntegrationTeam(admin);
-    const player = await insertRegistrationRow({
-      tournamentId,
-      email: uniqueTestEmail("roster-preview"),
-      registrationStatus: "confirmed",
+      const admin = await createTestAdminSession();
+      const populatedTeam = await createIntegrationTeam(admin);
+      const emptyTeam = await createIntegrationTeam(admin);
+      const player = await insertRegistrationRow({
+        tournamentId,
+        email: uniqueTestEmail("roster-preview"),
+        registrationStatus: "confirmed",
+      });
+
+      await assignPlayerToTeam(populatedTeam.id, player!.id, admin);
+
+      const listed = await listTeamsForAdmin("asc");
+      const populatedRow = listed.find((row) => row.id === populatedTeam.id);
+      const emptyRow = listed.find((row) => row.id === emptyTeam.id);
+
+      expect(populatedRow).toBeDefined();
+      expect(formatAdminTeamLabel(populatedRow!)).toBe(`Team #${populatedTeam.teamNumber}`);
+      expect(populatedRow!.rosterMembers).toEqual([{ firstName: "Test", lastName: "Player" }]);
+      expect(formatTeamRosterPreview(populatedRow!.rosterMembers)).toBe("Test Player");
+
+      expect(emptyRow).toBeDefined();
+      expect(emptyRow!.rosterMembers).toEqual([]);
     });
-
-    await assignPlayerToTeam(team.id, player!.id, admin);
-
-    const listed = (await listTeamsForAdmin("asc")).find((row) => row.id === team.id);
-
-    expect(listed).toBeDefined();
-    expect(formatAdminTeamLabel(listed!)).toBe(`Team #${team.teamNumber}`);
-    expect(listed!.rosterMembers).toEqual([{ firstName: "Test", lastName: "Player" }]);
-    expect(formatTeamRosterPreview(listed!.rosterMembers)).toBe("Test Player");
-
-    const emptyTeam = (await listTeamsForAdmin("asc")).find(
-      (row) => row.id !== team.id && row.rosterMembers.length === 0,
-    );
-
-    expect(emptyTeam).toBeDefined();
-    expect(emptyTeam!.rosterMembers).toEqual([]);
   });
 
   it("keeps numeric ascending order across the full active tournament list", async () => {
-    mockActiveTournamentContext();
+    await insertIsolatedSortTestTournament();
 
     const rows = await listTeamsForAdmin("asc");
     const numbers = rows
@@ -116,6 +114,7 @@ describe.skipIf(!hasIntegrationDatabase())("admin teams list sort integration", 
       .filter((value): value is number => value != null);
 
     expect(numbers.length).toBeGreaterThan(1);
+    expect(numbers).toEqual([1, 2, 10]);
     expect(isAscendingNumeric(numbers)).toBe(true);
   });
 });
