@@ -2,7 +2,7 @@
 
 **Report date:** 2026-08-27  
 **Feature:** Public Teams (Slices 1–12)  
-**Environment:** Neon dev (`ep-steep-block-…`) — dev gates approved  
+**Environment:** Neon dev (`<development-db-host>`) — dev gates approved  
 **Production:** Gate A Phase A + precheck complete — operator cleanup pending ([`gate-a-production-precheck.md`](gate-a-production-precheck.md))
 
 ---

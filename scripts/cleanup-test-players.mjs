@@ -2,6 +2,12 @@ import { createRequire } from "node:module";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import {
+  readDatabaseTarget,
+  readIntegrationDatabaseHost,
+  validateDevelopmentDatabaseScriptTarget,
+} from "./lib/development-database-guard.mjs";
+
 const require = createRequire(
   path.join(path.dirname(fileURLToPath(import.meta.url)), "package.json"),
 );
@@ -17,9 +23,26 @@ if (!url) {
   process.exit(1);
 }
 
-const host = new URL(url).hostname;
-if (!host.includes("steep-block")) {
-  console.error("Refusing to run: expected CI/dev steep-block host, got", host);
+let host;
+try {
+  host = new URL(url).hostname;
+} catch {
+  console.error("DATABASE_URL is not a valid URL");
+  process.exit(1);
+}
+
+const guard = validateDevelopmentDatabaseScriptTarget({
+  hostname: host,
+  databaseTarget: readDatabaseTarget(),
+  expectedHost: readIntegrationDatabaseHost(),
+  ci: process.env.CI,
+  runCiGate: process.env.RUN_CI_GATE,
+  ciGateDatabaseUrl: process.env.CI_GATE_DATABASE_URL,
+  databaseUrl: process.env.DATABASE_URL,
+});
+
+if (!guard.ok) {
+  console.error(`Refusing to run: ${guard.reason}`);
   process.exit(1);
 }
 

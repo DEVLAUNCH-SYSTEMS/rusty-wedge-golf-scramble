@@ -1,6 +1,5 @@
 import { eq } from "drizzle-orm";
-import { randomUUID } from "node:crypto";
-import { afterEach, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import { getDb } from "@/lib/db";
 import { hasIntegrationDatabase } from "@/lib/db/ci-gate-env";
@@ -9,21 +8,18 @@ import { formatPublicTeamLabel } from "@/lib/format/team-display";
 import { formatTeamRosterMemberName } from "@/lib/format/team-roster-display";
 import { listPublicTeams } from "@/lib/services/public-teams-list";
 import { loadPublicTeamsPageData } from "@/lib/services/public-teams-page";
-import {
-  assignPlayerToTeam,
-  createTeam,
-} from "@/lib/services/teams-mutations";
+import { assignPlayerToTeam } from "@/lib/services/teams-mutations";
 import { requireActiveTournament } from "@/lib/services/tournament";
 
 import {
+  createIntegrationTeam,
   createTestAdminSession,
-  getActiveTournamentId,
+  insertDisposableTournament,
   insertRegistrationRow,
+  snapshotActiveTournament,
   uniqueTestEmail,
 } from "./helpers";
 import { assertPublicTeamViewPrivacy } from "../helpers/public-team-privacy";
-
-const createdTournamentIds: string[] = [];
 
 function isAscendingNumeric(values: number[]): boolean {
   return values.every((value, index) => index === 0 || values[index - 1]! < value);
@@ -31,55 +27,24 @@ function isAscendingNumeric(values: number[]): boolean {
 
 async function insertIsolatedPublicTeamsTournament(): Promise<string> {
   const db = getDb();
-  const tournament = (
-    await db
-      .insert(tournaments)
-      .values({
-        name: "Public Teams List Test",
-        slug: `public-teams-list-${randomUUID()}`,
-        year: 2099,
-        eventDate: "2099-06-01",
-        locationName: "Public Test Course",
-        venmoHandle: "@publicteams",
-        registrationEnabled: false,
-        isActive: false,
-        lifecycleStatus: "registration_closed",
-        teamsPublished: true,
-      })
-      .returning({ id: tournaments.id })
-  )[0];
-
-  if (!tournament) {
-    throw new Error("Unable to insert public teams test tournament.");
-  }
-
-  createdTournamentIds.push(tournament.id);
+  const tournamentId = await insertDisposableTournament({
+    name: "Public Teams List Test",
+    slugPrefix: "public-teams-list",
+    year: 2099,
+    eventDate: "2099-06-01",
+    locationName: "Public Test Course",
+    venmoHandle: "@publicteams",
+    teamsPublished: true,
+  });
 
   await db.insert(teams).values([
-    { tournamentId: tournament.id, teamNumber: 10, name: "Team #10" },
-    { tournamentId: tournament.id, teamNumber: 2, name: "Team #2" },
-    { tournamentId: tournament.id, teamNumber: 1, name: "Team #1" },
+    { tournamentId, teamNumber: 10, name: "Team #10" },
+    { tournamentId, teamNumber: 2, name: "Team #2" },
+    { tournamentId, teamNumber: 1, name: "Team #1" },
   ]);
 
-  return tournament.id;
+  return tournamentId;
 }
-
-afterEach(async () => {
-  const db = getDb();
-  const active = await requireActiveTournament();
-
-  await db
-    .update(tournaments)
-    .set({ teamsPublished: false })
-    .where(eq(tournaments.id, active.id));
-
-  while (createdTournamentIds.length > 0) {
-    const tournamentId = createdTournamentIds.pop()!;
-
-    await db.delete(teams).where(eq(teams.tournamentId, tournamentId));
-    await db.delete(tournaments).where(eq(tournaments.id, tournamentId));
-  }
-});
 
 describe.skipIf(!hasIntegrationDatabase())("public teams list integration", () => {
   it("returns teams in numeric ascending order with Team #N identity", async () => {
@@ -94,7 +59,7 @@ describe.skipIf(!hasIntegrationDatabase())("public teams list integration", () =
 
   it("maps confirmed roster members as First Last and excludes private fields", async () => {
     const admin = await createTestAdminSession();
-    const tournamentId = await getActiveTournamentId();
+    const tournamentId = await snapshotActiveTournament();
     const db = getDb();
 
     await db
@@ -102,7 +67,7 @@ describe.skipIf(!hasIntegrationDatabase())("public teams list integration", () =
       .set({ teamsPublished: true })
       .where(eq(tournaments.id, tournamentId));
 
-    const team = await createTeam(admin);
+    const team = await createIntegrationTeam(admin);
     const confirmed = await insertRegistrationRow({
       tournamentId,
       email: uniqueTestEmail("public-confirmed"),
@@ -129,9 +94,10 @@ describe.skipIf(!hasIntegrationDatabase())("public teams list integration", () =
   });
 
   it("returns not_published for the active tournament without roster data", async () => {
-    const db = getDb();
+    await snapshotActiveTournament();
     const active = await requireActiveTournament();
 
+    const db = getDb();
     await db
       .update(tournaments)
       .set({ teamsPublished: false })

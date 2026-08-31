@@ -1,9 +1,17 @@
-export const DEV_BRANCH_HOST_TOKEN = "steep-block";
-export const FIXTURE_CLEANUP_CONFIRM_VALUE = "dev-steep-block";
+import {
+  DATABASE_TARGET_ENV,
+  DEVELOPMENT_DATABASE_TARGET,
+  INTEGRATION_DATABASE_HOST_ENV,
+  normalizeIntegrationDatabaseHostname,
+} from "@/lib/db/integration-database-target";
+
+export const FIXTURE_CLEANUP_CONFIRM_VALUE = "confirm-dev-fixture-cleanup";
 
 export type FixtureCleanupGuardInput = {
   hostname: string;
   confirmEnv: string | undefined;
+  databaseTarget: string | undefined;
+  expectedHost: string | undefined;
   ci: string | undefined;
   runCiGate: string | undefined;
   ciGateDatabaseUrl: string | undefined;
@@ -41,10 +49,34 @@ function rejectDevTarget(input: FixtureCleanupGuardInput): FixtureCleanupGuardRe
     return { ok: false, reason: "DATABASE_URL is required." };
   }
 
-  if (!input.hostname.includes(DEV_BRANCH_HOST_TOKEN)) {
+  if (!input.databaseTarget) {
     return {
       ok: false,
-      reason: `Hostname must include dev token "${DEV_BRANCH_HOST_TOKEN}" (got "${input.hostname}").`,
+      reason: `${DATABASE_TARGET_ENV} is required.`,
+    };
+  }
+
+  if (input.databaseTarget !== DEVELOPMENT_DATABASE_TARGET) {
+    return {
+      ok: false,
+      reason: `${DATABASE_TARGET_ENV} must be "${DEVELOPMENT_DATABASE_TARGET}".`,
+    };
+  }
+
+  if (!input.expectedHost) {
+    return {
+      ok: false,
+      reason: `${INTEGRATION_DATABASE_HOST_ENV} is required.`,
+    };
+  }
+
+  if (
+    normalizeIntegrationDatabaseHostname(input.hostname) !==
+    normalizeIntegrationDatabaseHostname(input.expectedHost)
+  ) {
+    return {
+      ok: false,
+      reason: `Hostname must exactly match ${INTEGRATION_DATABASE_HOST_ENV} (got "${input.hostname}").`,
     };
   }
 

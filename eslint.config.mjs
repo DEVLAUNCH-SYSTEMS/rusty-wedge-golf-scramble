@@ -205,6 +205,7 @@ export default defineConfig([
       "lib/db/team-number-precheck.ts",
       "lib/db/fixture-team-cleanup.ts",
       "lib/db/dev-fixture-cleanup-guard.ts",
+      "lib/db/integration-database-target.ts",
       "lib/db/team-number-gate-b-verify.ts",
     ],
     rules: {

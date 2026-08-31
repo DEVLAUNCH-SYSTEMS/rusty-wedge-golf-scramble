@@ -1,5 +1,4 @@
 import { eq } from "drizzle-orm";
-import { randomUUID } from "node:crypto";
 import { describe, expect, it } from "vitest";
 import { ZodError } from "zod";
 
@@ -16,13 +15,16 @@ import { updateRegistrationProfile } from "@/lib/services/registration-profile-u
 import { ServiceError } from "@/lib/services/service-error";
 import {
   assignPlayerToTeam,
-  createTeam,
 } from "@/lib/services/teams-mutations";
 
 import {
+  createIntegrationTeam,
   createTestAdminSession,
-  getActiveTournamentId,
+  insertDisposableTournament,
   insertRegistrationRow,
+  integrationFixtureRegistry,
+  snapshotActiveTournament,
+  trackIntegrationWaitlistEntry,
   uniqueTestEmail,
 } from "./helpers";
 
@@ -30,7 +32,7 @@ describe.skipIf(!hasIntegrationDatabase())(
   "registration profile update email conflicts",
   () => {
     it("allows keeping the same email on self", async () => {
-      const tournamentId = await getActiveTournamentId();
+      const tournamentId = await snapshotActiveTournament();
       const admin = await createTestAdminSession();
       const email = uniqueTestEmail("self-email");
       const row = await insertRegistrationRow({
@@ -56,7 +58,7 @@ describe.skipIf(!hasIntegrationDatabase())(
     });
 
     it("rejects email used by another active registration", async () => {
-      const tournamentId = await getActiveTournamentId();
+      const tournamentId = await snapshotActiveTournament();
       const admin = await createTestAdminSession();
       const takenEmail = uniqueTestEmail("taken-reg");
       const targetEmail = uniqueTestEmail("target-reg");
@@ -91,21 +93,30 @@ describe.skipIf(!hasIntegrationDatabase())(
     });
 
     it("rejects email used by an active waitlist entry", async () => {
-      const tournamentId = await getActiveTournamentId();
+      const tournamentId = await snapshotActiveTournament();
       const admin = await createTestAdminSession();
       const waitlistEmail = uniqueTestEmail("taken-wait");
       const targetEmail = uniqueTestEmail("target-wait");
       const db = getDb();
 
-      await db.insert(waitlistEntries).values({
-        tournamentId,
-        firstName: "Wait",
-        lastName: "Lister",
-        email: waitlistEmail,
-        phone: "5095550102",
-        skillLevel: "A",
-        status: "active",
-      });
+      const waitlistRow = (
+        await db
+          .insert(waitlistEntries)
+          .values({
+            tournamentId,
+            firstName: "Wait",
+            lastName: "Lister",
+            email: waitlistEmail,
+            phone: "5095550102",
+            skillLevel: "A",
+            status: "active",
+          })
+          .returning({ id: waitlistEntries.id })
+      )[0];
+
+      if (waitlistRow) {
+        trackIntegrationWaitlistEntry(integrationFixtureRegistry, waitlistRow.id);
+      }
 
       const target = await insertRegistrationRow({
         tournamentId,
@@ -137,7 +148,7 @@ describe.skipIf(!hasIntegrationDatabase())(
   "registration profile update write guards",
   () => {
     it("rejects updates when the active tournament is archived", async () => {
-      const tournamentId = await getActiveTournamentId();
+      const tournamentId = await snapshotActiveTournament();
       const admin = await createTestAdminSession();
       const db = getDb();
       const email = uniqueTestEmail("archived-edit");
@@ -189,28 +200,20 @@ describe.skipIf(!hasIntegrationDatabase())(
 
     it("rejects updates for registrations outside the active tournament", async () => {
       const admin = await createTestAdminSession();
-      const db = getDb();
-      const slug = `other-${randomUUID()}`;
-
-      const otherTournament = (
-        await db
-          .insert(tournaments)
-          .values({
-            name: "Other Tournament",
-            slug,
-            year: 2098,
-            eventDate: "2098-01-01",
-            locationName: "Other Course",
-            venmoHandle: "@othervenmo",
-            registrationEnabled: false,
-            isActive: false,
-            lifecycleStatus: "registration_closed",
-          })
-          .returning({ id: tournaments.id })
-      )[0];
+      const otherTournamentId = await insertDisposableTournament({
+        name: "Other Tournament",
+        slugPrefix: "other-scope",
+        year: 2098,
+        eventDate: "2098-01-01",
+        locationName: "Other Course",
+        venmoHandle: "@othervenmo",
+        registrationEnabled: false,
+        isActive: false,
+        lifecycleStatus: "registration_closed",
+      });
 
       const row = await insertRegistrationRow({
-        tournamentId: otherTournament.id,
+        tournamentId: otherTournamentId,
         email: uniqueTestEmail("other-scope"),
         registrationStatus: "pending_review",
       });
@@ -239,7 +242,7 @@ describe.skipIf(!hasIntegrationDatabase())(
   "registration profile update audit",
   () => {
     it("records registration_profile_updated with fieldsChanged", async () => {
-      const tournamentId = await getActiveTournamentId();
+      const tournamentId = await snapshotActiveTournament();
       const admin = await createTestAdminSession();
       const previousEmail = uniqueTestEmail("audit-prev");
       const nextEmail = uniqueTestEmail("audit-next");
@@ -296,7 +299,7 @@ describe.skipIf(!hasIntegrationDatabase())(
   "admin profile edit H-cases",
   () => {
     it("H-edit-success: updates profile fields for a pending registration", async () => {
-      const tournamentId = await getActiveTournamentId();
+      const tournamentId = await snapshotActiveTournament();
       const admin = await createTestAdminSession();
       const email = uniqueTestEmail("h-edit-success");
       const row = await insertRegistrationRow({
@@ -331,7 +334,7 @@ describe.skipIf(!hasIntegrationDatabase())(
     });
 
     it("H-edit-invalid: rejects invalid profile payloads before persist", async () => {
-      const tournamentId = await getActiveTournamentId();
+      const tournamentId = await snapshotActiveTournament();
       const admin = await createTestAdminSession();
       const row = await insertRegistrationRow({
         tournamentId,
@@ -355,7 +358,7 @@ describe.skipIf(!hasIntegrationDatabase())(
     });
 
     it("H-edit-duplicate: blocks email already used by another active registration", async () => {
-      const tournamentId = await getActiveTournamentId();
+      const tournamentId = await snapshotActiveTournament();
       const admin = await createTestAdminSession();
       const takenEmail = uniqueTestEmail("h-edit-taken");
       const targetEmail = uniqueTestEmail("h-edit-target");
@@ -390,7 +393,7 @@ describe.skipIf(!hasIntegrationDatabase())(
     });
 
     it("H-edit-team-survives: team membership remains after rename and email change", async () => {
-      const tournamentId = await getActiveTournamentId();
+      const tournamentId = await snapshotActiveTournament();
       const admin = await createTestAdminSession();
       const originalEmail = uniqueTestEmail("h-edit-team-old");
       const nextEmail = uniqueTestEmail("h-edit-team-new");
@@ -399,7 +402,7 @@ describe.skipIf(!hasIntegrationDatabase())(
         email: originalEmail,
         registrationStatus: "confirmed",
       });
-      const team = await createTeam(admin);
+      const team = await createIntegrationTeam(admin);
 
       await assignPlayerToTeam(team.id, player.id, admin);
 

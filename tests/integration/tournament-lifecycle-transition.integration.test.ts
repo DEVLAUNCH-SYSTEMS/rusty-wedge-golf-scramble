@@ -1,5 +1,4 @@
 import { eq } from "drizzle-orm";
-import { randomUUID } from "node:crypto";
 import { describe, expect, it } from "vitest";
 
 import { getDb } from "@/lib/db";
@@ -10,7 +9,7 @@ import { ServiceError } from "@/lib/services/service-error";
 import { registrationEnabledFromLifecycle } from "@/lib/services/tournament-lifecycle";
 import { transitionTournamentLifecycle } from "@/lib/services/tournament-lifecycle-transition";
 
-import { createTestAdminSession } from "./helpers";
+import { createTestAdminSession, insertDisposableTournament, snapshotActiveTournament } from "./helpers";
 import { withExclusiveRegistrationOpen } from "./registration-open-test-helpers";
 
 import type { TournamentLifecycleStatus } from "@/lib/services/tournament-lifecycle";
@@ -19,27 +18,29 @@ async function insertLifecycleTestTournament(
   lifecycleStatus: TournamentLifecycleStatus,
   options?: { isActive?: boolean },
 ) {
-  const db = getDb();
+  const tournamentId = await insertDisposableTournament({
+    name: "Lifecycle Transition Test",
+    slugPrefix: "lifecycle",
+    year: 2097,
+    eventDate: "2097-06-01",
+    locationName: "Test Course",
+    venmoHandle: "@lifecycletest",
+    lifecycleStatus,
+    isActive: options?.isActive ?? false,
+    registrationEnabled: registrationEnabledFromLifecycle(lifecycleStatus),
+  });
 
+  const db = getDb();
   const row = (
     await db
-      .insert(tournaments)
-      .values({
-        name: "Lifecycle Transition Test",
-        slug: `lifecycle-${randomUUID()}`,
-        year: 2097,
-        eventDate: "2097-06-01",
-        locationName: "Test Course",
-        venmoHandle: "@lifecycletest",
-        lifecycleStatus,
-        isActive: options?.isActive ?? false,
-        registrationEnabled: registrationEnabledFromLifecycle(lifecycleStatus),
-      })
-      .returning()
+      .select()
+      .from(tournaments)
+      .where(eq(tournaments.id, tournamentId))
+      .limit(1)
   )[0];
 
   if (!row) {
-    throw new Error("Unable to insert lifecycle test tournament.");
+    throw new Error("Unable to load lifecycle test tournament.");
   }
 
   return row;
@@ -98,18 +99,7 @@ describe.skipIf(!hasIntegrationDatabase())(
       const tournament = await insertLifecycleTestTournament("completed");
       const db = getDb();
 
-      // Only one active row allowed — temporarily swap active flag onto the test row.
-      const seededActiveId = (
-        await db
-          .select({ id: tournaments.id })
-          .from(tournaments)
-          .where(eq(tournaments.isActive, true))
-          .limit(1)
-      )[0]?.id;
-
-      if (!seededActiveId) {
-        throw new Error("Expected a seeded active tournament.");
-      }
+      const seededActiveId = await snapshotActiveTournament();
 
       try {
         await db

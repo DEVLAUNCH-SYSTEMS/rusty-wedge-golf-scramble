@@ -1,23 +1,21 @@
 import { describe, expect, it } from "vitest";
 
 import { hasIntegrationDatabase } from "@/lib/db/ci-gate-env";
-import {
-  assignPlayerToTeam,
-  createTeam,
-} from "@/lib/services/teams-mutations";
+import { assignPlayerToTeam } from "@/lib/services/teams-mutations";
 
 import {
+  createIntegrationTeam,
   createTestAdminSession,
-  getActiveTournamentId,
   insertRegistrationRow,
+  snapshotActiveTournament,
   uniqueTestEmail,
 } from "./helpers";
 
 describe.skipIf(!hasIntegrationDatabase())("team assignment integration", () => {
   it("H8: only confirmed players can be assigned to teams", async () => {
-    const tournamentId = await getActiveTournamentId();
+    const tournamentId = await snapshotActiveTournament();
     const admin = await createTestAdminSession();
-    const team = await createTeam(admin);
+    const team = await createIntegrationTeam(admin);
     const pending = await insertRegistrationRow({
       tournamentId,
       email: uniqueTestEmail("pending-team"),
@@ -30,9 +28,9 @@ describe.skipIf(!hasIntegrationDatabase())("team assignment integration", () => 
   });
 
   it("H9: teams cannot exceed four players", async () => {
-    const tournamentId = await getActiveTournamentId();
+    const tournamentId = await snapshotActiveTournament();
     const admin = await createTestAdminSession();
-    const team = await createTeam(admin);
+    const team = await createIntegrationTeam(admin);
 
     for (let index = 0; index < 4; index += 1) {
       const player = await insertRegistrationRow({

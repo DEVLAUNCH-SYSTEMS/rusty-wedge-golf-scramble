@@ -1,14 +1,10 @@
-import { AdminExportLinks } from "@/components/admin/admin-export-links";
 import {
   adminPageHeadingClassName,
   adminPageSubheadingClassName,
 } from "@/components/admin/admin-text-styles";
-import { TeamAssignmentPanel } from "@/components/admin/team-assignment-panel";
-import { TeamsManagementPanels } from "@/components/admin/teams-management-panels";
-import { TeamsPageContext } from "@/components/admin/teams-page-context";
-import { TeamsPublicationPanel } from "@/components/admin/teams-publication-panel";
+import { TeamsAdminPanels } from "@/components/admin/teams-admin-panels";
 import { adminViewReadOnlyReason } from "@/lib/content/admin-archived-readonly";
-import { buildAdminExportHrefs } from "@/lib/services/admin-export-hrefs";
+import { resolveFinishingPlacementMutationReason } from "@/lib/content/finishing-placement-mutation-reason";
 import {
   listAssignablePlayersForTeam,
   listTeamsForAdmin,
@@ -35,34 +31,17 @@ async function loadTeamsPageData(sort: AdminTeamListSort) {
       context.tournament.lifecycleStatus,
       context.isViewingActiveTournament,
     ),
+    placementMutationReason: resolveFinishingPlacementMutationReason({
+      lifecycleStatus: context.tournament.lifecycleStatus,
+      isViewingActiveTournament: context.isViewingActiveTournament,
+    }),
   };
 }
 
 export async function TeamsPageContent({ sort }: { sort: AdminTeamListSort }) {
-  const { context, teams, unassignedPlayers, report, readOnlyReason } =
-    await loadTeamsPageData(sort);
+  const pageData = await loadTeamsPageData(sort);
 
-  return (
-    <>
-      <TeamsPageContext
-        tournamentYear={context.tournament.year}
-        lifecycleStatus={context.tournament.lifecycleStatus}
-        isViewingActiveTournament={context.isViewingActiveTournament}
-      />
-      <TeamAssignmentPanel report={report} />
-      <TeamsPublicationPanel
-        teamsPublished={context.tournament.teamsPublished}
-        readOnlyReason={readOnlyReason}
-      />
-      <TeamsManagementPanels
-        teams={teams}
-        unassignedPlayers={unassignedPlayers}
-        sort={sort}
-        readOnlyReason={readOnlyReason}
-      />
-      <AdminExportLinks hrefs={buildAdminExportHrefs(context)} />
-    </>
-  );
+  return <TeamsAdminPanels sort={sort} {...pageData} />;
 }
 
 export function TeamsPageHeader() {

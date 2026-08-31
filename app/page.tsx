@@ -14,6 +14,7 @@ export default async function Home() {
   const tournament = await getActiveTournament();
   const navLinks = buildPublicNavLinks({
     teamsPublished: tournament?.teamsPublished ?? false,
+    resultsPublished: tournament?.resultsPublished ?? false,
   });
 
   return (

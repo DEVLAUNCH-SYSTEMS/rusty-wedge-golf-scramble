@@ -6,8 +6,8 @@ import { hasIntegrationDatabase } from "@/lib/db/ci-gate-env";
 import { registrations } from "@/lib/db/schema";
 
 import {
-  getActiveTournamentId,
   insertRegistrationRow,
+  snapshotActiveTournament,
   uniqueTestEmail,
 } from "./helpers";
 
@@ -29,7 +29,7 @@ async function countRegistrationInConfirmedCapacity(
 
 describe.skipIf(!hasIntegrationDatabase())("capacity integration", () => {
   it("H1: pending_review registrations do not count toward confirmed capacity", async () => {
-    const tournamentId = await getActiveTournamentId();
+    const tournamentId = await snapshotActiveTournament();
     const registration = await insertRegistrationRow({
       tournamentId,
       email: uniqueTestEmail("pending"),
@@ -42,7 +42,7 @@ describe.skipIf(!hasIntegrationDatabase())("capacity integration", () => {
   });
 
   it("H2: confirmed registrations count toward capacity", async () => {
-    const tournamentId = await getActiveTournamentId();
+    const tournamentId = await snapshotActiveTournament();
     const registration = await insertRegistrationRow({
       tournamentId,
       email: uniqueTestEmail("confirmed"),

@@ -1,7 +1,7 @@
 # STOP Gate B — Operator approval record (development)
 
 **Status:** OPERATOR APPROVED (2026-08-27)  
-**Environment:** Neon dev (`ep-steep-block-…`) only — production untouched
+**Environment:** Neon dev (`<development-db-host>`) only — production untouched
 
 ---
 

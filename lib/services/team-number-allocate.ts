@@ -4,7 +4,7 @@ import { getDb } from "@/lib/db";
 import { teams } from "@/lib/db/schema";
 import { ServiceError } from "@/lib/services/service-error";
 
-export const TEAM_NUMBER_ALLOCATION_MAX_RETRIES = 5;
+export const TEAM_NUMBER_ALLOCATION_MAX_RETRIES = 12;
 
 export type AllocatedTeamRow = {
   id: string;

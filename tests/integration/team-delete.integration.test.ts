@@ -9,20 +9,20 @@ import {
   registrations,
   teamMembers,
   teams,
-  tournaments,
 } from "@/lib/db/schema";
 import { AUDIT_EVENT_TYPES } from "@/lib/services/audit-types";
 import { ServiceError } from "@/lib/services/service-error";
 import {
   assignPlayerToTeam,
-  createTeam,
   deleteTeam,
 } from "@/lib/services/teams";
 
 import {
+  createIntegrationTeam,
   createTestAdminSession,
-  getActiveTournamentId,
+  insertDisposableTournament,
   insertRegistrationRow,
+  snapshotActiveTournament,
   uniqueTestEmail,
 } from "./helpers";
 
@@ -32,31 +32,19 @@ function uniqueDeleteTestTeamName(label: string): string {
 
 async function insertTeamInOtherTournament(name: string) {
   const db = getDb();
-  const otherTournament = (
-    await db
-      .insert(tournaments)
-      .values({
-        name: "Delete Scope Test Tournament",
-        slug: `delete-scope-${randomUUID()}`,
-        year: 2096,
-        eventDate: "2096-06-01",
-        locationName: "Scope Test Course",
-        venmoHandle: "@deletescope",
-        registrationEnabled: false,
-        isActive: false,
-        lifecycleStatus: "registration_closed",
-      })
-      .returning({ id: tournaments.id })
-  )[0];
-
-  if (!otherTournament) {
-    throw new Error("Unable to insert scope test tournament.");
-  }
+  const otherTournamentId = await insertDisposableTournament({
+    name: "Delete Scope Test Tournament",
+    slugPrefix: "delete-scope",
+    year: 2096,
+    registrationEnabled: false,
+    isActive: false,
+    lifecycleStatus: "registration_closed",
+  });
 
   const team = (
     await db
       .insert(teams)
-      .values({ tournamentId: otherTournament.id, name, teamNumber: 1 })
+      .values({ tournamentId: otherTournamentId, name, teamNumber: 1 })
       .returning({ id: teams.id })
   )[0];
 
@@ -70,8 +58,8 @@ async function insertTeamInOtherTournament(name: string) {
 describe.skipIf(!hasIntegrationDatabase())("delete team service", () => {
   it("deletes an empty team and records team_deleted audit metadata", async () => {
     const admin = await createTestAdminSession();
-    const tournamentId = await getActiveTournamentId();
-    const team = await createTeam(admin);
+    const tournamentId = await snapshotActiveTournament();
+    const team = await createIntegrationTeam(admin);
     const db = getDb();
 
     const deleted = await deleteTeam(team.id, admin);
@@ -113,8 +101,8 @@ describe.skipIf(!hasIntegrationDatabase())("delete team service", () => {
 
   it("deletes a populated team, removes team_members, and preserves registrations", async () => {
     const admin = await createTestAdminSession();
-    const tournamentId = await getActiveTournamentId();
-    const team = await createTeam(admin);
+    const tournamentId = await snapshotActiveTournament();
+    const team = await createIntegrationTeam(admin);
     const player = await insertRegistrationRow({
       tournamentId,
       email: uniqueTestEmail("delete-populated"),
@@ -144,8 +132,9 @@ describe.skipIf(!hasIntegrationDatabase())("delete team service", () => {
 
   it("leaves an unrelated team unchanged when deleting a different team", async () => {
     const admin = await createTestAdminSession();
-    const keepTeam = await createTeam(admin);
-    const deleteTarget = await createTeam(admin);
+    await snapshotActiveTournament();
+    const keepTeam = await createIntegrationTeam(admin);
+    const deleteTarget = await createIntegrationTeam(admin);
 
     await deleteTeam(deleteTarget.id, admin);
 

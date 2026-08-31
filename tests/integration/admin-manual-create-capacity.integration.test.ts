@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 
 import { hasIntegrationDatabase } from "@/lib/db/ci-gate-env";
-import { createAdminRegistration } from "@/lib/services/registration-admin-create";
 import { ServiceError } from "@/lib/services/service-error";
 import { requireActiveTournament } from "@/lib/services/tournament";
 
@@ -12,10 +11,14 @@ import {
   findRegistrationById,
   setConfirmedCapacityLimit,
 } from "./admin-manual-create-helpers";
-import { createTestAdminSession, uniqueTestEmail } from "./helpers";
+import {
+  createIntegrationAdminRegistration,
+  createTestAdminSession,
+  integrationFixtureRegistry,
+  trackIntegrationRegistration,
+  uniqueTestEmail,
+} from "./helpers";
 
-// Parallel integration files also insert confirmed rows on the shared active
-// tournament. Leave headroom so this suite does not flake on that race.
 const CAPACITY_HEADROOM = 50;
 
 describe.skipIf(!hasIntegrationDatabase())(
@@ -33,7 +36,7 @@ describe.skipIf(!hasIntegrationDatabase())(
           confirmed + CAPACITY_HEADROOM,
         );
 
-        const created = await createAdminRegistration(
+        const created = await createIntegrationAdminRegistration(
           {
             ...profile,
             email: uniqueTestEmail("admin-verified-ok"),
@@ -61,11 +64,10 @@ describe.skipIf(!hasIntegrationDatabase())(
       const email = uniqueTestEmail("admin-verified-full");
 
       try {
-        // Limit 0 is always full (confirm uses confirmedCount >= limit).
         await setConfirmedCapacityLimit(tournament.id, 0);
 
         await expect(
-          createAdminRegistration(
+          createIntegrationAdminRegistration(
             { ...profile, email, paymentStatus: "verified" },
             admin,
           ),
@@ -73,7 +75,12 @@ describe.skipIf(!hasIntegrationDatabase())(
           code: "CAPACITY_FULL",
         } satisfies Partial<ServiceError>);
 
-        expect(await findRegistrationByEmail(email)).toMatchObject({
+        const persisted = await findRegistrationByEmail(email);
+        if (persisted) {
+          trackIntegrationRegistration(integrationFixtureRegistry, persisted.id);
+        }
+
+        expect(persisted).toMatchObject({
           createdSource: "admin",
           createdByAdminId: admin.adminUserId,
           registrationStatus: "pending_review",
@@ -92,7 +99,7 @@ describe.skipIf(!hasIntegrationDatabase())(
       try {
         await setConfirmedCapacityLimit(tournament.id, 0);
 
-        const created = await createAdminRegistration(
+        const created = await createIntegrationAdminRegistration(
           {
             ...profile,
             email: uniqueTestEmail("admin-pending-full"),

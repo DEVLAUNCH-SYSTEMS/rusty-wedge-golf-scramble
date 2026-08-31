@@ -13,15 +13,21 @@ const BASE_SECTION_LABELS = [
 ];
 
 describe("buildPublicNavLinks", () => {
-  it("hides the Teams link when teams are unpublished", () => {
-    const links = buildPublicNavLinks({ teamsPublished: false });
+  it("hides the Teams link when teams and results are unpublished", () => {
+    const links = buildPublicNavLinks({
+      teamsPublished: false,
+      resultsPublished: false,
+    });
 
     expect(links.map((link) => link.label)).toEqual(BASE_SECTION_LABELS);
     expect(links.some((link) => link.href === "/teams")).toBe(false);
   });
 
   it("shows the Teams link when teams are published", () => {
-    const links = buildPublicNavLinks({ teamsPublished: true });
+    const links = buildPublicNavLinks({
+      teamsPublished: true,
+      resultsPublished: false,
+    });
 
     expect(links.map((link) => link.label)).toEqual([
       ...BASE_SECTION_LABELS.slice(0, 3),
@@ -31,8 +37,29 @@ describe("buildPublicNavLinks", () => {
     expect(links.some((link) => link.href === "/teams")).toBe(true);
   });
 
+  it("shows the Results link when results are published", () => {
+    const links = buildPublicNavLinks({
+      teamsPublished: false,
+      resultsPublished: true,
+    });
+
+    expect(links.find((link) => link.href === "/teams")?.label).toBe("Results");
+  });
+
+  it("prefers Results over Teams when both are published", () => {
+    const links = buildPublicNavLinks({
+      teamsPublished: true,
+      resultsPublished: true,
+    });
+
+    expect(links.find((link) => link.href === "/teams")?.label).toBe("Results");
+  });
+
   it("preserves existing section links and styling targets on the landing page", () => {
-    const links = buildPublicNavLinks({ teamsPublished: false });
+    const links = buildPublicNavLinks({
+      teamsPublished: false,
+      resultsPublished: false,
+    });
 
     expect(links[0]).toEqual({ href: "#about", label: "Event Details" });
     expect(links[1]).toEqual({ href: "#trophy", label: "Trophy" });
@@ -41,7 +68,11 @@ describe("buildPublicNavLinks", () => {
   });
 
   it("uses home-prefixed anchors on the /teams page", () => {
-    const links = buildPublicNavLinks({ teamsPublished: true, anchorBase: "/" });
+    const links = buildPublicNavLinks({
+      teamsPublished: true,
+      resultsPublished: false,
+      anchorBase: "/",
+    });
 
     expect(links[0]?.href).toBe("/#about");
     expect(links.find((link) => link.label === "Teams")?.href).toBe("/teams");

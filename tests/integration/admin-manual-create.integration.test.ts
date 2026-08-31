@@ -4,18 +4,19 @@ import { describe, expect, it } from "vitest";
 import { getDb } from "@/lib/db";
 import { hasIntegrationDatabase } from "@/lib/db/ci-gate-env";
 import { tournaments, waitlistEntries } from "@/lib/db/schema";
-import { createAdminRegistration } from "@/lib/services/registration-admin-create";
 import { ServiceError } from "@/lib/services/service-error";
 import { requireActiveTournament } from "@/lib/services/tournament";
-import { createAdminWaitlistEntry } from "@/lib/services/waitlist-admin-create";
 
 import {
   adminManualCreateProfile as profile,
   findRegistrationById,
 } from "./admin-manual-create-helpers";
 import {
+  createIntegrationAdminRegistration,
+  createIntegrationAdminWaitlistEntry,
   createTestAdminSession,
   insertRegistrationRow,
+  snapshotActiveTournament,
   uniqueTestEmail,
 } from "./helpers";
 
@@ -24,7 +25,7 @@ describe.skipIf(!hasIntegrationDatabase())(
   () => {
     it("sets admin provenance on registration and waitlist creates", async () => {
       const admin = await createTestAdminSession();
-      const registration = await createAdminRegistration(
+      const registration = await createIntegrationAdminRegistration(
         {
           ...profile,
           email: uniqueTestEmail("admin-reg-provenance"),
@@ -32,7 +33,7 @@ describe.skipIf(!hasIntegrationDatabase())(
         },
         admin,
       );
-      const waitlist = await createAdminWaitlistEntry(
+      const waitlist = await createIntegrationAdminWaitlistEntry(
         { ...profile, email: uniqueTestEmail("admin-wl-provenance") },
         admin,
       );
@@ -70,13 +71,13 @@ describe.skipIf(!hasIntegrationDatabase())(
         email: takenRegistrationEmail,
         registrationStatus: "pending_review",
       });
-      await createAdminWaitlistEntry(
+      await createIntegrationAdminWaitlistEntry(
         { ...profile, email: waitlistEmail },
         admin,
       );
 
       await expect(
-        createAdminRegistration(
+        createIntegrationAdminRegistration(
           {
             ...profile,
             email: takenRegistrationEmail,
@@ -89,7 +90,7 @@ describe.skipIf(!hasIntegrationDatabase())(
       } satisfies Partial<ServiceError>);
 
       await expect(
-        createAdminRegistration(
+        createIntegrationAdminRegistration(
           {
             ...profile,
             email: waitlistEmail,
@@ -104,16 +105,16 @@ describe.skipIf(!hasIntegrationDatabase())(
 
     it("allows admin waitlist create when public registration is closed", async () => {
       const admin = await createTestAdminSession();
-      const tournament = await requireActiveTournament();
+      const tournamentId = await snapshotActiveTournament();
       const db = getDb();
 
       try {
         await db
           .update(tournaments)
           .set({ registrationEnabled: false })
-          .where(eq(tournaments.id, tournament.id));
+          .where(eq(tournaments.id, tournamentId));
 
-        const created = await createAdminWaitlistEntry(
+        const created = await createIntegrationAdminWaitlistEntry(
           {
             ...profile,
             email: uniqueTestEmail("admin-wl-closed"),
@@ -125,24 +126,24 @@ describe.skipIf(!hasIntegrationDatabase())(
       } finally {
         await db
           .update(tournaments)
-          .set({ registrationEnabled: tournament.registrationEnabled })
-          .where(eq(tournaments.id, tournament.id));
+          .set({ registrationEnabled: true })
+          .where(eq(tournaments.id, tournamentId));
       }
     });
 
     it("rejects admin registration create when tournament is archived", async () => {
       const admin = await createTestAdminSession();
-      const tournament = await requireActiveTournament();
+      const tournamentId = await snapshotActiveTournament();
       const db = getDb();
 
       try {
         await db
           .update(tournaments)
           .set({ lifecycleStatus: "archived" })
-          .where(eq(tournaments.id, tournament.id));
+          .where(eq(tournaments.id, tournamentId));
 
         await expect(
-          createAdminRegistration(
+          createIntegrationAdminRegistration(
             {
               ...profile,
               email: uniqueTestEmail("admin-reg-archived"),
@@ -156,8 +157,8 @@ describe.skipIf(!hasIntegrationDatabase())(
       } finally {
         await db
           .update(tournaments)
-          .set({ lifecycleStatus: tournament.lifecycleStatus })
-          .where(eq(tournaments.id, tournament.id));
+          .set({ lifecycleStatus: "registration_open" })
+          .where(eq(tournaments.id, tournamentId));
       }
     });
   },

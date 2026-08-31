@@ -5,21 +5,25 @@ import { getDb } from "@/lib/db";
 import { hasIntegrationDatabase } from "@/lib/db/ci-gate-env";
 import { registrations, waitlistEntries } from "@/lib/db/schema";
 import { requireActiveTournament } from "@/lib/services/tournament";
-import { createWaitlistEntry } from "@/lib/services/waitlist-create";
 import { promoteWaitlistEntry } from "@/lib/services/waitlist-promote";
 
 import {
+  createIntegrationWaitlistEntry,
   createTestAdminSession,
+  integrationFixtureRegistry,
+  snapshotActiveTournament,
+  trackIntegrationRegistration,
   uniqueTestEmail,
 } from "./helpers";
 
 describe.skipIf(!hasIntegrationDatabase())("waitlist integration", () => {
   it("H11: promotion carries skill level and preferred-player notes forward", async () => {
+    await snapshotActiveTournament();
     const admin = await createTestAdminSession();
     const tournament = await requireActiveTournament();
     const email = uniqueTestEmail("waitlist-promote");
 
-    const entry = await createWaitlistEntry(
+    const entry = await createIntegrationWaitlistEntry(
       {
         firstName: "Wait",
         lastName: "Listed",
@@ -33,6 +37,8 @@ describe.skipIf(!hasIntegrationDatabase())("waitlist integration", () => {
     );
 
     const promoted = await promoteWaitlistEntry(entry!.id, admin);
+    trackIntegrationRegistration(integrationFixtureRegistry, promoted.id);
+
     const db = getDb();
 
     const registration = (
