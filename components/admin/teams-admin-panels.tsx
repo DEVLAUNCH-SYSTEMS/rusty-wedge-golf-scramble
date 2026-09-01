@@ -8,6 +8,7 @@ import type {
   AdminTeamListItem,
 } from "@/lib/services/admin-teams-list";
 import type { AdminTournamentContext } from "@/lib/services/admin-tournament-context";
+import type { ResultsAnnouncementAdminView } from "@/lib/services/results-announcement-admin-view";
 import type { TeamAssignmentReport } from "@/lib/services/team-assignment-report";
 import type { AdminTeamListSort } from "@/lib/validation/admin-team-list-sort";
 
@@ -19,6 +20,7 @@ export type TeamsAdminPanelsProps = {
   sort: AdminTeamListSort;
   readOnlyReason?: string;
   placementMutationReason?: string;
+  announcement: ResultsAnnouncementAdminView;
 };
 
 export function TeamsAdminPanels(props: TeamsAdminPanelsProps) {
@@ -28,6 +30,7 @@ export function TeamsAdminPanels(props: TeamsAdminPanelsProps) {
         context={props.context}
         report={props.report}
         readOnlyReason={props.readOnlyReason}
+        announcement={props.announcement}
       />
       <TeamsManagementPanels
         teams={props.teams}

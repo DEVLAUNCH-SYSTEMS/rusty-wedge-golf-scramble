@@ -10,16 +10,18 @@ import {
   listTeamsForAdmin,
 } from "@/lib/services/admin-teams-list";
 import { resolveAdminTournamentContext } from "@/lib/services/admin-tournament-context";
+import { loadResultsAnnouncementAdminView } from "@/lib/services/results-announcement-admin-view";
 import { getTeamAssignmentReport } from "@/lib/services/team-assignment-report";
 
 import type { AdminTeamListSort } from "@/lib/validation/admin-team-list-sort";
 
 async function loadTeamsPageData(sort: AdminTeamListSort) {
   const context = await resolveAdminTournamentContext();
-  const [teams, report, unassignedPlayers] = await Promise.all([
+  const [teams, report, unassignedPlayers, announcement] = await Promise.all([
     listTeamsForAdmin(sort),
     getTeamAssignmentReport(context.tournament.id),
     listAssignablePlayersForTeam(),
+    loadResultsAnnouncementAdminView(context.tournament.id),
   ]);
 
   return {
@@ -27,6 +29,7 @@ async function loadTeamsPageData(sort: AdminTeamListSort) {
     teams,
     report,
     unassignedPlayers,
+    announcement,
     readOnlyReason: adminViewReadOnlyReason(
       context.tournament.lifecycleStatus,
       context.isViewingActiveTournament,

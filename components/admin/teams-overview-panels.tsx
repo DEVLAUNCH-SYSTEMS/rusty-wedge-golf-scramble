@@ -3,17 +3,19 @@ import { TeamsPageContext } from "@/components/admin/teams-page-context";
 import { TeamsPublicationPanels } from "@/components/admin/teams-publication-panels";
 
 import type { AdminTournamentContext } from "@/lib/services/admin-tournament-context";
+import type { ResultsAnnouncementAdminView } from "@/lib/services/results-announcement-admin-view";
 import type { TeamAssignmentReport } from "@/lib/services/team-assignment-report";
 
-export function TeamsOverviewPanels({
-  context,
-  report,
-  readOnlyReason,
-}: {
+type TeamsOverviewPanelsProps = {
   context: AdminTournamentContext;
   report: TeamAssignmentReport;
   readOnlyReason?: string;
-}) {
+  announcement: ResultsAnnouncementAdminView;
+};
+
+export function TeamsOverviewPanels(props: TeamsOverviewPanelsProps) {
+  const { context, report, readOnlyReason, announcement } = props;
+
   return (
     <>
       <TeamsPageContext
@@ -26,6 +28,7 @@ export function TeamsOverviewPanels({
         teamsPublished={context.tournament.teamsPublished}
         resultsPublished={context.tournament.resultsPublished}
         readOnlyReason={readOnlyReason}
+        announcement={announcement}
       />
     </>
   );
