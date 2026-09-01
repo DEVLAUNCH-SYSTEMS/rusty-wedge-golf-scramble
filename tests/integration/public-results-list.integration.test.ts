@@ -25,24 +25,32 @@ async function insertResultsFixtureTournament(): Promise<string> {
       teamNumber: 3,
       name: "Team #3",
       finishingPlacement: 2,
+      scoreRelativeToPar: 2,
+      scoreTotalStrokes: 73,
     },
     {
       tournamentId,
       teamNumber: 1,
       name: "Team #1",
       finishingPlacement: 1,
+      scoreRelativeToPar: 0,
+      scoreTotalStrokes: 71,
     },
     {
       tournamentId,
       teamNumber: 2,
       name: "Team #2",
       finishingPlacement: 1,
+      scoreRelativeToPar: -7,
+      scoreTotalStrokes: 64,
     },
     {
       tournamentId,
       teamNumber: 4,
       name: "Team #4",
       finishingPlacement: null,
+      scoreRelativeToPar: -3,
+      scoreTotalStrokes: 68,
     },
   ]);
 
@@ -64,5 +72,30 @@ describe.skipIf(!hasIntegrationDatabase())("public results list integration", ()
     const listed = await listPublicResults(tournamentId);
 
     expect(listed.some((team) => team.teamNumber === 4)).toBe(false);
+  });
+
+  it("returns score fields for placed teams and preserves placement ordering", async () => {
+    const tournamentId = await insertResultsFixtureTournament();
+    const listed = await listPublicResults(tournamentId);
+
+    expect(listed.map((team) => team.teamNumber)).toEqual([1, 2, 3]);
+    expect(listed[0]).toMatchObject({
+      teamNumber: 1,
+      finishingPlacement: 1,
+      scoreRelativeToPar: 0,
+      scoreTotalStrokes: 71,
+    });
+    expect(listed[1]).toMatchObject({
+      teamNumber: 2,
+      finishingPlacement: 1,
+      scoreRelativeToPar: -7,
+      scoreTotalStrokes: 64,
+    });
+    expect(listed[2]).toMatchObject({
+      teamNumber: 3,
+      finishingPlacement: 2,
+      scoreRelativeToPar: 2,
+      scoreTotalStrokes: 73,
+    });
   });
 });

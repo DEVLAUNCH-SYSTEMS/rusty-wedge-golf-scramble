@@ -13,6 +13,8 @@ export function TeamDetailPlacementSection({
     <TeamFinishingPlacementForm
       teamId={team.id}
       finishingPlacement={team.finishingPlacement}
+      scoreRelativeToPar={team.scoreRelativeToPar}
+      scoreTotalStrokes={team.scoreTotalStrokes}
       disabled={Boolean(placementMutationReason)}
       disabledMessage={placementMutationReason}
     />

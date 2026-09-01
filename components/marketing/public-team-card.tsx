@@ -1,8 +1,5 @@
 import { PublicTeamCardHeader } from "@/components/marketing/public-team-card-header";
-import {
-  PublicTeamRosterRows,
-  PUBLIC_TEAM_ROSTER_SLOT_COUNT,
-} from "@/components/marketing/public-team-roster-rows";
+import { PublicTeamRosterRows } from "@/components/marketing/public-team-roster-rows";
 
 import type { PublicTeamView } from "@/lib/services/public-teams-list";
 
@@ -20,9 +17,7 @@ export function PublicTeamCard({
       <PublicTeamCardHeader team={team} mode={mode} />
       <div className="mx-5 border-b border-slate-200" aria-hidden="true" />
       <PublicTeamRosterRows team={team} mode={mode} />
-      <span className="sr-only">
-        {PUBLIC_TEAM_ROSTER_SLOT_COUNT} roster slots reserved for scramble teams
-      </span>
+      <span className="sr-only">Team roster for scramble teams</span>
     </article>
   );
 }

@@ -37,13 +37,13 @@ describe("mapAdminActionError", () => {
 
   it("returns service errors to the client", () => {
     const result = mapAdminActionError(
-      new ServiceError("TEAM_FULL", "Teams cannot exceed four players."),
+      new ServiceError("TEAM_FULL", "Teams cannot exceed five players."),
       "test",
     );
 
     expect(result).toEqual({
       ok: false,
-      message: "Teams cannot exceed four players.",
+      message: "Teams cannot exceed five players.",
     });
   });
 

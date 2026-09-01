@@ -14,10 +14,10 @@ import { parseBulkFinishingPlacementsFromFormData } from "@/lib/validation/bulk-
 
 function bulkSaveSuccessMessage(updatedCount: number): string {
   if (updatedCount === 0) {
-    return "No placement changes to save.";
+    return "No result changes to save.";
   }
 
-  return `Saved ${updatedCount} placement ${updatedCount === 1 ? "change" : "changes"}.`;
+  return `Saved ${updatedCount} result ${updatedCount === 1 ? "change" : "changes"}.`;
 }
 
 export async function saveBulkTeamFinishingPlacementsAction(

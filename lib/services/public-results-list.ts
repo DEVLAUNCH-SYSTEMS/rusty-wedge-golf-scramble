@@ -19,6 +19,8 @@ export async function listPublicResults(
       id: teams.id,
       teamNumber: teams.teamNumber,
       finishingPlacement: teams.finishingPlacement,
+      scoreRelativeToPar: teams.scoreRelativeToPar,
+      scoreTotalStrokes: teams.scoreTotalStrokes,
     })
     .from(teams)
     .where(
@@ -41,6 +43,8 @@ export async function listPublicResults(
   return teamRows.map((team) => ({
     teamNumber: team.teamNumber,
     finishingPlacement: team.finishingPlacement ?? undefined,
+    scoreRelativeToPar: team.scoreRelativeToPar ?? undefined,
+    scoreTotalStrokes: team.scoreTotalStrokes ?? undefined,
     players: playersByTeamId.get(team.id) ?? [],
   }));
 }

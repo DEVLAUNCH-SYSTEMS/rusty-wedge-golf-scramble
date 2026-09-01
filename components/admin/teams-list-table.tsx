@@ -18,7 +18,7 @@ export type TeamsListTableProps = {
 function TeamsBulkEditList(props: Pick<TeamsListTableProps, "teams" | "sort" | "readOnlyReason">) {
   return (
     <div className="flex flex-col gap-3">
-      <TeamsListSortToggle sort={props.sort} disabled />
+      <TeamsListSortToggle sort={props.sort} disabled teams={props.teams} />
       <TeamsDesktopTable
         teams={props.teams}
         readOnlyReason={props.readOnlyReason}
@@ -38,7 +38,7 @@ function TeamsReadOnlyList(props: Pick<TeamsListTableProps, "teams" | "sort" | "
 
   return (
     <div className="flex flex-col gap-3">
-      <TeamsListSortToggle sort={props.sort} />
+      <TeamsListSortToggle sort={props.sort} teams={props.teams} />
       <TeamsListCards {...tableProps} />
       <p className={`${adminMutedTextClassName} min-[1100px]:hidden`}>
         Select a team to assign or remove confirmed players.

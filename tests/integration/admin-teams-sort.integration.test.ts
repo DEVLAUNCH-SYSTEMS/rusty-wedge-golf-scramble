@@ -117,4 +117,38 @@ describe.skipIf(!hasIntegrationDatabase())("admin teams list sort integration", 
     expect(numbers).toEqual([1, 2, 10]);
     expect(isAscendingNumeric(numbers)).toBe(true);
   });
+
+  it("orders placed teams before unplaced teams by placement then team number", async () => {
+    const db = getDb();
+    const tournamentId = await insertDisposableTournament({
+      name: "Admin Teams Placement Sort Test",
+      slugPrefix: "admin-teams-placement-sort",
+      year: 2097,
+      eventDate: "2097-06-01",
+      locationName: "Placement Sort Course",
+      venmoHandle: "@placementsort",
+    });
+
+    await db.insert(teams).values([
+      { tournamentId, teamNumber: 1, name: "Team #1", finishingPlacement: null },
+      { tournamentId, teamNumber: 2, name: "Team #2", finishingPlacement: null },
+      { tournamentId, teamNumber: 3, name: "Team #3", finishingPlacement: 3 },
+      { tournamentId, teamNumber: 4, name: "Team #4", finishingPlacement: 2 },
+      { tournamentId, teamNumber: 8, name: "Team #8", finishingPlacement: 1 },
+      {
+        tournamentId,
+        teamNumber: 11,
+        name: "Team #11",
+        finishingPlacement: 2,
+        scoreRelativeToPar: -7,
+        scoreTotalStrokes: 64,
+      },
+    ]);
+
+    mockAdminTournamentContext(tournamentId);
+
+    const rows = await listTeamsForAdmin("asc");
+
+    expect(rows.map((team) => team.teamNumber)).toEqual([8, 4, 11, 3, 1, 2]);
+  });
 });

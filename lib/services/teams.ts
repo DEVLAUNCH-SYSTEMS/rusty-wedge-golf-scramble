@@ -8,5 +8,6 @@ export {
   createTeam,
   MAX_TEAM_SIZE,
   removePlayerFromTeam,
+  STANDARD_FOURSOME_SIZE,
 } from "@/lib/services/teams-mutations";
 export { deleteTeam } from "@/lib/services/team-delete";

@@ -27,12 +27,12 @@ describe.skipIf(!hasIntegrationDatabase())("team assignment integration", () => 
     ).rejects.toMatchObject({ code: "NOT_CONFIRMED" });
   });
 
-  it("H9: teams cannot exceed four players", async () => {
+  it("H9: allows five players and rejects a sixth assignment", async () => {
     const tournamentId = await snapshotActiveTournament();
     const admin = await createTestAdminSession();
     const team = await createIntegrationTeam(admin);
 
-    for (let index = 0; index < 4; index += 1) {
+    for (let index = 0; index < 5; index += 1) {
       const player = await insertRegistrationRow({
         tournamentId,
         email: uniqueTestEmail(`team-slot-${index}`),

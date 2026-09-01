@@ -1,11 +1,15 @@
-import { and, asc, count, desc, eq, isNull } from "drizzle-orm";
+import { and, asc, count, eq, isNull, isNotNull } from "drizzle-orm";
 
 import { getDb } from "@/lib/db";
 import { registrations, teamMembers, teams } from "@/lib/db/schema";
+import { computeTeamSlotsRemaining } from "@/lib/format/admin-team-capacity-display";
 import { loadTeamRosterMembersByTeamId } from "@/lib/services/admin-team-list-roster";
+import {
+  adminTeamNumberListOrder,
+  adminTeamsPlacementListOrderBy,
+} from "@/lib/services/admin-teams-list-order";
 import { requireAdminTournamentContext } from "@/lib/services/admin-tournament-context";
 import { ServiceError } from "@/lib/services/service-error";
-import { MAX_TEAM_SIZE } from "@/lib/services/teams-mutations";
 import { assertTournamentScope } from "@/lib/services/tournament";
 
 import type { TeamRosterMember } from "@/lib/format/team-roster-display";
@@ -16,6 +20,8 @@ export type AdminTeamListItem = {
   name: string;
   teamNumber: number | null;
   finishingPlacement: number | null;
+  scoreRelativeToPar: number | null;
+  scoreTotalStrokes: number | null;
   memberCount: number;
   createdAt: Date;
   rosterMembers: TeamRosterMember[];
@@ -33,6 +39,8 @@ export type AdminTeamDetail = {
   name: string;
   teamNumber: number | null;
   finishingPlacement: number | null;
+  scoreRelativeToPar: number | null;
+  scoreTotalStrokes: number | null;
   members: AdminTeamMember[];
   memberCount: number;
   slotsRemaining: number;
@@ -46,7 +54,27 @@ export type AdminAssignablePlayer = {
 };
 
 function teamNumberOrder(sort: AdminTeamListSort) {
-  return sort === "desc" ? desc(teams.teamNumber) : asc(teams.teamNumber);
+  return adminTeamNumberListOrder(sort);
+}
+
+async function tournamentHasPlacedTeams(
+  tournamentId: string,
+): Promise<boolean> {
+  const db = getDb();
+  const placedTeam = (
+    await db
+      .select({ id: teams.id })
+      .from(teams)
+      .where(
+        and(
+          eq(teams.tournamentId, tournamentId),
+          isNotNull(teams.finishingPlacement),
+        ),
+      )
+      .limit(1)
+  )[0];
+
+  return Boolean(placedTeam);
 }
 
 export async function listTeamsForAdmin(
@@ -54,6 +82,10 @@ export async function listTeamsForAdmin(
 ): Promise<AdminTeamListItem[]> {
   const tournament = await requireAdminTournamentContext();
   const db = getDb();
+  const usePlacementOrdering = await tournamentHasPlacedTeams(tournament.id);
+  const orderBy = usePlacementOrdering
+    ? adminTeamsPlacementListOrderBy()
+    : [teamNumberOrder(sort)];
 
   const rows = await db
     .select({
@@ -61,6 +93,8 @@ export async function listTeamsForAdmin(
       name: teams.name,
       teamNumber: teams.teamNumber,
       finishingPlacement: teams.finishingPlacement,
+      scoreRelativeToPar: teams.scoreRelativeToPar,
+      scoreTotalStrokes: teams.scoreTotalStrokes,
       createdAt: teams.createdAt,
       memberCount: count(teamMembers.id),
     })
@@ -72,9 +106,11 @@ export async function listTeamsForAdmin(
       teams.name,
       teams.teamNumber,
       teams.finishingPlacement,
+      teams.scoreRelativeToPar,
+      teams.scoreTotalStrokes,
       teams.createdAt,
     )
-    .orderBy(teamNumberOrder(sort));
+    .orderBy(...orderBy);
 
   const rosters = await loadTeamRosterMembersByTeamId(tournament.id);
 
@@ -83,6 +119,8 @@ export async function listTeamsForAdmin(
     name: row.name,
     teamNumber: row.teamNumber,
     finishingPlacement: row.finishingPlacement,
+    scoreRelativeToPar: row.scoreRelativeToPar,
+    scoreTotalStrokes: row.scoreTotalStrokes,
     createdAt: row.createdAt,
     memberCount: Number(row.memberCount),
     rosterMembers: rosters.get(row.id) ?? [],
@@ -121,9 +159,11 @@ export async function getTeamDetailForAdmin(teamId: string): Promise<AdminTeamDe
     name: team.name,
     teamNumber: team.teamNumber,
     finishingPlacement: team.finishingPlacement,
+    scoreRelativeToPar: team.scoreRelativeToPar,
+    scoreTotalStrokes: team.scoreTotalStrokes,
     members,
     memberCount,
-    slotsRemaining: Math.max(0, MAX_TEAM_SIZE - memberCount),
+    slotsRemaining: computeTeamSlotsRemaining(memberCount),
   };
 }
 

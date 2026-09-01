@@ -2,8 +2,10 @@ import { adminInputClassName, adminLabelClassName } from "@/components/admin/adm
 
 export function PlacementInputField({
   finishingPlacement,
+  required = true,
 }: {
   finishingPlacement: number | null;
+  required?: boolean;
 }) {
   return (
     <label className={adminLabelClassName}>
@@ -13,7 +15,7 @@ export function PlacementInputField({
         name="finishingPlacement"
         min={1}
         step={1}
-        required
+        required={required}
         defaultValue={finishingPlacement ?? undefined}
         className={adminInputClassName}
       />

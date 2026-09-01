@@ -41,13 +41,29 @@ const TEAM_ONE = "11111111-1111-4111-8111-111111111111";
 const TEAM_TWO = "22222222-2222-4222-8222-222222222222";
 
 function bulkFormData(
-  entries: Array<{ teamId: string; placement: string }>,
+  entries: Array<{
+    teamId: string;
+    placement?: string;
+    scoreRelativeToPar?: string;
+    scoreTotalStrokes?: string;
+  }>,
 ): FormData {
   const formData = new FormData();
 
   for (const entry of entries) {
     formData.append("teamIds", entry.teamId);
-    formData.set(`placement_${entry.teamId}`, entry.placement);
+
+    if (entry.placement !== undefined) {
+      formData.set(`placement_${entry.teamId}`, entry.placement);
+    }
+
+    if (entry.scoreRelativeToPar !== undefined) {
+      formData.set(`scoreRelativeToPar_${entry.teamId}`, entry.scoreRelativeToPar);
+    }
+
+    if (entry.scoreTotalStrokes !== undefined) {
+      formData.set(`scoreTotalStrokes_${entry.teamId}`, entry.scoreTotalStrokes);
+    }
   }
 
   return formData;
@@ -65,6 +81,81 @@ describe("saveBulkTeamFinishingPlacementsAction", () => {
     setBulkTeamFinishingPlacements.mockResolvedValue({ updatedCount: 2 });
   });
 
+  it("saves score-only bulk submissions with blank placement", async () => {
+    await expect(
+      saveBulkTeamFinishingPlacementsAction(
+        bulkFormData([
+          { teamId: TEAM_ONE, placement: "", scoreRelativeToPar: "-7", scoreTotalStrokes: "64" },
+          { teamId: TEAM_TWO, placement: "", scoreRelativeToPar: "2", scoreTotalStrokes: "73" },
+        ]),
+      ),
+    ).resolves.toEqual({
+      ok: true,
+      message: "Saved 2 result changes.",
+    });
+
+    expect(setBulkTeamFinishingPlacements).toHaveBeenCalledWith(
+      expect.objectContaining({ adminUserId: "admin-1" }),
+      [
+        {
+          teamId: TEAM_ONE,
+          finishingPlacement: null,
+          scoreRelativeToPar: -7,
+          scoreTotalStrokes: 64,
+        },
+        {
+          teamId: TEAM_TWO,
+          finishingPlacement: null,
+          scoreRelativeToPar: 2,
+          scoreTotalStrokes: 73,
+        },
+      ],
+    );
+    expect(publishResults).not.toHaveBeenCalled();
+  });
+
+  it("accepts golf even notation for bulk relative-to-par fields", async () => {
+    setBulkTeamFinishingPlacements.mockResolvedValue({ updatedCount: 1 });
+
+    await expect(
+      saveBulkTeamFinishingPlacementsAction(
+        bulkFormData([
+          { teamId: TEAM_ONE, placement: "", scoreRelativeToPar: "E", scoreTotalStrokes: "67" },
+        ]),
+      ),
+    ).resolves.toEqual({
+      ok: true,
+      message: "Saved 1 result change.",
+    });
+
+    expect(setBulkTeamFinishingPlacements).toHaveBeenCalledWith(
+      expect.objectContaining({ adminUserId: "admin-1" }),
+      [
+        {
+          teamId: TEAM_ONE,
+          finishingPlacement: null,
+          scoreRelativeToPar: 0,
+          scoreTotalStrokes: 67,
+        },
+      ],
+    );
+  });
+
+  it("rejects invalid strokes before calling the bulk service", async () => {
+    await expect(
+      saveBulkTeamFinishingPlacementsAction(
+        bulkFormData([
+          { teamId: TEAM_ONE, placement: "1", scoreTotalStrokes: "0" },
+          { teamId: TEAM_TWO, placement: "2" },
+        ]),
+      ),
+    ).resolves.toEqual({
+      ok: false,
+      message: expect.stringContaining("at least 1"),
+    });
+    expect(setBulkTeamFinishingPlacements).not.toHaveBeenCalled();
+  });
+
   it("saves multiple placements through the bulk service", async () => {
     await expect(
       saveBulkTeamFinishingPlacementsAction(
@@ -75,7 +166,7 @@ describe("saveBulkTeamFinishingPlacementsAction", () => {
       ),
     ).resolves.toEqual({
       ok: true,
-      message: "Saved 2 placement changes.",
+      message: "Saved 2 result changes.",
     });
 
     expect(setBulkTeamFinishingPlacements).toHaveBeenCalledWith(
@@ -100,7 +191,7 @@ describe("saveBulkTeamFinishingPlacementsAction", () => {
       ),
     ).resolves.toEqual({
       ok: true,
-      message: "Saved 2 placement changes.",
+      message: "Saved 2 result changes.",
     });
 
     expect(setBulkTeamFinishingPlacements).toHaveBeenCalledWith(
@@ -170,7 +261,7 @@ describe("saveBulkTeamFinishingPlacementsAction", () => {
       ),
     ).resolves.toEqual({
       ok: true,
-      message: "No placement changes to save.",
+      message: "No result changes to save.",
     });
   });
 });

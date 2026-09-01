@@ -12,6 +12,8 @@ export type PublicTeamView = {
   teamNumber: number;
   players: PublicTeamPlayer[];
   finishingPlacement?: number;
+  scoreRelativeToPar?: number;
+  scoreTotalStrokes?: number;
 };
 
 export async function listPublicTeams(

@@ -2,6 +2,10 @@ import { and, eq } from "drizzle-orm";
 
 import { getDb } from "@/lib/db";
 import { teamMembers } from "@/lib/db/schema";
+import {
+  MAX_TEAM_SIZE,
+  TEAM_FULL_ERROR_MESSAGE,
+} from "@/lib/domain/team-size";
 import { AUDIT_EVENT_TYPES, recordAuditEvent } from "@/lib/services/audit";
 import { findRegistrationById } from "@/lib/services/registration-queries";
 import { ServiceError } from "@/lib/services/service-error";
@@ -18,7 +22,7 @@ import {
 
 import type { AdminSession } from "@/lib/services/admin-auth";
 
-export const MAX_TEAM_SIZE = 4;
+export { MAX_TEAM_SIZE, STANDARD_FOURSOME_SIZE } from "@/lib/domain/team-size";
 
 async function requireTeam(teamId: string) {
   return requireWritableTeam(teamId);
@@ -80,7 +84,7 @@ export async function assignPlayerToTeam(
   }
 
   if ((await countTeamMembers(teamId)) >= MAX_TEAM_SIZE) {
-    throw new ServiceError("TEAM_FULL", "Teams cannot exceed four players.");
+    throw new ServiceError("TEAM_FULL", TEAM_FULL_ERROR_MESSAGE);
   }
 
   await requireUnassignedRegistration(registrationId);

@@ -2,11 +2,20 @@ import { z } from "zod";
 
 import { ServiceError } from "@/lib/services/service-error";
 import { parseTeamFinishingPlacementInput } from "@/lib/validation/team-finishing-placement";
+import {
+  parseOptionalScoreRelativeToParField,
+  parseOptionalScoreTotalStrokesField,
+} from "@/lib/validation/team-score";
 
-export type BulkTeamFinishingPlacementEntry = {
+export type BulkTeamResultsEntry = {
   teamId: string;
   finishingPlacement: number | null;
+  scoreRelativeToPar?: number | null;
+  scoreTotalStrokes?: number | null;
 };
+
+/** @deprecated Use BulkTeamResultsEntry — retained for existing imports until S2 rename pass */
+export type BulkTeamFinishingPlacementEntry = BulkTeamResultsEntry;
 
 const teamIdSchema = z.string().uuid("Each team id must be valid.");
 
@@ -31,7 +40,7 @@ export function parseOptionalTeamFinishingPlacementField(
 
 export function parseBulkFinishingPlacementsFromFormData(
   formData: FormData,
-): BulkTeamFinishingPlacementEntry[] {
+): BulkTeamResultsEntry[] {
   const teamIds = [
     ...new Set(
       formData
@@ -47,16 +56,27 @@ export function parseBulkFinishingPlacementsFromFormData(
     const placementValues = formData.getAll(`placement_${teamId}`);
     const rawPlacement = placementValues.at(-1) ?? null;
 
+    const relativeValues = formData.getAll(`scoreRelativeToPar_${teamId}`);
+    const strokesValues = formData.getAll(`scoreTotalStrokes_${teamId}`);
+    const hasRelativeField = relativeValues.length > 0;
+    const hasStrokesField = strokesValues.length > 0;
+
     return {
       teamId,
       finishingPlacement: parseOptionalTeamFinishingPlacementField(rawPlacement),
+      scoreRelativeToPar: hasRelativeField
+        ? parseOptionalScoreRelativeToParField(relativeValues.at(-1) ?? null)
+        : undefined,
+      scoreTotalStrokes: hasStrokesField
+        ? parseOptionalScoreTotalStrokesField(strokesValues.at(-1) ?? null)
+        : undefined,
     };
   });
 }
 
 export function assertCompleteBulkTeamCoverage(
   tournamentTeamIds: readonly string[],
-  entries: readonly BulkTeamFinishingPlacementEntry[],
+  entries: readonly BulkTeamResultsEntry[],
 ): void {
   if (entries.length !== tournamentTeamIds.length) {
     throw new ServiceError(

@@ -19,6 +19,8 @@ export const AUDIT_EVENT_TYPES = {
   teamsUnpublished: "teams_unpublished",
   teamFinishingPlacementSet: "team_finishing_placement_set",
   teamFinishingPlacementCleared: "team_finishing_placement_cleared",
+  teamScoreSet: "team_score_set",
+  teamScoreCleared: "team_score_cleared",
   resultsPublished: "results_published",
   resultsUnpublished: "results_unpublished",
 } as const;

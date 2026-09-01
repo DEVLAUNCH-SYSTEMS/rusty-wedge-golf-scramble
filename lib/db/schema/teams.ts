@@ -14,6 +14,8 @@ export const teams = pgTable(
     name: text("name").notNull(),
     teamNumber: integer("team_number").notNull(),
     finishingPlacement: integer("finishing_placement"),
+    scoreRelativeToPar: integer("score_relative_to_par"),
+    scoreTotalStrokes: integer("score_total_strokes"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },
