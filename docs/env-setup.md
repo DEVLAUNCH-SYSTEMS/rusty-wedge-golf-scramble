@@ -22,6 +22,25 @@ Fill in values from the Neon dashboard and Vercel project settings.
 | `VERCEL_OIDC_TOKEN` | Short-lived Blob auth for local dev (`vercel env pull`; auto on Vercel) |
 | `BLOB_READ_WRITE_TOKEN` | Optional legacy Blob token (older stores / CI) |
 
+### Results announcement email (optional until send is enabled)
+
+Required only when using **Send results announcement** on `/admin/teams`. Server-only — never client-exposed.
+
+| Variable | Purpose |
+|----------|---------|
+| `RESEND_API_KEY` | Resend API secret |
+| `RESEND_FROM` | Verified sender, e.g. `Rusty Wedge <results@send.example.com>` |
+| `APP_BASE_URL` | Public site origin for Results links (`{APP_BASE_URL}/teams`) |
+
+Optional for **development smoke tests only** (never set in production):
+
+| Variable | Purpose |
+|----------|---------|
+| `RESULTS_ANNOUNCEMENT_SMOKE_RECIPIENT` | Single test inbox for dev smoke sends (e.g. `delivered@resend.dev`) |
+| `RESULTS_ANNOUNCEMENT_SMOKE_IDEMPOTENCY_SUFFIX` | Optional fixed suffix when repeating the same smoke payload within 24h; defaults to a unique timestamp per send |
+
+See [qa/results-announcement-email.md](./qa/results-announcement-email.md) for domain verification, dev test sends, and production checklist.
+
 See [blob-setup.md](./blob-setup.md) for creating the Vercel Blob store and verifying uploads.
 
 ## Vercel deployment sync

@@ -21,8 +21,13 @@ Add to Vercel → **Settings** → **Environment Variables** for **Production** 
 | `NEON_AUTH_COOKIE_SECRET` | 32+ characters; unique per environment |
 | `BLOB_STORE_ID` | From linked Vercel Blob store |
 | `BLOB_READ_WRITE_TOKEN` | If not using OIDC-only auth |
+| `RESEND_API_KEY` | Resend API secret (results announcement email) |
+| `RESEND_FROM` | Verified sender address on Resend domain |
+| `APP_BASE_URL` | Production public origin, e.g. `https://your-domain.example` |
 
 See [env-setup.md](../env-setup.md) for details. Never point production `DATABASE_URL` at the CI/test branch.
+
+**Results announcement:** migration `0006` must be applied before the admin send panel is usable. Env vars above are required to send. Production blast is a **separate explicit operator action** — see [results-announcement-email.md](./results-announcement-email.md).
 
 Validate auth URL format locally:
 

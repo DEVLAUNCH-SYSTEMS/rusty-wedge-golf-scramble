@@ -75,6 +75,11 @@ export function uniqueTestEmail(label: string): string {
   return `${label}-${randomUUID()}@example.com`;
 }
 
+/** Non-placeholder domain for results announcement integration coverage. */
+export function uniqueAnnouncementEligibleTestEmail(label: string): string {
+  return `${label}-${randomUUID()}@eligible.integration.test`;
+}
+
 export async function getActiveTournamentId(): Promise<string> {
   const db = getDb();
   const row = (

@@ -10,7 +10,10 @@ import {
 } from "drizzle-orm/pg-core";
 
 import { adminUsers } from "@/lib/db/schema/admin-users";
-import { tournamentLifecycleStatusEnum } from "@/lib/db/schema/enums";
+import {
+  resultsAnnouncementStatusEnum,
+  tournamentLifecycleStatusEnum,
+} from "@/lib/db/schema/enums";
 
 export const tournaments = pgTable("tournaments", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -36,6 +39,15 @@ export const tournaments = pgTable("tournaments", {
   archivedByAdminId: uuid("archived_by_admin_id").references(() => adminUsers.id),
   teamsPublished: boolean("teams_published").notNull().default(false),
   resultsPublished: boolean("results_published").notNull().default(false),
+  resultsAnnouncementStatus: resultsAnnouncementStatusEnum("results_announcement_status")
+    .notNull()
+    .default("not_sent"),
+  resultsAnnouncementSentAt: timestamp("results_announcement_sent_at", {
+    withTimezone: true,
+  }),
+  resultsAnnouncementSentByAdminId: uuid("results_announcement_sent_by_admin_id").references(
+    () => adminUsers.id,
+  ),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });

@@ -32,3 +32,11 @@ export const createdSourceEnum = pgEnum("created_source", [
   "admin",
   "waitlist_promote",
 ]);
+
+export const resultsAnnouncementStatusEnum = pgEnum("results_announcement_status", [
+  "not_sent",
+  "sending",
+  "sent",
+  "partial",
+  "ambiguous",
+]);

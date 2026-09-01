@@ -29,6 +29,9 @@ function tournamentWithLifecycle(
     archivedByAdminId: null,
     teamsPublished: false,
     resultsPublished: false,
+    resultsAnnouncementStatus: "not_sent",
+    resultsAnnouncementSentAt: null,
+    resultsAnnouncementSentByAdminId: null,
     createdAt: new Date("2026-01-01T00:00:00.000Z"),
     updatedAt: new Date("2026-01-01T00:00:00.000Z"),
   };

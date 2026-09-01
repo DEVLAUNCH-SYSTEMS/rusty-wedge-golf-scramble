@@ -23,6 +23,10 @@ export const AUDIT_EVENT_TYPES = {
   teamScoreCleared: "team_score_cleared",
   resultsPublished: "results_published",
   resultsUnpublished: "results_unpublished",
+  resultsAnnouncementSent: "results_announcement_sent",
+  resultsAnnouncementPartial: "results_announcement_partial",
+  resultsAnnouncementFailed: "results_announcement_failed",
+  resultsAnnouncementAmbiguous: "results_announcement_ambiguous",
 } as const;
 
 export type AuditEventType =
