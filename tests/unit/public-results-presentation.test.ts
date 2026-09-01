@@ -26,6 +26,16 @@ describe("public results presentation", () => {
     });
   });
 
+  it("allows optional score fields on the public team DTO in results mode", () => {
+    assertPublicTeamViewPrivacy({
+      teamNumber: 8,
+      finishingPlacement: 1,
+      scoreRelativeToPar: -7,
+      scoreTotalStrokes: 64,
+      players: [{ firstName: "Amy", lastName: "Smith" }],
+    });
+  });
+
   it("uses bounded copy for published results with no placed teams", () => {
     expect(PUBLIC_RESULTS_EMPTY_MESSAGE).toContain("Placed teams will appear here");
   });

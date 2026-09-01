@@ -1,32 +1,62 @@
 "use client";
 
 import { adminCardClassName } from "@/components/admin/admin-form-styles";
-import { FinishingPlacementIntro } from "@/components/admin/finishing-placement-intro";
 import { PlacementClearForm } from "@/components/admin/placement-clear-form";
-import { PlacementSaveForm } from "@/components/admin/placement-save-form";
+import { TeamResultsIntro } from "@/components/admin/team-results-intro";
+import { TeamResultsSaveForm } from "@/components/admin/team-results-save-form";
 
-export function TeamFinishingPlacementForm(props: {
+type TeamResultsFormProps = {
   teamId: string;
   finishingPlacement: number | null;
-  disabled?: boolean;
+  scoreRelativeToPar: number | null;
+  scoreTotalStrokes: number | null;
+  disabled: boolean;
   disabledMessage?: string;
-}) {
-  const isDisabled = props.disabled ?? false;
+};
 
+function TeamResultsFormBody(props: TeamResultsFormProps) {
   return (
-    <section className={adminCardClassName}>
-      <FinishingPlacementIntro finishingPlacement={props.finishingPlacement} />
-      <PlacementSaveForm
+    <>
+      <TeamResultsIntro
+        finishingPlacement={props.finishingPlacement}
+        scoreRelativeToPar={props.scoreRelativeToPar}
+        scoreTotalStrokes={props.scoreTotalStrokes}
+      />
+      <TeamResultsSaveForm
         teamId={props.teamId}
         finishingPlacement={props.finishingPlacement}
-        disabled={isDisabled}
+        scoreRelativeToPar={props.scoreRelativeToPar}
+        scoreTotalStrokes={props.scoreTotalStrokes}
+        disabled={props.disabled}
         disabledMessage={props.disabledMessage}
       />
       <PlacementClearForm
         teamId={props.teamId}
-        disabled={isDisabled}
+        disabled={props.disabled}
         disabledMessage={props.disabledMessage}
         hasPlacement={props.finishingPlacement !== null}
+      />
+    </>
+  );
+}
+
+export function TeamFinishingPlacementForm(props: {
+  teamId: string;
+  finishingPlacement: number | null;
+  scoreRelativeToPar: number | null;
+  scoreTotalStrokes: number | null;
+  disabled?: boolean;
+  disabledMessage?: string;
+}) {
+  return (
+    <section className={adminCardClassName}>
+      <TeamResultsFormBody
+        teamId={props.teamId}
+        finishingPlacement={props.finishingPlacement}
+        scoreRelativeToPar={props.scoreRelativeToPar}
+        scoreTotalStrokes={props.scoreTotalStrokes}
+        disabled={props.disabled ?? false}
+        disabledMessage={props.disabledMessage}
       />
     </section>
   );

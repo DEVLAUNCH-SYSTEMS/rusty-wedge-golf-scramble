@@ -13,13 +13,26 @@ const TEAM_TWO = "22222222-2222-4222-8222-222222222222";
 const TEAM_THREE = "33333333-3333-4333-8333-333333333333";
 
 function bulkFormData(
-  entries: Array<{ teamId: string; placement: string }>,
+  entries: Array<{
+    teamId: string;
+    placement: string;
+    scoreRelativeToPar?: string;
+    scoreTotalStrokes?: string;
+  }>,
 ): FormData {
   const formData = new FormData();
 
   for (const entry of entries) {
     formData.append("teamIds", entry.teamId);
     formData.set(`placement_${entry.teamId}`, entry.placement);
+
+    if (entry.scoreRelativeToPar !== undefined) {
+      formData.set(`scoreRelativeToPar_${entry.teamId}`, entry.scoreRelativeToPar);
+    }
+
+    if (entry.scoreTotalStrokes !== undefined) {
+      formData.set(`scoreTotalStrokes_${entry.teamId}`, entry.scoreTotalStrokes);
+    }
   }
 
   return formData;
@@ -58,6 +71,112 @@ describe("parseBulkFinishingPlacementsFromFormData", () => {
       { teamId: TEAM_ONE, finishingPlacement: 1 },
       { teamId: TEAM_TWO, finishingPlacement: 1 },
       { teamId: TEAM_THREE, finishingPlacement: null },
+    ]);
+  });
+
+  it("parses score-only submissions with blank placement", () => {
+    expect(
+      parseBulkFinishingPlacementsFromFormData(
+        bulkFormData([
+          { teamId: TEAM_ONE, placement: "", scoreRelativeToPar: "-7" },
+          { teamId: TEAM_TWO, placement: "", scoreTotalStrokes: "64" },
+        ]),
+      ),
+    ).toEqual([
+      {
+        teamId: TEAM_ONE,
+        finishingPlacement: null,
+        scoreRelativeToPar: -7,
+        scoreTotalStrokes: undefined,
+      },
+      {
+        teamId: TEAM_TWO,
+        finishingPlacement: null,
+        scoreRelativeToPar: undefined,
+        scoreTotalStrokes: 64,
+      },
+    ]);
+  });
+
+  it("treats blank score fields as clears when fields are present", () => {
+    const formData = bulkFormData([
+      { teamId: TEAM_ONE, placement: "1" },
+      { teamId: TEAM_TWO, placement: "" },
+    ]);
+    formData.set(`scoreRelativeToPar_${TEAM_ONE}`, "");
+    formData.set(`scoreTotalStrokes_${TEAM_ONE}`, "");
+
+    expect(parseBulkFinishingPlacementsFromFormData(formData)).toEqual([
+      {
+        teamId: TEAM_ONE,
+        finishingPlacement: 1,
+        scoreRelativeToPar: null,
+        scoreTotalStrokes: null,
+      },
+      {
+        teamId: TEAM_TWO,
+        finishingPlacement: null,
+      },
+    ]);
+  });
+
+  it("rejects invalid strokes for the full submission", () => {
+    expect(() =>
+      parseBulkFinishingPlacementsFromFormData(
+        bulkFormData([
+          { teamId: TEAM_ONE, placement: "1", scoreTotalStrokes: "0" },
+          { teamId: TEAM_TWO, placement: "2" },
+        ]),
+      ),
+    ).toThrow();
+  });
+
+  it("parses optional score fields when present", () => {
+    const formData = bulkFormData([
+      { teamId: TEAM_ONE, placement: "1" },
+      { teamId: TEAM_TWO, placement: "" },
+    ]);
+    formData.set(`scoreRelativeToPar_${TEAM_ONE}`, "-7");
+    formData.set(`scoreTotalStrokes_${TEAM_ONE}`, "64");
+    formData.set(`scoreRelativeToPar_${TEAM_TWO}`, "0");
+
+    expect(parseBulkFinishingPlacementsFromFormData(formData)).toEqual([
+      {
+        teamId: TEAM_ONE,
+        finishingPlacement: 1,
+        scoreRelativeToPar: -7,
+        scoreTotalStrokes: 64,
+      },
+      {
+        teamId: TEAM_TWO,
+        finishingPlacement: null,
+        scoreRelativeToPar: 0,
+        scoreTotalStrokes: undefined,
+      },
+    ]);
+  });
+
+  it("accepts golf even notation for bulk relative-to-par fields", () => {
+    expect(
+      parseBulkFinishingPlacementsFromFormData(
+        bulkFormData([
+          { teamId: TEAM_ONE, placement: "", scoreRelativeToPar: "E", scoreTotalStrokes: "67" },
+          { teamId: TEAM_TWO, placement: "", scoreRelativeToPar: "e", scoreTotalStrokes: "68" },
+        ]),
+      ),
+    ).toEqual([
+      {
+        teamId: TEAM_ONE,
+        finishingPlacement: null,
+        scoreRelativeToPar: 0,
+        scoreTotalStrokes: 67,
+      },
+      {
+        teamId: TEAM_TWO,
+        finishingPlacement: null,
+        scoreRelativeToPar: 0,
+        scoreTotalStrokes: 68,
+      },
     ]);
   });
 

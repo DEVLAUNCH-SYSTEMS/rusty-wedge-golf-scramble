@@ -1,3 +1,4 @@
+import { PublicTeamResultsScoreLine } from "@/components/marketing/public-team-results-score-line";
 import { formatPublicResultsPlacementHeading } from "@/lib/format/public-team-card-display";
 import { formatPublicTeamPlayerCount } from "@/lib/format/public-team-roster-slots";
 import { formatPublicTeamLabel } from "@/lib/format/team-display";
@@ -14,6 +15,10 @@ function ResultsTeamCardHeader({ team }: { team: PublicTeamView }) {
         <p className="mt-1 text-sm text-slate-600">
           {formatPublicTeamLabel(team.teamNumber)}
         </p>
+        <PublicTeamResultsScoreLine
+          scoreRelativeToPar={team.scoreRelativeToPar}
+          scoreTotalStrokes={team.scoreTotalStrokes}
+        />
       </div>
       <p className="shrink-0 text-xs font-medium text-rw-gold-accessible">
         {formatPublicTeamPlayerCount(team.players.length)}

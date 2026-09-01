@@ -36,6 +36,13 @@
       "when": 1788214542165,
       "tag": "0004_large_venom",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1788230802135,
+      "tag": "0005_omniscient_maximus",
+      "breakpoints": true
     }
   ]
 }

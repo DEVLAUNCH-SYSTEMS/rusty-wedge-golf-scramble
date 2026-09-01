@@ -5,6 +5,11 @@ import {
   adminTableHeadClassName,
 } from "@/components/admin/admin-text-styles";
 import { TeamListRow } from "@/components/admin/team-list-table-row";
+import {
+  BULK_RESULTS_PLACE_COLUMN_LABEL,
+  BULK_RESULTS_RELATIVE_COLUMN_LABEL,
+  BULK_RESULTS_STROKES_COLUMN_LABEL,
+} from "@/lib/content/finishing-placement-admin-copy";
 
 import type { AdminTeamListItem } from "@/lib/services/admin-teams-list";
 
@@ -34,14 +39,23 @@ function TeamListTableBody({
   );
 }
 
-function TeamListTableHead() {
+function TeamListTableHead({ bulkEditMode = false }: { bulkEditMode?: boolean }) {
   return (
     <thead className={adminTableHeadClassName}>
       <tr>
         <th className="px-4 py-3 font-medium">Team</th>
         <th className="px-4 py-3 font-medium">Players</th>
-        <th className="px-4 py-3 font-medium">Place</th>
-        <th className="px-4 py-3 font-medium">Created</th>
+        <th className="px-4 py-3 font-medium">
+          {bulkEditMode ? BULK_RESULTS_PLACE_COLUMN_LABEL : "Place"}
+        </th>
+        {bulkEditMode ? (
+          <>
+            <th className="px-4 py-3 font-medium">{BULK_RESULTS_RELATIVE_COLUMN_LABEL}</th>
+            <th className="px-4 py-3 font-medium">{BULK_RESULTS_STROKES_COLUMN_LABEL}</th>
+          </>
+        ) : (
+          <th className="px-4 py-3 font-medium">Score</th>
+        )}
         <th className="px-4 py-3 font-medium">Delete</th>
       </tr>
     </thead>
@@ -57,7 +71,7 @@ export function TeamsDesktopTable({
   return (
     <AdminTableScrollShell className={shellClassName}>
       <table className={`min-w-[48rem] divide-y ${adminTableBorderClassName} text-sm`}>
-        <TeamListTableHead />
+        <TeamListTableHead bulkEditMode={bulkEditMode} />
         <TeamListTableBody
           teams={teams}
           readOnlyReason={readOnlyReason}

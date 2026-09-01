@@ -1,56 +1,29 @@
-import Link from "next/link";
-
 import {
-  adminSecondaryButtonClassName,
-} from "@/components/admin/admin-form-styles";
-import { adminMutedTextClassName } from "@/components/admin/admin-text-styles";
+  TeamsListSortStatus,
+  TeamsListTeamNumberSortToggle,
+} from "@/components/admin/teams-list-sort-controls";
+import { adminTeamsUsePlacementOrdering } from "@/lib/services/admin-teams-list-order";
 
 import type { AdminTeamListSort } from "@/lib/validation/admin-team-list-sort";
-
-function sortButtonClassName(active: boolean): string {
-  return active
-    ? "rounded-md bg-rw-navy px-3 py-1.5 text-xs font-semibold text-white"
-    : `${adminSecondaryButtonClassName} px-3 py-1.5 text-xs`;
-}
-
-function SortOptionLink({
-  sort,
-  activeSort,
-  label,
-}: {
-  sort: AdminTeamListSort;
-  activeSort: AdminTeamListSort;
-  label: string;
-}) {
-  return (
-    <Link href={`/admin/teams?sort=${sort}`} className={sortButtonClassName(sort === activeSort)}>
-      {label}
-    </Link>
-  );
-}
 
 export function TeamsListSortToggle({
   sort,
   disabled = false,
+  teams = [],
 }: {
   sort: AdminTeamListSort;
   disabled?: boolean;
+  teams?: readonly { finishingPlacement: number | null }[];
 }) {
   if (disabled) {
     return (
-      <div className="flex flex-wrap items-center gap-2">
-        <span className={`text-sm ${adminMutedTextClassName}`}>
-          Sorting is unavailable while editing results.
-        </span>
-      </div>
+      <TeamsListSortStatus message="Sorting is unavailable while editing results." />
     );
   }
 
-  return (
-    <div className="flex flex-wrap items-center gap-2">
-      <span className={`text-sm ${adminMutedTextClassName}`}>Sort by team number</span>
-      <SortOptionLink sort="asc" activeSort={sort} label="Ascending" />
-      <SortOptionLink sort="desc" activeSort={sort} label="Descending" />
-    </div>
-  );
+  if (adminTeamsUsePlacementOrdering(teams)) {
+    return <TeamsListSortStatus message="Sorted by finishing placement" />;
+  }
+
+  return <TeamsListTeamNumberSortToggle sort={sort} />;
 }

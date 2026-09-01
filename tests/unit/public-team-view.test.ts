@@ -65,6 +65,19 @@ describe("public team roster slots", () => {
     expect(formatPublicTeamPlayerCount(1)).toBe("1 player");
     expect(formatPublicTeamPlayerCount(4)).toBe("4 players");
   });
+
+  it("renders five roster rows when a team has five members", () => {
+    const slots = buildPublicTeamRosterSlots([
+      { firstName: "Amy", lastName: "Smith" },
+      { firstName: "Bo", lastName: "Jones" },
+      { firstName: "Cal", lastName: "Lee" },
+      { firstName: "Dee", lastName: "Park" },
+      { firstName: "Eli", lastName: "Nguyen" },
+    ]);
+
+    expect(slots).toHaveLength(5);
+    expect(slots.every((slot) => !slot.isEmpty)).toBe(true);
+  });
 });
 
 describe("public teams unavailable copy", () => {
